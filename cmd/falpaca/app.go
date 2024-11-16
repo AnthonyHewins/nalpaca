@@ -1,4 +1,4 @@
-package falpaca
+package main
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/AnthonyHewins/falpaca/internal/conf"
-	"github.com/alpacahq/alpaca-trade-api-go/v3/alpaca"
+	"github.com/AnthonyHewins/falpaca/internal/trader"
 	"github.com/caarlos0/env/v11"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
@@ -15,12 +15,19 @@ import (
 )
 
 type app struct {
-	alpacaClient *alpaca.Client
-	logger       *slog.Logger
-	nc           *nats.Conn
-	health       *conf.HealthServer
-	metrics      *http.Server
-	tp           *trace.TracerProvider
+	trader  *trader.Controller
+	logger  *slog.Logger
+	nc      *nats.Conn
+	health  *conf.HealthServer
+	metrics *http.Server
+	tp      *trace.TracerProvider
+
+	consumers
+}
+
+type consumers struct {
+	order    jetstream.Consumer
+	orderCtx jetstream.ConsumeContext
 }
 
 func newApp(ctx context.Context) (*app, error) {
@@ -35,8 +42,7 @@ func newApp(ctx context.Context) (*app, error) {
 	}
 
 	a := app{
-		logger:       b.Logger,
-		alpacaClient: b.Alpaca(&c.Alpaca, &http.Client{Timeout: c.HttpClientTimeout}),
+		logger: b.Logger,
 	}
 
 	defer func() {
@@ -47,6 +53,10 @@ func newApp(ctx context.Context) (*app, error) {
 
 	a.nc, err = b.NATSConn(&c.NATS)
 	if err != nil {
+		return nil, err
+	}
+
+	if err = a.connectConsumers(ctx, &c); err != nil {
 		return nil, err
 	}
 
@@ -65,36 +75,24 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
+	a.trader = trader.NewController(
+		a.tp.Tracer("trader"),
+		a.logger,
+		b.Alpaca(&c.Alpaca, &http.Client{Timeout: c.HttpClientTimeout}),
+		c.ProcessingTimeout,
+	)
+
 	return &a, nil
-}
-
-func (a *app) initStream(ctx context.Context, c *config) {
-	js, err := jetstream.New(a.nc)
-	if err != nil {
-		a.logger.Error("failed connecting to jetstream", "err", err)
-		return nil, err
-	}
-
-	subject := "falpaca.orders.>"
-	if c.StreamPrefix != "" {
-		subject = c.StreamPrefix + "." + subject
-	}
-
-	consumer, err := js.CreateConsumer(ctx, subject, jetstream.ConsumerConfig{
-		Name: "falpaca-order-consumer-v0",
-		// Durable:            "",
-		Description:   "Falpaca order consumer",
-		MaxDeliver:    3,
-		BackOff:       c.StreamBackoff,
-		FilterSubject: subject,
-		// FilterSubjects:     []string{},
-	})
-
 }
 
 func (a *app) shutdown() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
+
+	if a.consumers.orderCtx != nil {
+		a.consumers.orderCtx.Drain()
+		a.consumers.orderCtx.Stop()
+	}
 
 	if a.nc != nil {
 		a.nc.Close()

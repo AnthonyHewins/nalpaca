@@ -1,4 +1,4 @@
-package falpaca
+package main
 
 import (
 	"context"
@@ -30,6 +30,7 @@ type config struct {
 	StreamPrefix       string          `env:"STREAM_PREFIX" envDefault:""`
 	StreamMaxRedeliver uint8           `env:"STREAM_MAX_REDELIVER" envDefault:"3"`
 	StreamBackoff      []time.Duration `env:"STREAM_BACKOFF" envDefault:""`
+	ProcessingTimeout  time.Duration   `env:"PROCESSING_TIMEOUT" envDefault:"3s"`
 }
 
 func main() {
@@ -79,6 +80,15 @@ func main() {
 }
 
 func (a *app) start(ctx context.Context, g *errgroup.Group) {
+	g.Go(func() error {
+		var err error
+		a.consumers.orderCtx, err = a.consumers.order.Consume(a.trader.Consume)
+		if err != nil {
+			a.logger.ErrorContext(ctx, "failed starting order consumer", "err", err)
+		}
+
+		return err
+	})
 
 	g.Go(func() error {
 		a.logger.InfoContext(ctx, "starting metrics server")

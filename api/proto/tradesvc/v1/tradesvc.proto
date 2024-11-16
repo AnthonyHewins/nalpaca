@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package tradesvcsvc.v1;
+
+option go_package = "github.com/AnthonyHewins/falpaca/gen/go/tradesvcsvc/v1;tradesvc";
+
+enum Side {
+    SIDE_UNSPECIFIED = 0;
+    SIDE_BUY = 1;
+    SIDE_SELL = 2;
+}
+
+enum OrderType {
+    ORDER_TYPE_UNSPECIFIED = 0;
+	ORDER_TYPE_MARKET = 1;
+	ORDER_TYPE_LIMIT = 2;
+	ORDER_TYPE_STOP = 3;
+	ORDER_TYPE_STOP_LIMIT = 4;
+	ORDER_TYPE_TRAILING_STOP = 5;
+}
+
+enum OrderClass {
+    ORDER_CLASS_UNSPECIFIED = 0;
+	ORDER_CLASS_BRACKET = 1;
+	ORDER_CLASS_OTO = 2;
+	ORDER_CLASS_OCO = 3;
+	ORDER_CLASS_SIMPLE = 4;
+}
+
+enum TimeInForce {
+	TIME_IN_FORCE_UNSPECIFIED = 0;
+	TIME_IN_FORCE_DAY = 1;
+	TIME_IN_FORCE_GTC = 2;
+	TIME_IN_FORCE_OPG = 3;
+	TIME_IN_FORCE_IOC = 4;
+	TIME_IN_FORCE_FOK = 5;
+	TIME_IN_FORCE_GTX = 6;
+	TIME_IN_FORCE_GTD = 7;
+	TIME_IN_FORCE_CLS = 8;
+}
+
+enum PositionIntent {
+	POSITION_INTENT_UNSPECIFIED = 0;
+	POSITION_INTENT_BUY_TO_OPEN = 1;
+	POSITION_INTENT_BUY_TO_CLOSE = 2;
+	POSITION_INTENT_SELL_TO_OPEN = 3;
+	POSITION_INTENT_SELL_TO_CLOSE = 4;
+}
+
+message TakeProfit {
+    double limit_price = 1;
+}
+
+message StopLoss {
+    double limit = 1;
+    double stop = 2;
+}
+
+message Trade {
+    string symbol = 1;
+    double qty = 2;
+    double notional = 3;
+    Side side = 4;
+    OrderType order_type = 5;
+    TimeInForce tif = 6;
+    double limit_price = 7;
+    bool extended_hours = 8;
+    double stop_price = 9;
+    string client_order_id = 10;
+    OrderClass class = 11;
+    optional TakeProfit take_profit = 12;
+    StopLoss stop_loss = 13;
+    double trail_price = 14;
+    double trail_percent = 15;
+    PositionIntent position_intent = 16;
+}
