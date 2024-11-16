@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"runtime/debug"
 	"syscall"
+	"time"
 
 	"github.com/AnthonyHewins/falpaca/internal/conf"
 	"golang.org/x/sync/errgroup"
@@ -22,10 +23,20 @@ type config struct {
 	conf.Health
 	conf.Tracer
 	conf.NATS
+	conf.Alpaca
+
+	HttpClientTimeout time.Duration `env:"HTTP_CLIENT_TIMEOUT" envDefault:"15s"`
+
+	StreamPrefix       string          `env:"STREAM_PREFIX" envDefault:""`
+	StreamMaxRedeliver uint8           `env:"STREAM_MAX_REDELIVER" envDefault:"3"`
+	StreamBackoff      []time.Duration `env:"STREAM_BACKOFF" envDefault:""`
 }
 
 func main() {
-	a, err := newApp()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	a, err := newApp(ctx)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -36,16 +47,13 @@ func main() {
 	defer signal.Stop(interrupt)
 
 	if info, ok := debug.ReadBuildInfo(); ok {
-		a.logger.Info(
+		a.logger.InfoContext(ctx,
 			"Starting "+appName,
 			"version", info.Main.Version,
 			"path", info.Main.Path,
 			"checksum", info.Main.Sum,
 		)
 	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	g, ctx := errgroup.WithContext(ctx)
 	a.start(ctx, g)
@@ -71,6 +79,7 @@ func main() {
 }
 
 func (a *app) start(ctx context.Context, g *errgroup.Group) {
+
 	g.Go(func() error {
 		a.logger.InfoContext(ctx, "starting metrics server")
 		return a.metrics.ListenAndServe()

@@ -7,20 +7,23 @@ import (
 	"time"
 
 	"github.com/AnthonyHewins/falpaca/internal/conf"
+	"github.com/alpacahq/alpaca-trade-api-go/v3/alpaca"
 	"github.com/caarlos0/env/v11"
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 type app struct {
-	logger  *slog.Logger
-	nc      *nats.Conn
-	health  *conf.HealthServer
-	metrics *http.Server
-	tp      *trace.TracerProvider
+	alpacaClient *alpaca.Client
+	logger       *slog.Logger
+	nc           *nats.Conn
+	health       *conf.HealthServer
+	metrics      *http.Server
+	tp           *trace.TracerProvider
 }
 
-func newApp() (*app, error) {
+func newApp(ctx context.Context) (*app, error) {
 	var c config
 	if err := env.Parse(&c); err != nil {
 		return nil, err
@@ -32,8 +35,10 @@ func newApp() (*app, error) {
 	}
 
 	a := app{
-		logger: b.Logger,
+		logger:       b.Logger,
+		alpacaClient: b.Alpaca(&c.Alpaca, &http.Client{Timeout: c.HttpClientTimeout}),
 	}
+
 	defer func() {
 		if err != nil {
 			a.shutdown()
@@ -61,6 +66,30 @@ func newApp() (*app, error) {
 	}
 
 	return &a, nil
+}
+
+func (a *app) initStream(ctx context.Context, c *config) {
+	js, err := jetstream.New(a.nc)
+	if err != nil {
+		a.logger.Error("failed connecting to jetstream", "err", err)
+		return nil, err
+	}
+
+	subject := "falpaca.orders.>"
+	if c.StreamPrefix != "" {
+		subject = c.StreamPrefix + "." + subject
+	}
+
+	consumer, err := js.CreateConsumer(ctx, subject, jetstream.ConsumerConfig{
+		Name: "falpaca-order-consumer-v0",
+		// Durable:            "",
+		Description:   "Falpaca order consumer",
+		MaxDeliver:    3,
+		BackOff:       c.StreamBackoff,
+		FilterSubject: subject,
+		// FilterSubjects:     []string{},
+	})
+
 }
 
 func (a *app) shutdown() {
