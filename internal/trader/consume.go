@@ -58,72 +58,6 @@ func (c *Controller) unmarshal(m jetstream.Msg) (alpaca.PlaceOrderRequest, error
 		return alpaca.PlaceOrderRequest{}, err
 	}
 
-	var side alpaca.Side
-	switch trade.Side {
-	case tradesvc.Side_SIDE_BUY:
-		side = alpaca.Buy
-	case tradesvc.Side_SIDE_SELL:
-		side = alpaca.Sell
-	default:
-		c.logger.Error("invalid trade side", "side", trade.Side)
-		return alpaca.PlaceOrderRequest{}, fmt.Errorf("invalid trade side %s", trade.Side)
-	}
-
-	var tif alpaca.TimeInForce
-	switch trade.Tif {
-	case tradesvc.TimeInForce_TIME_IN_FORCE_CLS:
-		tif = alpaca.CLS
-	case tradesvc.TimeInForce_TIME_IN_FORCE_DAY:
-		tif = alpaca.Day
-	case tradesvc.TimeInForce_TIME_IN_FORCE_FOK:
-		tif = alpaca.FOK
-	case tradesvc.TimeInForce_TIME_IN_FORCE_GTC:
-		tif = alpaca.GTC
-	case tradesvc.TimeInForce_TIME_IN_FORCE_GTD:
-		tif = alpaca.GTD
-	case tradesvc.TimeInForce_TIME_IN_FORCE_GTX:
-		tif = alpaca.GTX
-	case tradesvc.TimeInForce_TIME_IN_FORCE_IOC:
-		tif = alpaca.IOC
-	case tradesvc.TimeInForce_TIME_IN_FORCE_OPG:
-		tif = alpaca.OPG
-	default:
-		c.logger.Error("invalid TIF", "tif", trade.Tif)
-		return alpaca.PlaceOrderRequest{}, fmt.Errorf("invalid tif %s", trade.Tif)
-	}
-
-	var orderClass alpaca.OrderClass
-	switch trade.Class {
-	case tradesvc.OrderClass_ORDER_CLASS_BRACKET:
-		orderClass = alpaca.Bracket
-	case tradesvc.OrderClass_ORDER_CLASS_OCO:
-		orderClass = alpaca.OCO
-	case tradesvc.OrderClass_ORDER_CLASS_OTO:
-		orderClass = alpaca.OTO
-	case tradesvc.OrderClass_ORDER_CLASS_SIMPLE:
-		orderClass = alpaca.Simple
-	default:
-		c.logger.Error("invalid order class", "class", trade.Class)
-		return alpaca.PlaceOrderRequest{}, fmt.Errorf("invalid order class %s", trade.Class)
-	}
-
-	var orderType alpaca.OrderType
-	switch trade.OrderType {
-	case tradesvc.OrderType_ORDER_TYPE_LIMIT:
-		orderType = alpaca.Limit
-	case tradesvc.OrderType_ORDER_TYPE_MARKET:
-		orderType = alpaca.Market
-	case tradesvc.OrderType_ORDER_TYPE_STOP:
-		orderType = alpaca.Stop
-	case tradesvc.OrderType_ORDER_TYPE_STOP_LIMIT:
-		orderType = alpaca.StopLimit
-	case tradesvc.OrderType_ORDER_TYPE_TRAILING_STOP:
-		orderType = alpaca.TrailingStop
-	default:
-		c.logger.Error("invalid order type", "type", trade.OrderType)
-		return alpaca.PlaceOrderRequest{}, fmt.Errorf("invalid order type %s", trade.OrderType)
-	}
-
 	var takeProfit *alpaca.TakeProfit
 	if trade.TakeProfit != nil && trade.TakeProfit.LimitPrice > 0 {
 		takeProfit = &alpaca.TakeProfit{
@@ -149,38 +83,23 @@ func (c *Controller) unmarshal(m jetstream.Msg) (alpaca.PlaceOrderRequest, error
 		}
 	}
 
-	var intent alpaca.PositionIntent
-	switch i := trade.PositionIntent; i {
-	case tradesvc.PositionIntent_POSITION_INTENT_BUY_TO_CLOSE:
-		intent = alpaca.BuyToClose
-	case tradesvc.PositionIntent_POSITION_INTENT_BUY_TO_OPEN:
-		intent = alpaca.BuyToOpen
-	case tradesvc.PositionIntent_POSITION_INTENT_SELL_TO_CLOSE:
-		intent = alpaca.SellToClose
-	case tradesvc.PositionIntent_POSITION_INTENT_SELL_TO_OPEN:
-		intent = alpaca.SellToOpen
-	default:
-		c.logger.Error("invalid position intent", "intent", i)
-		return alpaca.PlaceOrderRequest{}, fmt.Errorf("invalid intent %s", i)
-	}
-
 	return alpaca.PlaceOrderRequest{
 		Symbol:         strings.ToUpper(trade.Symbol),
 		Qty:            newDecimal(trade.Qty),
-		Notional:       nil,
-		Side:           side,
-		Type:           orderType,
-		TimeInForce:    tif,
+		Notional:       newDecimal(trade.Notional),
+		Side:           toSide(trade.Side),
+		Type:           toOrderType(trade.OrderType),
+		TimeInForce:    toTIF(trade.Tif),
 		LimitPrice:     newDecimal(trade.LimitPrice),
 		ExtendedHours:  trade.ExtendedHours,
 		StopPrice:      newDecimal(trade.StopPrice),
 		ClientOrderID:  trade.ClientOrderId,
-		OrderClass:     orderClass,
+		OrderClass:     toOrderClass(trade.Class),
 		TakeProfit:     takeProfit,
 		StopLoss:       stopLoss,
 		TrailPrice:     newDecimal(trade.TrailPrice),
 		TrailPercent:   newDecimal(trade.TrailPercent),
-		PositionIntent: intent,
+		PositionIntent: toIntent(trade.PositionIntent),
 	}, nil
 }
 
@@ -210,7 +129,7 @@ func (c *Controller) getMsg(m jetstream.Msg) (*tradesvc.Trade, error) {
 		{name: "notional", price: trade.Notional},
 		{name: "qty", price: trade.Qty},
 		{name: "stop price", price: trade.StopPrice},
-		{name: "", price: trade.TrailPercent},
+		{name: "trail percent", price: trade.TrailPercent},
 		{name: "trail price", price: trade.TrailPrice},
 	} {
 		if v.price < 0 {
@@ -219,14 +138,7 @@ func (c *Controller) getMsg(m jetstream.Msg) (*tradesvc.Trade, error) {
 		}
 	}
 
-	switch {
-	case trade.Qty < 0:
-		c.logger.Error("quantity can't be negative", "qty", trade.Qty)
-		return nil, fmt.Errorf("quantity can't be negative: %f", trade.Qty)
-	case trade.Notional < 0:
-		c.logger.Error("notional can't be negative", "notional", trade.Notional)
-		return nil, fmt.Errorf("notional can't be negative: %f", trade.Notional)
-	case trade.Qty != 0 && trade.Notional != 0:
+	if trade.Qty != 0 && trade.Notional != 0 {
 		c.logger.Error(
 			"quantity and notional can't both be set",
 			"notional", trade.Notional,
