@@ -58,6 +58,67 @@ func (c *Controller) unmarshal(m jetstream.Msg) (alpaca.PlaceOrderRequest, error
 		return alpaca.PlaceOrderRequest{}, err
 	}
 
+	switch trade.Type {
+	case alpaca.Market:
+	case alpaca.Limit:
+	case alpaca.Stop:
+	case alpaca.StopLimit:
+	case alpaca.TrailingStop:
+	default:
+		return alpaca.PlaceOrderRequest{}, fmt.Errorf("valid unmarshal validator: order is invalid type %s", trade.Type)
+	}
+
+}
+
+func (c *Controller) getMsg(m jetstream.Msg) (alpaca.PlaceOrderRequest, error) {
+	var trade tradesvc.Trade
+	if err := proto.Unmarshal(m.Data(), &trade); err != nil {
+		return alpaca.PlaceOrderRequest{}, err
+	}
+
+	if len(trade.ClientOrderId) > 128 {
+		c.logger.Error("client order id was too long", "id", trade.ClientOrderId)
+		return alpaca.PlaceOrderRequest{}, fmt.Errorf("client order ID is too long: %s", trade.ClientOrderId)
+	}
+
+	if trade.Symbol == "" {
+		c.logger.Error("no symbol passed")
+		return alpaca.PlaceOrderRequest{}, fmt.Errorf("no symbol given")
+	}
+
+	type prices struct {
+		name  string
+		price float64
+	}
+
+	for _, v := range []prices{
+		{name: "limit price", price: trade.LimitPrice},
+		{name: "notional", price: trade.Notional},
+		{name: "qty", price: trade.Qty},
+		{name: "stop price", price: trade.StopPrice},
+		{name: "trail percent", price: trade.TrailPercent},
+		{name: "trail price", price: trade.TrailPrice},
+	} {
+		if v.price < 0 {
+			c.logger.Error("invalid price", "name", v.name, "value", v.price)
+			return alpaca.PlaceOrderRequest{}, fmt.Errorf("invalid %s: %f", v.name, v.price)
+		}
+	}
+
+	if trade.Qty != 0 && trade.Notional != 0 {
+		c.logger.Error(
+			"quantity and notional can't both be set",
+			"notional", trade.Notional,
+			"qty", trade.Qty,
+		)
+
+		return alpaca.PlaceOrderRequest{}, fmt.Errorf(
+			"trade and quantity can't both be set, got qty %f and notional %f",
+			trade.Qty,
+			trade.Notional,
+		)
+	}
+
 	var takeProfit *alpaca.TakeProfit
 	if trade.TakeProfit != nil && trade.TakeProfit.LimitPrice > 0 {
 		takeProfit = &alpaca.TakeProfit{
@@ -83,7 +144,7 @@ func (c *Controller) unmarshal(m jetstream.Msg) (alpaca.PlaceOrderRequest, error
 		}
 	}
 
-	return alpaca.PlaceOrderRequest{
+	o := alpaca.PlaceOrderRequest{
 		Symbol:         strings.ToUpper(trade.Symbol),
 		Qty:            newDecimal(trade.Qty),
 		Notional:       newDecimal(trade.Notional),
@@ -100,59 +161,19 @@ func (c *Controller) unmarshal(m jetstream.Msg) (alpaca.PlaceOrderRequest, error
 		TrailPrice:     newDecimal(trade.TrailPrice),
 		TrailPercent:   newDecimal(trade.TrailPercent),
 		PositionIntent: toIntent(trade.PositionIntent),
-	}, nil
-}
-
-func (c *Controller) getMsg(m jetstream.Msg) (*tradesvc.Trade, error) {
-	var trade tradesvc.Trade
-	if err := proto.Unmarshal(m.Data(), &trade); err != nil {
-		return nil, err
 	}
 
-	if len(trade.ClientOrderId) > 128 {
-		c.logger.Error("client order id was too long", "id", trade.ClientOrderId)
-		return nil, fmt.Errorf("client order ID is too long: %s", trade.ClientOrderId)
+	type requiredEnums struct {
+		name, value string
 	}
 
-	if trade.Symbol == "" {
-		c.logger.Error("no symbol passed")
-		return nil, fmt.Errorf("no symbol given")
-	}
-
-	type prices struct {
-		name  string
-		price float64
-	}
-
-	for _, v := range []prices{
-		{name: "limit price", price: trade.LimitPrice},
-		{name: "notional", price: trade.Notional},
-		{name: "qty", price: trade.Qty},
-		{name: "stop price", price: trade.StopPrice},
-		{name: "trail percent", price: trade.TrailPercent},
-		{name: "trail price", price: trade.TrailPrice},
+	for _, v := range []requiredEnums{
+		{name: "", value: ""},
 	} {
-		if v.price < 0 {
-			c.logger.Error("invalid price", "name", v.name, "value", v.price)
-			return nil, fmt.Errorf("invalid %s: %f", v.name, v.price)
-		}
+
 	}
 
-	if trade.Qty != 0 && trade.Notional != 0 {
-		c.logger.Error(
-			"quantity and notional can't both be set",
-			"notional", trade.Notional,
-			"qty", trade.Qty,
-		)
-
-		return nil, fmt.Errorf(
-			"trade and quantity can't both be set, got qty %f and notional %f",
-			trade.Qty,
-			trade.Notional,
-		)
-	}
-
-	return &trade, nil
+	return o, nil
 }
 
 func newDecimal(x float64) *decimal.Decimal {
