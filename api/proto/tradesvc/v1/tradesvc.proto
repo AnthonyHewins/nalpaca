@@ -58,8 +58,10 @@ message StopLoss {
 
 message Trade {
     string symbol = 1;
+
     double qty = 2;
     double notional = 3;
+
     Side side = 4;
     OrderType order_type = 5;
     TimeInForce tif = 6;

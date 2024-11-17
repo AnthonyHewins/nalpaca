@@ -27,6 +27,8 @@ type config struct {
 
 	HttpClientTimeout time.Duration `env:"HTTP_CLIENT_TIMEOUT" envDefault:"15s"`
 
+	CacheSize uint16 `env:"CACHE_SIZE" envDefault:"100"`
+
 	StreamPrefix       string          `env:"STREAM_PREFIX" envDefault:""`
 	StreamMaxRedeliver uint8           `env:"STREAM_MAX_REDELIVER" envDefault:"3"`
 	StreamBackoff      []time.Duration `env:"STREAM_BACKOFF" envDefault:""`

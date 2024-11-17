@@ -42,6 +42,8 @@ require (
 
 require (
 	github.com/caarlos0/env/v11 v11.2.2
+	github.com/hashicorp/golang-lru v1.0.2
+	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect

@@ -80,6 +80,7 @@ func newApp(ctx context.Context) (*app, error) {
 		a.logger,
 		b.Alpaca(&c.Alpaca, &http.Client{Timeout: c.HttpClientTimeout}),
 		c.ProcessingTimeout,
+		uint(c.CacheSize),
 	)
 
 	return &a, nil
