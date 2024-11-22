@@ -22,12 +22,12 @@ type app struct {
 	metrics *http.Server
 	tp      *trace.TracerProvider
 
-	consumers
+	order consumer
 }
 
-type consumers struct {
-	order    jetstream.Consumer
-	orderCtx jetstream.ConsumeContext
+type consumer struct {
+	ctx      jetstream.ConsumeContext
+	ingestor jetstream.Consumer
 }
 
 func newApp(ctx context.Context) (*app, error) {
@@ -90,15 +90,6 @@ func (a *app) shutdown() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
 
-	if a.consumers.orderCtx != nil {
-		a.consumers.orderCtx.Drain()
-		a.consumers.orderCtx.Stop()
-	}
-
-	if a.nc != nil {
-		a.nc.Close()
-	}
-
 	if a.metrics != nil {
 		a.metrics.Close()
 	}
@@ -109,5 +100,14 @@ func (a *app) shutdown() {
 
 	if a.tp != nil {
 		a.tp.Shutdown(ctx)
+	}
+
+	if c := a.order.ctx; c != nil {
+		c.Drain()
+		c.Stop()
+	}
+
+	if a.nc != nil {
+		a.nc.Close()
 	}
 }

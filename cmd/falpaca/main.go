@@ -84,7 +84,7 @@ func main() {
 func (a *app) start(ctx context.Context, g *errgroup.Group) {
 	g.Go(func() error {
 		var err error
-		a.consumers.orderCtx, err = a.consumers.order.Consume(a.trader.Consume)
+		a.order.ctx, err = a.order.ingestor.Consume(a.trader.Consume)
 		if err != nil {
 			a.logger.ErrorContext(ctx, "failed starting order consumer", "err", err)
 		}
