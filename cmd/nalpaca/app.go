@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/AnthonyHewins/falpaca/internal/conf"
-	"github.com/AnthonyHewins/falpaca/internal/trader"
+	"github.com/AnthonyHewins/nalpaca/internal/conf"
+	"github.com/AnthonyHewins/nalpaca/internal/trader"
 	"github.com/caarlos0/env/v11"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
@@ -22,7 +22,8 @@ type app struct {
 	metrics *http.Server
 	tp      *trace.TracerProvider
 
-	order consumer
+	order        consumer
+	tradeupdates jetstream.Stream
 }
 
 type consumer struct {

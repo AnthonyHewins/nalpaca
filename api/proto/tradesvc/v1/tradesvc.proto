@@ -4,7 +4,7 @@ package tradesvc.v1;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/AnthonyHewins/falpaca/gen/go/tradesvcsvc/v1;tradesvc";
+option go_package = "github.com/AnthonyHewins/nalpaca/gen/go/tradesvcsvc/v1;tradesvc";
 
 enum Side {
     SIDE_UNSPECIFIED = 0;
@@ -50,12 +50,12 @@ enum PositionIntent {
 }
 
 message TakeProfit {
-    double limit_price = 1;
+    string limit_price = 1;
 }
 
 message StopLoss {
-    double limit = 1;
-    double stop = 2;
+    string limit = 1;
+    string stop = 2;
 }
 
 enum AssetClass {
@@ -90,15 +90,15 @@ message Order {
 	Side              side           = 18;
 	TimeInForce       time_in_force    = 19;
 	string            status         = 20;
-	double  notional       = 21;
-	double  qty            = 22;
-	double  filled_qty      = 23;
-	double  filled_avg_price = 24;
-	double  limit_price     = 25;
-	double  stop_price      = 26;
-	double  trail_price     = 27;
-	double  trail_percent   = 28;
-	double  hwm            = 29;
+	string  notional       = 21;
+	string  qty            = 22;
+	string  filled_qty      = 23;
+	string  filled_avg_price = 24;
+	string  limit_price     = 25;
+	string  stop_price      = 26;
+	string  trail_price     = 27;
+	string  trail_percent   = 28;
+	string  hwm            = 29;
 	bool              ext_hours  = 30;
 	repeated Order           legs           = 31;
 }
@@ -106,20 +106,20 @@ message Order {
 message Trade {
     string symbol = 1;
 
-    double qty = 2;
-    double notional = 3;
+    string qty = 2;
+    string notional = 3;
 
     Side side = 4;
     OrderType order_type = 5;
     TimeInForce tif = 6;
-    double limit_price = 7;
+    string limit_price = 7;
     bool extended_hours = 8;
-    double stop_price = 9;
+    string stop_price = 9;
     OrderClass class = 11;
     TakeProfit take_profit = 12;
     StopLoss stop_loss = 13;
-    double trail_price = 14;
-    double trail_percent = 15;
+    string trail_price = 14;
+    string trail_percent = 15;
     PositionIntent position_intent = 16;
 }
 
@@ -129,8 +129,8 @@ message TradeUpdate {
     string event_id = 3;
     string execution_id = 4;
     Order order = 5;
-    double position_qty = 6;
-    double price = 7;
-    double qty = 8;
+    string position_qty = 6;
+    string price = 7;
+    string qty = 8;
     google.protobuf.Timestamp timestamp = 9;
 }

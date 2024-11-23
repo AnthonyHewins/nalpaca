@@ -2,6 +2,7 @@ package conf
 
 import (
 	"context"
+	"fmt"
 	"runtime/debug"
 	"time"
 
@@ -19,30 +20,36 @@ import (
 type TraceExporter byte
 
 const (
-	TraceExporterNone TraceExporter = iota
-	TraceExporterStdout
+	TraceExporterStdout TraceExporter = iota
 	TraceExporterOTLP
 )
 
 type Tracer struct {
-	Exporter    TraceExporter `env:"TRACE_EXPORTER" envDefault:"none"`
-	ExporterURL string        `env:"TRACE_EXPORTER_URL"`
-	Timeout     time.Duration `env:"TRACE_EXPORTER_TIMEOUT" envDefault:"5s"`
+	DisableTracing bool          `env:"DISABLE_TRACING"`
+	Exporter       TraceExporter `env:"TRACE_EXPORTER"`
+	ExporterURL    string        `env:"TRACE_EXPORTER_URL"`
+	Timeout        time.Duration `env:"TRACE_EXPORTER_TIMEOUT" envDefault:"5s"`
 }
 
 func (a *Bootstrapper) Tracer(appName string, t *Tracer) (*sdk.TracerProvider, error) {
+	l := a.Logger.With("config", t)
+
+	if t.DisableTracing {
+		l.Info("tracing set to disabled, creating noop tracer")
+		return sdk.NewTracerProvider(sdk.WithBatcher(tracetest.NewNoopExporter())), nil
+	}
+
 	var spanExporter sdk.SpanExporter
 	var err error
 
-	l := a.Logger.With("config", t)
 	switch t.Exporter {
 	case TraceExporterStdout:
 		spanExporter, err = stdouttrace.New(stdouttrace.WithPrettyPrint())
 	case TraceExporterOTLP:
 		spanExporter, err = a.otlp(t)
 	default:
-		l.Info("no tracer specified, creating no-op tracer provider")
-		return sdk.NewTracerProvider(sdk.WithBatcher(tracetest.NewNoopExporter())), nil
+		l.Error("invalid trace exporter", "val", t.Exporter)
+		return nil, fmt.Errorf("invalid trace exporter: %v", t.Exporter)
 	}
 
 	if err != nil {

@@ -1,14 +1,14 @@
-.DEFAULT: falpaca
+.DEFAULT: nalpaca
 .PHONY: fmt test gen clean run help sql
 
 # command aliases
 test := CONFIG_ENV=test go test ./...
 
-targets := falpaca
+targets := nalpaca
 
 VERSION ?= v0.0.0
-IMAGE := ahewins/renaissance
-build_flag_path := github.com/AnthonyHewins/falpaca
+IMAGE := ahewins/nalpaca
+build_flag_path := github.com/AnthonyHewins/nalpaca
 BUILD_FLAGS := 
 ifneq (,$(wildcard ./vendor))
 	$(info Found vendor directory; setting "-mod vendor" to any "go build" commands)
@@ -25,8 +25,12 @@ $(targets): ## Build a target server binary
 # Docker
 #======================================
 docker: ## build docker image w/ $IMAGE
+	go mod tidy
 	docker build -t $(IMAGE) -f docker/Dockerfile .
 	docker push $(IMAGE)
+
+compose: ## build docker compose
+	docker-compose -f ./docker/compose.yaml build
 
 #======================================
 # Running
@@ -34,8 +38,8 @@ docker: ## build docker image w/ $IMAGE
 run-%: ## Run the server using .env variables
 	export $$(cat .env | xargs) && ./bin/$(patsubst run-%,%,$@)
 
-run-docker-compose: ## Run a binary with docker compose
-	docker-compose -f ./docker/%-compose.yaml up
+run-compose: ## Run a binary with docker compose
+	docker-compose -f ./docker/compose.yaml up
 
 #======================================
 # Tooling

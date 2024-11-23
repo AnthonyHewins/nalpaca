@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/AnthonyHewins/falpaca/gen/go/tradesvc/v1"
+	"github.com/AnthonyHewins/nalpaca/gen/go/tradesvc/v1"
+	"github.com/AnthonyHewins/nalpaca/internal/protomap"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/alpaca"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/shopspring/decimal"
@@ -24,35 +25,32 @@ func (c *Controller) getMsg(m jetstream.Msg, id string) (alpaca.PlaceOrderReques
 
 	type prices struct {
 		name  string
-		price float64
+		price string
 	}
 
-	for _, v := range []prices{
-		{name: "limit price", price: trade.LimitPrice},
-		{name: "notional", price: trade.Notional},
+	decimals := make([]*decimal.Decimal, 6)
+	for i, v := range []prices{
 		{name: "qty", price: trade.Qty},
+		{name: "notional", price: trade.Notional},
+		{name: "limit price", price: trade.LimitPrice},
 		{name: "stop price", price: trade.StopPrice},
-		{name: "trail percent", price: trade.TrailPercent},
 		{name: "trail price", price: trade.TrailPrice},
+		{name: "trail percent", price: trade.TrailPercent},
 	} {
-		if v.price < 0 {
-			c.logger.Error("invalid price", "name", v.name, "value", v.price)
-			return alpaca.PlaceOrderRequest{}, fmt.Errorf("invalid %s: %f", v.name, v.price)
+		l := c.logger.With("name", v.name, "val", v.price)
+
+		x, err := newDecimal(v.price)
+		if err != nil {
+			l.Error("failed converting price to decimal", "err", err)
+			return alpaca.PlaceOrderRequest{}, err
 		}
-	}
 
-	if trade.Qty != 0 && trade.Notional != 0 {
-		c.logger.Error(
-			"quantity and notional can't both be set",
-			"notional", trade.Notional,
-			"qty", trade.Qty,
-		)
+		if x.IsNegative() {
+			l.Error("invalid decimal", "name", v.name, "value", v.price)
+			return alpaca.PlaceOrderRequest{}, fmt.Errorf("invalid %s: %s", v.name, v.price)
+		}
 
-		return alpaca.PlaceOrderRequest{}, fmt.Errorf(
-			"trade and quantity can't both be set, got qty %f and notional %f",
-			trade.Qty,
-			trade.Notional,
-		)
+		decimals[i] = x
 	}
 
 	takeProfit, err := c.toTakeProfit(trade.TakeProfit)
@@ -68,20 +66,20 @@ func (c *Controller) getMsg(m jetstream.Msg, id string) (alpaca.PlaceOrderReques
 	o := alpaca.PlaceOrderRequest{
 		ClientOrderID:  id,
 		Symbol:         strings.ToUpper(trade.Symbol),
-		Qty:            newDecimal(trade.Qty),
-		Notional:       newDecimal(trade.Notional),
-		Side:           toSide(trade.Side),
-		Type:           toOrderType(trade.OrderType),
-		TimeInForce:    toTIF(trade.Tif),
-		LimitPrice:     newDecimal(trade.LimitPrice),
-		ExtendedHours:  trade.ExtendedHours,
-		StopPrice:      newDecimal(trade.StopPrice),
-		OrderClass:     toOrderClass(trade.Class),
 		TakeProfit:     takeProfit,
 		StopLoss:       stopLoss,
-		TrailPrice:     newDecimal(trade.TrailPrice),
-		TrailPercent:   newDecimal(trade.TrailPercent),
-		PositionIntent: toIntent(trade.PositionIntent),
+		ExtendedHours:  trade.ExtendedHours,
+		Qty:            decimals[0],
+		Notional:       decimals[1],
+		LimitPrice:     decimals[2],
+		StopPrice:      decimals[3],
+		TrailPrice:     decimals[4],
+		TrailPercent:   decimals[5],
+		Side:           protomap.Side(trade.Side),
+		Type:           protomap.OrderType(trade.OrderType),
+		TimeInForce:    protomap.TIF(trade.Tif),
+		OrderClass:     protomap.OrderClass(trade.Class),
+		PositionIntent: protomap.Intent(trade.PositionIntent),
 	}
 
 	type requiredEnums struct {
@@ -103,47 +101,48 @@ func (c *Controller) getMsg(m jetstream.Msg, id string) (alpaca.PlaceOrderReques
 }
 
 func (c *Controller) toStopLoss(s *tradesvc.StopLoss) (*alpaca.StopLoss, error) {
-	if s == nil {
+	if s.Limit == "" && s.Stop == "" {
 		return nil, nil
 	}
-	if s.Limit <= 0 {
-		c.logger.Error("stop loss config requires a limit", "limit", s.Limit)
-		return nil, fmt.Errorf("stop loss requires a valid limit, got %f", s.Limit)
+
+	limit, err := newDecimal(s.Limit)
+	if err != nil {
+		c.logger.Error("invalid limit passed to stoploss", "err", err, "limit", s.Limit)
+		return nil, err
 	}
 
-	if s.Stop <= 0 {
-		c.logger.Error("stop loss config requires a stop", "stop", s.Stop)
-		return nil, fmt.Errorf("stop loss requires a valid stop, got %f", s.Stop)
+	stop, err := newDecimal(s.Stop)
+	if err != nil {
+		c.logger.Error("stop loss config requires a valid stop", "err", err, "stop", stop)
+		return nil, err
 	}
 
-	return &alpaca.StopLoss{
-		LimitPrice: newDecimal(s.Limit),
-		StopPrice:  newDecimal(s.Stop),
-	}, nil
+	return &alpaca.StopLoss{LimitPrice: limit, StopPrice: stop}, nil
 }
 
 func (c *Controller) toTakeProfit(t *tradesvc.TakeProfit) (*alpaca.TakeProfit, error) {
-	if t == nil {
+	if t.LimitPrice == "" {
 		return nil, nil
 	}
 
-	if t.LimitPrice < 0 {
-		c.logger.Error("invalid limit price for take profit", "got", t.LimitPrice)
-		return nil, fmt.Errorf("invalid limit price for take profit object: %f", t.LimitPrice)
+	limit, err := newDecimal(t.LimitPrice)
+	if err != nil {
+		c.logger.Error("invalid limit price for take profit", "got", t.LimitPrice, "err", err)
+		return nil, err
 	}
 
-	if t.LimitPrice == 0 {
-		return nil, nil
-	}
-
-	return &alpaca.TakeProfit{LimitPrice: newDecimal(t.LimitPrice)}, nil
+	return &alpaca.TakeProfit{LimitPrice: limit}, nil
 }
 
-func newDecimal(x float64) *decimal.Decimal {
-	if x == 0 {
-		return nil
+func newDecimal(x string) (*decimal.Decimal, error) {
+	if x == "" {
+		return nil, nil
 	}
 
-	y := decimal.NewFromFloat(x)
-	return &y
+	y, err := decimal.NewFromString(x)
+	if err != nil {
+		return nil, err
+	}
+
+	return &y, nil
 }

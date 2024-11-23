@@ -11,11 +11,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/AnthonyHewins/falpaca/internal/conf"
+	"github.com/AnthonyHewins/nalpaca/internal/conf"
 	"golang.org/x/sync/errgroup"
 )
 
-const appName = "falpaca"
+const appName = "nalpaca"
+
+var version string
 
 type config struct {
 	conf.Logger
@@ -29,7 +31,7 @@ type config struct {
 
 	CacheSize uint16 `env:"CACHE_SIZE" envDefault:"100"`
 
-	StreamPrefix       string          `env:"STREAM_PREFIX" envDefault:""`
+	StreamPrefix       string          `env:"STREAM_PREFIX" envDefault:"nalpaca"`
 	StreamMaxRedeliver uint8           `env:"STREAM_MAX_REDELIVER" envDefault:"3"`
 	StreamBackoff      []time.Duration `env:"STREAM_BACKOFF" envDefault:""`
 	ProcessingTimeout  time.Duration   `env:"PROCESSING_TIMEOUT" envDefault:"3s"`
@@ -55,6 +57,7 @@ func main() {
 			"version", info.Main.Version,
 			"path", info.Main.Path,
 			"checksum", info.Main.Sum,
+			"codeVersion", version,
 		)
 	}
 
@@ -92,13 +95,17 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 		return err
 	})
 
-	g.Go(func() error {
-		a.logger.InfoContext(ctx, "starting metrics server")
-		return a.metrics.ListenAndServe()
-	})
+	if a.metrics != nil {
+		g.Go(func() error {
+			a.logger.InfoContext(ctx, "starting metrics server")
+			return a.metrics.ListenAndServe()
+		})
+	}
 
-	g.Go(func() error {
-		a.logger.InfoContext(ctx, "starting health server")
-		return a.health.Start(ctx)
-	})
+	if a.health != nil {
+		g.Go(func() error {
+			a.logger.InfoContext(ctx, "starting health server")
+			return a.health.Start(ctx)
+		})
+	}
 }

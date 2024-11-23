@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-const _TraceExporterName = "nonestdoutotlp"
+const _TraceExporterName = "stdoutotlp"
 
-var _TraceExporterIndex = [...]uint8{0, 4, 10, 14}
+var _TraceExporterIndex = [...]uint8{0, 6, 10}
 
-const _TraceExporterLowerName = "nonestdoutotlp"
+const _TraceExporterLowerName = "stdoutotlp"
 
 func (i TraceExporter) String() string {
 	if i >= TraceExporter(len(_TraceExporterIndex)-1) {
@@ -24,26 +24,22 @@ func (i TraceExporter) String() string {
 // Re-run the stringer command to generate them again.
 func _TraceExporterNoOp() {
 	var x [1]struct{}
-	_ = x[TraceExporterNone-(0)]
-	_ = x[TraceExporterStdout-(1)]
-	_ = x[TraceExporterOTLP-(2)]
+	_ = x[TraceExporterStdout-(0)]
+	_ = x[TraceExporterOTLP-(1)]
 }
 
-var _TraceExporterValues = []TraceExporter{TraceExporterNone, TraceExporterStdout, TraceExporterOTLP}
+var _TraceExporterValues = []TraceExporter{TraceExporterStdout, TraceExporterOTLP}
 
 var _TraceExporterNameToValueMap = map[string]TraceExporter{
-	_TraceExporterName[0:4]:        TraceExporterNone,
-	_TraceExporterLowerName[0:4]:   TraceExporterNone,
-	_TraceExporterName[4:10]:       TraceExporterStdout,
-	_TraceExporterLowerName[4:10]:  TraceExporterStdout,
-	_TraceExporterName[10:14]:      TraceExporterOTLP,
-	_TraceExporterLowerName[10:14]: TraceExporterOTLP,
+	_TraceExporterName[0:6]:       TraceExporterStdout,
+	_TraceExporterLowerName[0:6]:  TraceExporterStdout,
+	_TraceExporterName[6:10]:      TraceExporterOTLP,
+	_TraceExporterLowerName[6:10]: TraceExporterOTLP,
 }
 
 var _TraceExporterNames = []string{
-	_TraceExporterName[0:4],
-	_TraceExporterName[4:10],
-	_TraceExporterName[10:14],
+	_TraceExporterName[0:6],
+	_TraceExporterName[6:10],
 }
 
 // TraceExporterString retrieves an enum value from the enum constants string name.

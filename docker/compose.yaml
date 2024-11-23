@@ -1,0 +1,19 @@
+services:
+  nats:
+    image: nats:latest
+    ports:
+      - 4225:4222
+    command: "--js"
+
+  server:
+    image: server
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    environment:
+      DISABLE_TRACING: "true"
+      DISABLE_METRICS: "true"
+      DISABLE_HEALTH: "true"
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
