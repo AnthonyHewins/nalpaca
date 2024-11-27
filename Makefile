@@ -1,5 +1,5 @@
 .DEFAULT: nalpaca
-.PHONY: fmt test gen clean run help sql
+.PHONY: fmt test gen clean run help sql docker
 
 # command aliases
 test := CONFIG_ENV=test go test ./...
@@ -26,8 +26,8 @@ $(targets): ## Build a target server binary
 #======================================
 docker: ## build docker image w/ $IMAGE
 	go mod tidy
-	docker build -t $(IMAGE) -f docker/Dockerfile .
-	docker push $(IMAGE)
+	podman build -t $(IMAGE) -f docker/Dockerfile .
+	podman push $(IMAGE) docker.io/$(IMAGE)
 
 compose: ## build docker compose
 	docker-compose -f ./docker/compose.yaml build
@@ -45,6 +45,7 @@ run-compose: ## Run a binary with docker compose
 # Tooling
 #======================================
 proto: ## buf generate
+	rm -rf gen
 	buf generate
 
 #======================================

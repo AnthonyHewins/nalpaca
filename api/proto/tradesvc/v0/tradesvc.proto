@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package tradesvc.v1;
+package tradesvc.v0;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/AnthonyHewins/nalpaca/gen/go/tradesvcsvc/v1;tradesvc";
+option go_package = "github.com/AnthonyHewins/nalpaca/gen/go/tradesvcsvc/v0;tradesvc";
 
 enum Side {
     SIDE_UNSPECIFIED = 0;

@@ -1,9 +1,17 @@
 services:
   nats:
-    image: nats:latest
+    image: docker.io/natsio/nats:latest
     ports:
       - 4225:4222
     command: "--js"
+
+  natsbox:
+    image: docker.io/natsio/nats-box:latest
+    volumes:
+      - ./nats-init.sh:/bin/init.sh
+    command: "sh /bin/init.sh"
+    depends_on:
+      - "nats"
 
   server:
     image: server
@@ -16,4 +24,4 @@ services:
       DISABLE_HEALTH: "true"
       NATS_URL: nats://nats:4222
     depends_on:
-      - nats
+      - natsbox

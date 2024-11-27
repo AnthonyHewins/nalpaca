@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.1
 // 	protoc        (unknown)
-// source: tradesvc/v1/tradesvc.proto
+// source: tradesvc/v0/tradesvc.proto
 
 package tradesvc
 
@@ -54,11 +54,11 @@ func (x Side) String() string {
 }
 
 func (Side) Descriptor() protoreflect.EnumDescriptor {
-	return file_tradesvc_v1_tradesvc_proto_enumTypes[0].Descriptor()
+	return file_tradesvc_v0_tradesvc_proto_enumTypes[0].Descriptor()
 }
 
 func (Side) Type() protoreflect.EnumType {
-	return &file_tradesvc_v1_tradesvc_proto_enumTypes[0]
+	return &file_tradesvc_v0_tradesvc_proto_enumTypes[0]
 }
 
 func (x Side) Number() protoreflect.EnumNumber {
@@ -67,7 +67,7 @@ func (x Side) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Side.Descriptor instead.
 func (Side) EnumDescriptor() ([]byte, []int) {
-	return file_tradesvc_v1_tradesvc_proto_rawDescGZIP(), []int{0}
+	return file_tradesvc_v0_tradesvc_proto_rawDescGZIP(), []int{0}
 }
 
 type OrderType int32
@@ -112,11 +112,11 @@ func (x OrderType) String() string {
 }
 
 func (OrderType) Descriptor() protoreflect.EnumDescriptor {
-	return file_tradesvc_v1_tradesvc_proto_enumTypes[1].Descriptor()
+	return file_tradesvc_v0_tradesvc_proto_enumTypes[1].Descriptor()
 }
 
 func (OrderType) Type() protoreflect.EnumType {
-	return &file_tradesvc_v1_tradesvc_proto_enumTypes[1]
+	return &file_tradesvc_v0_tradesvc_proto_enumTypes[1]
 }
 
 func (x OrderType) Number() protoreflect.EnumNumber {
@@ -125,7 +125,7 @@ func (x OrderType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OrderType.Descriptor instead.
 func (OrderType) EnumDescriptor() ([]byte, []int) {
-	return file_tradesvc_v1_tradesvc_proto_rawDescGZIP(), []int{1}
+	return file_tradesvc_v0_tradesvc_proto_rawDescGZIP(), []int{1}
 }
 
 type OrderClass int32
@@ -167,11 +167,11 @@ func (x OrderClass) String() string {
 }
 
 func (OrderClass) Descriptor() protoreflect.EnumDescriptor {
-	return file_tradesvc_v1_tradesvc_proto_enumTypes[2].Descriptor()
+	return file_tradesvc_v0_tradesvc_proto_enumTypes[2].Descriptor()
 }
 
 func (OrderClass) Type() protoreflect.EnumType {
-	return &file_tradesvc_v1_tradesvc_proto_enumTypes[2]
+	return &file_tradesvc_v0_tradesvc_proto_enumTypes[2]
 }
 
 func (x OrderClass) Number() protoreflect.EnumNumber {
@@ -180,7 +180,7 @@ func (x OrderClass) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OrderClass.Descriptor instead.
 func (OrderClass) EnumDescriptor() ([]byte, []int) {
-	return file_tradesvc_v1_tradesvc_proto_rawDescGZIP(), []int{2}
+	return file_tradesvc_v0_tradesvc_proto_rawDescGZIP(), []int{2}
 }
 
 type TimeInForce int32
@@ -234,11 +234,11 @@ func (x TimeInForce) String() string {
 }
 
 func (TimeInForce) Descriptor() protoreflect.EnumDescriptor {
-	return file_tradesvc_v1_tradesvc_proto_enumTypes[3].Descriptor()
+	return file_tradesvc_v0_tradesvc_proto_enumTypes[3].Descriptor()
 }
 
 func (TimeInForce) Type() protoreflect.EnumType {
-	return &file_tradesvc_v1_tradesvc_proto_enumTypes[3]
+	return &file_tradesvc_v0_tradesvc_proto_enumTypes[3]
 }
 
 func (x TimeInForce) Number() protoreflect.EnumNumber {
@@ -247,7 +247,7 @@ func (x TimeInForce) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use TimeInForce.Descriptor instead.
 func (TimeInForce) EnumDescriptor() ([]byte, []int) {
-	return file_tradesvc_v1_tradesvc_proto_rawDescGZIP(), []int{3}
+	return file_tradesvc_v0_tradesvc_proto_rawDescGZIP(), []int{3}
 }
 
 type PositionIntent int32
@@ -289,11 +289,11 @@ func (x PositionIntent) String() string {
 }
 
 func (PositionIntent) Descriptor() protoreflect.EnumDescriptor {
-	return file_tradesvc_v1_tradesvc_proto_enumTypes[4].Descriptor()
+	return file_tradesvc_v0_tradesvc_proto_enumTypes[4].Descriptor()
 }
 
 func (PositionIntent) Type() protoreflect.EnumType {
-	return &file_tradesvc_v1_tradesvc_proto_enumTypes[4]
+	return &file_tradesvc_v0_tradesvc_proto_enumTypes[4]
 }
 
 func (x PositionIntent) Number() protoreflect.EnumNumber {
@@ -302,7 +302,7 @@ func (x PositionIntent) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PositionIntent.Descriptor instead.
 func (PositionIntent) EnumDescriptor() ([]byte, []int) {
-	return file_tradesvc_v1_tradesvc_proto_rawDescGZIP(), []int{4}
+	return file_tradesvc_v0_tradesvc_proto_rawDescGZIP(), []int{4}
 }
 
 type AssetClass int32
@@ -338,11 +338,11 @@ func (x AssetClass) String() string {
 }
 
 func (AssetClass) Descriptor() protoreflect.EnumDescriptor {
-	return file_tradesvc_v1_tradesvc_proto_enumTypes[5].Descriptor()
+	return file_tradesvc_v0_tradesvc_proto_enumTypes[5].Descriptor()
 }
 
 func (AssetClass) Type() protoreflect.EnumType {
-	return &file_tradesvc_v1_tradesvc_proto_enumTypes[5]
+	return &file_tradesvc_v0_tradesvc_proto_enumTypes[5]
 }
 
 func (x AssetClass) Number() protoreflect.EnumNumber {
@@ -351,7 +351,7 @@ func (x AssetClass) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AssetClass.Descriptor instead.
 func (AssetClass) EnumDescriptor() ([]byte, []int) {
-	return file_tradesvc_v1_tradesvc_proto_rawDescGZIP(), []int{5}
+	return file_tradesvc_v0_tradesvc_proto_rawDescGZIP(), []int{5}
 }
 
 type TakeProfit struct {
@@ -365,7 +365,7 @@ type TakeProfit struct {
 func (x *TakeProfit) Reset() {
 	*x = TakeProfit{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tradesvc_v1_tradesvc_proto_msgTypes[0]
+		mi := &file_tradesvc_v0_tradesvc_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -378,7 +378,7 @@ func (x *TakeProfit) String() string {
 func (*TakeProfit) ProtoMessage() {}
 
 func (x *TakeProfit) ProtoReflect() protoreflect.Message {
-	mi := &file_tradesvc_v1_tradesvc_proto_msgTypes[0]
+	mi := &file_tradesvc_v0_tradesvc_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -391,7 +391,7 @@ func (x *TakeProfit) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TakeProfit.ProtoReflect.Descriptor instead.
 func (*TakeProfit) Descriptor() ([]byte, []int) {
-	return file_tradesvc_v1_tradesvc_proto_rawDescGZIP(), []int{0}
+	return file_tradesvc_v0_tradesvc_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *TakeProfit) GetLimitPrice() string {
@@ -413,7 +413,7 @@ type StopLoss struct {
 func (x *StopLoss) Reset() {
 	*x = StopLoss{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tradesvc_v1_tradesvc_proto_msgTypes[1]
+		mi := &file_tradesvc_v0_tradesvc_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -426,7 +426,7 @@ func (x *StopLoss) String() string {
 func (*StopLoss) ProtoMessage() {}
 
 func (x *StopLoss) ProtoReflect() protoreflect.Message {
-	mi := &file_tradesvc_v1_tradesvc_proto_msgTypes[1]
+	mi := &file_tradesvc_v0_tradesvc_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -439,7 +439,7 @@ func (x *StopLoss) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopLoss.ProtoReflect.Descriptor instead.
 func (*StopLoss) Descriptor() ([]byte, []int) {
-	return file_tradesvc_v1_tradesvc_proto_rawDescGZIP(), []int{1}
+	return file_tradesvc_v0_tradesvc_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *StopLoss) GetLimit() string {
@@ -477,11 +477,11 @@ type Order struct {
 	Replaces       string      `protobuf:"bytes,12,opt,name=replaces,proto3" json:"replaces,omitempty"`
 	AssetId        string      `protobuf:"bytes,13,opt,name=asset_id,json=assetId,proto3" json:"asset_id,omitempty"`
 	Symbol         string      `protobuf:"bytes,14,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	AssetClass     AssetClass  `protobuf:"varint,15,opt,name=asset_class,json=assetClass,proto3,enum=tradesvc.v1.AssetClass" json:"asset_class,omitempty"`
-	OrderClass     OrderClass  `protobuf:"varint,16,opt,name=order_class,json=orderClass,proto3,enum=tradesvc.v1.OrderClass" json:"order_class,omitempty"`
-	Type           OrderType   `protobuf:"varint,17,opt,name=type,proto3,enum=tradesvc.v1.OrderType" json:"type,omitempty"`
-	Side           Side        `protobuf:"varint,18,opt,name=side,proto3,enum=tradesvc.v1.Side" json:"side,omitempty"`
-	TimeInForce    TimeInForce `protobuf:"varint,19,opt,name=time_in_force,json=timeInForce,proto3,enum=tradesvc.v1.TimeInForce" json:"time_in_force,omitempty"`
+	AssetClass     AssetClass  `protobuf:"varint,15,opt,name=asset_class,json=assetClass,proto3,enum=tradesvc.v0.AssetClass" json:"asset_class,omitempty"`
+	OrderClass     OrderClass  `protobuf:"varint,16,opt,name=order_class,json=orderClass,proto3,enum=tradesvc.v0.OrderClass" json:"order_class,omitempty"`
+	Type           OrderType   `protobuf:"varint,17,opt,name=type,proto3,enum=tradesvc.v0.OrderType" json:"type,omitempty"`
+	Side           Side        `protobuf:"varint,18,opt,name=side,proto3,enum=tradesvc.v0.Side" json:"side,omitempty"`
+	TimeInForce    TimeInForce `protobuf:"varint,19,opt,name=time_in_force,json=timeInForce,proto3,enum=tradesvc.v0.TimeInForce" json:"time_in_force,omitempty"`
 	Status         string      `protobuf:"bytes,20,opt,name=status,proto3" json:"status,omitempty"`
 	Notional       string      `protobuf:"bytes,21,opt,name=notional,proto3" json:"notional,omitempty"`
 	Qty            string      `protobuf:"bytes,22,opt,name=qty,proto3" json:"qty,omitempty"`
@@ -499,7 +499,7 @@ type Order struct {
 func (x *Order) Reset() {
 	*x = Order{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tradesvc_v1_tradesvc_proto_msgTypes[2]
+		mi := &file_tradesvc_v0_tradesvc_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -512,7 +512,7 @@ func (x *Order) String() string {
 func (*Order) ProtoMessage() {}
 
 func (x *Order) ProtoReflect() protoreflect.Message {
-	mi := &file_tradesvc_v1_tradesvc_proto_msgTypes[2]
+	mi := &file_tradesvc_v0_tradesvc_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -525,7 +525,7 @@ func (x *Order) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Order.ProtoReflect.Descriptor instead.
 func (*Order) Descriptor() ([]byte, []int) {
-	return file_tradesvc_v1_tradesvc_proto_rawDescGZIP(), []int{2}
+	return file_tradesvc_v0_tradesvc_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Order) GetId() string {
@@ -753,24 +753,24 @@ type Trade struct {
 	Symbol         string         `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
 	Qty            string         `protobuf:"bytes,2,opt,name=qty,proto3" json:"qty,omitempty"`
 	Notional       string         `protobuf:"bytes,3,opt,name=notional,proto3" json:"notional,omitempty"`
-	Side           Side           `protobuf:"varint,4,opt,name=side,proto3,enum=tradesvc.v1.Side" json:"side,omitempty"`
-	OrderType      OrderType      `protobuf:"varint,5,opt,name=order_type,json=orderType,proto3,enum=tradesvc.v1.OrderType" json:"order_type,omitempty"`
-	Tif            TimeInForce    `protobuf:"varint,6,opt,name=tif,proto3,enum=tradesvc.v1.TimeInForce" json:"tif,omitempty"`
+	Side           Side           `protobuf:"varint,4,opt,name=side,proto3,enum=tradesvc.v0.Side" json:"side,omitempty"`
+	OrderType      OrderType      `protobuf:"varint,5,opt,name=order_type,json=orderType,proto3,enum=tradesvc.v0.OrderType" json:"order_type,omitempty"`
+	Tif            TimeInForce    `protobuf:"varint,6,opt,name=tif,proto3,enum=tradesvc.v0.TimeInForce" json:"tif,omitempty"`
 	LimitPrice     string         `protobuf:"bytes,7,opt,name=limit_price,json=limitPrice,proto3" json:"limit_price,omitempty"`
 	ExtendedHours  bool           `protobuf:"varint,8,opt,name=extended_hours,json=extendedHours,proto3" json:"extended_hours,omitempty"`
 	StopPrice      string         `protobuf:"bytes,9,opt,name=stop_price,json=stopPrice,proto3" json:"stop_price,omitempty"`
-	Class          OrderClass     `protobuf:"varint,11,opt,name=class,proto3,enum=tradesvc.v1.OrderClass" json:"class,omitempty"`
+	Class          OrderClass     `protobuf:"varint,11,opt,name=class,proto3,enum=tradesvc.v0.OrderClass" json:"class,omitempty"`
 	TakeProfit     *TakeProfit    `protobuf:"bytes,12,opt,name=take_profit,json=takeProfit,proto3" json:"take_profit,omitempty"`
 	StopLoss       *StopLoss      `protobuf:"bytes,13,opt,name=stop_loss,json=stopLoss,proto3" json:"stop_loss,omitempty"`
 	TrailPrice     string         `protobuf:"bytes,14,opt,name=trail_price,json=trailPrice,proto3" json:"trail_price,omitempty"`
 	TrailPercent   string         `protobuf:"bytes,15,opt,name=trail_percent,json=trailPercent,proto3" json:"trail_percent,omitempty"`
-	PositionIntent PositionIntent `protobuf:"varint,16,opt,name=position_intent,json=positionIntent,proto3,enum=tradesvc.v1.PositionIntent" json:"position_intent,omitempty"`
+	PositionIntent PositionIntent `protobuf:"varint,16,opt,name=position_intent,json=positionIntent,proto3,enum=tradesvc.v0.PositionIntent" json:"position_intent,omitempty"`
 }
 
 func (x *Trade) Reset() {
 	*x = Trade{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tradesvc_v1_tradesvc_proto_msgTypes[3]
+		mi := &file_tradesvc_v0_tradesvc_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -783,7 +783,7 @@ func (x *Trade) String() string {
 func (*Trade) ProtoMessage() {}
 
 func (x *Trade) ProtoReflect() protoreflect.Message {
-	mi := &file_tradesvc_v1_tradesvc_proto_msgTypes[3]
+	mi := &file_tradesvc_v0_tradesvc_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -796,7 +796,7 @@ func (x *Trade) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Trade.ProtoReflect.Descriptor instead.
 func (*Trade) Descriptor() ([]byte, []int) {
-	return file_tradesvc_v1_tradesvc_proto_rawDescGZIP(), []int{3}
+	return file_tradesvc_v0_tradesvc_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Trade) GetSymbol() string {
@@ -923,7 +923,7 @@ type TradeUpdate struct {
 func (x *TradeUpdate) Reset() {
 	*x = TradeUpdate{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tradesvc_v1_tradesvc_proto_msgTypes[4]
+		mi := &file_tradesvc_v0_tradesvc_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -936,7 +936,7 @@ func (x *TradeUpdate) String() string {
 func (*TradeUpdate) ProtoMessage() {}
 
 func (x *TradeUpdate) ProtoReflect() protoreflect.Message {
-	mi := &file_tradesvc_v1_tradesvc_proto_msgTypes[4]
+	mi := &file_tradesvc_v0_tradesvc_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -949,7 +949,7 @@ func (x *TradeUpdate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TradeUpdate.ProtoReflect.Descriptor instead.
 func (*TradeUpdate) Descriptor() ([]byte, []int) {
-	return file_tradesvc_v1_tradesvc_proto_rawDescGZIP(), []int{4}
+	return file_tradesvc_v0_tradesvc_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *TradeUpdate) GetAt() *timestamppb.Timestamp {
@@ -1015,12 +1015,12 @@ func (x *TradeUpdate) GetTimestamp() *timestamppb.Timestamp {
 	return nil
 }
 
-var File_tradesvc_v1_tradesvc_proto protoreflect.FileDescriptor
+var File_tradesvc_v0_tradesvc_proto protoreflect.FileDescriptor
 
-var file_tradesvc_v1_tradesvc_proto_rawDesc = []byte{
-	0x0a, 0x1a, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2f, 0x76, 0x31, 0x2f, 0x74, 0x72,
+var file_tradesvc_v0_tradesvc_proto_rawDesc = []byte{
+	0x0a, 0x1a, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2f, 0x76, 0x30, 0x2f, 0x74, 0x72,
 	0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0b, 0x74, 0x72,
-	0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x31, 0x1a, 0x1f, 0x67, 0x6f, 0x6f, 0x67, 0x6c,
+	0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x30, 0x1a, 0x1f, 0x67, 0x6f, 0x6f, 0x67, 0x6c,
 	0x65, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x74, 0x69, 0x6d, 0x65, 0x73,
 	0x74, 0x61, 0x6d, 0x70, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x2d, 0x0a, 0x0a, 0x54, 0x61,
 	0x6b, 0x65, 0x50, 0x72, 0x6f, 0x66, 0x69, 0x74, 0x12, 0x1f, 0x0a, 0x0b, 0x6c, 0x69, 0x6d, 0x69,
@@ -1071,20 +1071,20 @@ var file_tradesvc_v1_tradesvc_proto_rawDesc = []byte{
 	0x73, 0x65, 0x74, 0x49, 0x64, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x79, 0x6d, 0x62, 0x6f, 0x6c, 0x18,
 	0x0e, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x79, 0x6d, 0x62, 0x6f, 0x6c, 0x12, 0x38, 0x0a,
 	0x0b, 0x61, 0x73, 0x73, 0x65, 0x74, 0x5f, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x18, 0x0f, 0x20, 0x01,
-	0x28, 0x0e, 0x32, 0x17, 0x2e, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x31,
+	0x28, 0x0e, 0x32, 0x17, 0x2e, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x30,
 	0x2e, 0x41, 0x73, 0x73, 0x65, 0x74, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x52, 0x0a, 0x61, 0x73, 0x73,
 	0x65, 0x74, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x12, 0x38, 0x0a, 0x0b, 0x6f, 0x72, 0x64, 0x65, 0x72,
 	0x5f, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x18, 0x10, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x17, 0x2e, 0x74,
-	0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x4f, 0x72, 0x64, 0x65, 0x72,
+	0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x30, 0x2e, 0x4f, 0x72, 0x64, 0x65, 0x72,
 	0x43, 0x6c, 0x61, 0x73, 0x73, 0x52, 0x0a, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x43, 0x6c, 0x61, 0x73,
 	0x73, 0x12, 0x2a, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x11, 0x20, 0x01, 0x28, 0x0e, 0x32,
-	0x16, 0x2e, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x4f, 0x72,
+	0x16, 0x2e, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x30, 0x2e, 0x4f, 0x72,
 	0x64, 0x65, 0x72, 0x54, 0x79, 0x70, 0x65, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x25, 0x0a,
 	0x04, 0x73, 0x69, 0x64, 0x65, 0x18, 0x12, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x11, 0x2e, 0x74, 0x72,
-	0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x69, 0x64, 0x65, 0x52, 0x04,
+	0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x30, 0x2e, 0x53, 0x69, 0x64, 0x65, 0x52, 0x04,
 	0x73, 0x69, 0x64, 0x65, 0x12, 0x3c, 0x0a, 0x0d, 0x74, 0x69, 0x6d, 0x65, 0x5f, 0x69, 0x6e, 0x5f,
 	0x66, 0x6f, 0x72, 0x63, 0x65, 0x18, 0x13, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x18, 0x2e, 0x74, 0x72,
-	0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x49, 0x6e,
+	0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x30, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x49, 0x6e,
 	0x46, 0x6f, 0x72, 0x63, 0x65, 0x52, 0x0b, 0x74, 0x69, 0x6d, 0x65, 0x49, 0x6e, 0x46, 0x6f, 0x72,
 	0x63, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x14, 0x20, 0x01,
 	0x28, 0x09, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x1a, 0x0a, 0x08, 0x6e, 0x6f,
@@ -1108,20 +1108,20 @@ var file_tradesvc_v1_tradesvc_proto_rawDesc = []byte{
 	0x5f, 0x68, 0x6f, 0x75, 0x72, 0x73, 0x18, 0x1e, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08, 0x65, 0x78,
 	0x74, 0x48, 0x6f, 0x75, 0x72, 0x73, 0x12, 0x26, 0x0a, 0x04, 0x6c, 0x65, 0x67, 0x73, 0x18, 0x1f,
 	0x20, 0x03, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e,
-	0x76, 0x31, 0x2e, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x04, 0x6c, 0x65, 0x67, 0x73, 0x22, 0xe7,
+	0x76, 0x30, 0x2e, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x04, 0x6c, 0x65, 0x67, 0x73, 0x22, 0xe7,
 	0x04, 0x0a, 0x05, 0x54, 0x72, 0x61, 0x64, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x79, 0x6d, 0x62,
 	0x6f, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x79, 0x6d, 0x62, 0x6f, 0x6c,
 	0x12, 0x10, 0x0a, 0x03, 0x71, 0x74, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x71,
 	0x74, 0x79, 0x12, 0x1a, 0x0a, 0x08, 0x6e, 0x6f, 0x74, 0x69, 0x6f, 0x6e, 0x61, 0x6c, 0x18, 0x03,
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x6e, 0x6f, 0x74, 0x69, 0x6f, 0x6e, 0x61, 0x6c, 0x12, 0x25,
 	0x0a, 0x04, 0x73, 0x69, 0x64, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x11, 0x2e, 0x74,
-	0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x69, 0x64, 0x65, 0x52,
+	0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x30, 0x2e, 0x53, 0x69, 0x64, 0x65, 0x52,
 	0x04, 0x73, 0x69, 0x64, 0x65, 0x12, 0x35, 0x0a, 0x0a, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x5f, 0x74,
 	0x79, 0x70, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x16, 0x2e, 0x74, 0x72, 0x61, 0x64,
-	0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x54, 0x79, 0x70,
+	0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x30, 0x2e, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x54, 0x79, 0x70,
 	0x65, 0x52, 0x09, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x54, 0x79, 0x70, 0x65, 0x12, 0x2a, 0x0a, 0x03,
 	0x74, 0x69, 0x66, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x18, 0x2e, 0x74, 0x72, 0x61, 0x64,
-	0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x49, 0x6e, 0x46, 0x6f,
+	0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x30, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x49, 0x6e, 0x46, 0x6f,
 	0x72, 0x63, 0x65, 0x52, 0x03, 0x74, 0x69, 0x66, 0x12, 0x1f, 0x0a, 0x0b, 0x6c, 0x69, 0x6d, 0x69,
 	0x74, 0x5f, 0x70, 0x72, 0x69, 0x63, 0x65, 0x18, 0x07, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x6c,
 	0x69, 0x6d, 0x69, 0x74, 0x50, 0x72, 0x69, 0x63, 0x65, 0x12, 0x25, 0x0a, 0x0e, 0x65, 0x78, 0x74,
@@ -1130,14 +1130,14 @@ var file_tradesvc_v1_tradesvc_proto_rawDesc = []byte{
 	0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x74, 0x6f, 0x70, 0x5f, 0x70, 0x72, 0x69, 0x63, 0x65, 0x18, 0x09,
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x73, 0x74, 0x6f, 0x70, 0x50, 0x72, 0x69, 0x63, 0x65, 0x12,
 	0x2d, 0x0a, 0x05, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x17,
-	0x2e, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x4f, 0x72, 0x64,
+	0x2e, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x30, 0x2e, 0x4f, 0x72, 0x64,
 	0x65, 0x72, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x52, 0x05, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x12, 0x38,
 	0x0a, 0x0b, 0x74, 0x61, 0x6b, 0x65, 0x5f, 0x70, 0x72, 0x6f, 0x66, 0x69, 0x74, 0x18, 0x0c, 0x20,
 	0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76,
-	0x31, 0x2e, 0x54, 0x61, 0x6b, 0x65, 0x50, 0x72, 0x6f, 0x66, 0x69, 0x74, 0x52, 0x0a, 0x74, 0x61,
+	0x30, 0x2e, 0x54, 0x61, 0x6b, 0x65, 0x50, 0x72, 0x6f, 0x66, 0x69, 0x74, 0x52, 0x0a, 0x74, 0x61,
 	0x6b, 0x65, 0x50, 0x72, 0x6f, 0x66, 0x69, 0x74, 0x12, 0x32, 0x0a, 0x09, 0x73, 0x74, 0x6f, 0x70,
 	0x5f, 0x6c, 0x6f, 0x73, 0x73, 0x18, 0x0d, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x74, 0x72,
-	0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x74, 0x6f, 0x70, 0x4c, 0x6f,
+	0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x30, 0x2e, 0x53, 0x74, 0x6f, 0x70, 0x4c, 0x6f,
 	0x73, 0x73, 0x52, 0x08, 0x73, 0x74, 0x6f, 0x70, 0x4c, 0x6f, 0x73, 0x73, 0x12, 0x1f, 0x0a, 0x0b,
 	0x74, 0x72, 0x61, 0x69, 0x6c, 0x5f, 0x70, 0x72, 0x69, 0x63, 0x65, 0x18, 0x0e, 0x20, 0x01, 0x28,
 	0x09, 0x52, 0x0a, 0x74, 0x72, 0x61, 0x69, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x12, 0x23, 0x0a,
@@ -1145,7 +1145,7 @@ var file_tradesvc_v1_tradesvc_proto_rawDesc = []byte{
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x74, 0x72, 0x61, 0x69, 0x6c, 0x50, 0x65, 0x72, 0x63, 0x65,
 	0x6e, 0x74, 0x12, 0x44, 0x0a, 0x0f, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x69,
 	0x6e, 0x74, 0x65, 0x6e, 0x74, 0x18, 0x10, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x1b, 0x2e, 0x74, 0x72,
-	0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x6f, 0x73, 0x69, 0x74, 0x69,
+	0x61, 0x64, 0x65, 0x73, 0x76, 0x63, 0x2e, 0x76, 0x30, 0x2e, 0x50, 0x6f, 0x73, 0x69, 0x74, 0x69,
 	0x6f, 0x6e, 0x49, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x52, 0x0e, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69,
 	0x6f, 0x6e, 0x49, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x22, 0xbc, 0x02, 0x0a, 0x0b, 0x54, 0x72, 0x61,
 	0x64, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x2a, 0x0a, 0x02, 0x61, 0x74, 0x18, 0x01,
@@ -1158,7 +1158,7 @@ var file_tradesvc_v1_tradesvc_proto_rawDesc = []byte{
 	0x6f, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x65, 0x78, 0x65,
 	0x63, 0x75, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x64, 0x12, 0x28, 0x0a, 0x05, 0x6f, 0x72, 0x64, 0x65,
 	0x72, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73,
-	0x76, 0x63, 0x2e, 0x76, 0x31, 0x2e, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x05, 0x6f, 0x72, 0x64,
+	0x76, 0x63, 0x2e, 0x76, 0x30, 0x2e, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x05, 0x6f, 0x72, 0x64,
 	0x65, 0x72, 0x12, 0x21, 0x0a, 0x0c, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x71,
 	0x74, 0x79, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69,
 	0x6f, 0x6e, 0x51, 0x74, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x70, 0x72, 0x69, 0x63, 0x65, 0x18, 0x07,
@@ -1225,63 +1225,63 @@ var file_tradesvc_v1_tradesvc_proto_rawDesc = []byte{
 	0x41, 0x5a, 0x3f, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x41, 0x6e,
 	0x74, 0x68, 0x6f, 0x6e, 0x79, 0x48, 0x65, 0x77, 0x69, 0x6e, 0x73, 0x2f, 0x6e, 0x61, 0x6c, 0x70,
 	0x61, 0x63, 0x61, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x67, 0x6f, 0x2f, 0x74, 0x72, 0x61, 0x64, 0x65,
-	0x73, 0x76, 0x63, 0x73, 0x76, 0x63, 0x2f, 0x76, 0x31, 0x3b, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73,
+	0x73, 0x76, 0x63, 0x73, 0x76, 0x63, 0x2f, 0x76, 0x30, 0x3b, 0x74, 0x72, 0x61, 0x64, 0x65, 0x73,
 	0x76, 0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
-	file_tradesvc_v1_tradesvc_proto_rawDescOnce sync.Once
-	file_tradesvc_v1_tradesvc_proto_rawDescData = file_tradesvc_v1_tradesvc_proto_rawDesc
+	file_tradesvc_v0_tradesvc_proto_rawDescOnce sync.Once
+	file_tradesvc_v0_tradesvc_proto_rawDescData = file_tradesvc_v0_tradesvc_proto_rawDesc
 )
 
-func file_tradesvc_v1_tradesvc_proto_rawDescGZIP() []byte {
-	file_tradesvc_v1_tradesvc_proto_rawDescOnce.Do(func() {
-		file_tradesvc_v1_tradesvc_proto_rawDescData = protoimpl.X.CompressGZIP(file_tradesvc_v1_tradesvc_proto_rawDescData)
+func file_tradesvc_v0_tradesvc_proto_rawDescGZIP() []byte {
+	file_tradesvc_v0_tradesvc_proto_rawDescOnce.Do(func() {
+		file_tradesvc_v0_tradesvc_proto_rawDescData = protoimpl.X.CompressGZIP(file_tradesvc_v0_tradesvc_proto_rawDescData)
 	})
-	return file_tradesvc_v1_tradesvc_proto_rawDescData
+	return file_tradesvc_v0_tradesvc_proto_rawDescData
 }
 
-var file_tradesvc_v1_tradesvc_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_tradesvc_v1_tradesvc_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
-var file_tradesvc_v1_tradesvc_proto_goTypes = []interface{}{
-	(Side)(0),                     // 0: tradesvc.v1.Side
-	(OrderType)(0),                // 1: tradesvc.v1.OrderType
-	(OrderClass)(0),               // 2: tradesvc.v1.OrderClass
-	(TimeInForce)(0),              // 3: tradesvc.v1.TimeInForce
-	(PositionIntent)(0),           // 4: tradesvc.v1.PositionIntent
-	(AssetClass)(0),               // 5: tradesvc.v1.AssetClass
-	(*TakeProfit)(nil),            // 6: tradesvc.v1.TakeProfit
-	(*StopLoss)(nil),              // 7: tradesvc.v1.StopLoss
-	(*Order)(nil),                 // 8: tradesvc.v1.Order
-	(*Trade)(nil),                 // 9: tradesvc.v1.Trade
-	(*TradeUpdate)(nil),           // 10: tradesvc.v1.TradeUpdate
+var file_tradesvc_v0_tradesvc_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_tradesvc_v0_tradesvc_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_tradesvc_v0_tradesvc_proto_goTypes = []interface{}{
+	(Side)(0),                     // 0: tradesvc.v0.Side
+	(OrderType)(0),                // 1: tradesvc.v0.OrderType
+	(OrderClass)(0),               // 2: tradesvc.v0.OrderClass
+	(TimeInForce)(0),              // 3: tradesvc.v0.TimeInForce
+	(PositionIntent)(0),           // 4: tradesvc.v0.PositionIntent
+	(AssetClass)(0),               // 5: tradesvc.v0.AssetClass
+	(*TakeProfit)(nil),            // 6: tradesvc.v0.TakeProfit
+	(*StopLoss)(nil),              // 7: tradesvc.v0.StopLoss
+	(*Order)(nil),                 // 8: tradesvc.v0.Order
+	(*Trade)(nil),                 // 9: tradesvc.v0.Trade
+	(*TradeUpdate)(nil),           // 10: tradesvc.v0.TradeUpdate
 	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
 }
-var file_tradesvc_v1_tradesvc_proto_depIdxs = []int32{
-	11, // 0: tradesvc.v1.Order.created_at:type_name -> google.protobuf.Timestamp
-	11, // 1: tradesvc.v1.Order.updated_at:type_name -> google.protobuf.Timestamp
-	11, // 2: tradesvc.v1.Order.submitted_at:type_name -> google.protobuf.Timestamp
-	11, // 3: tradesvc.v1.Order.filled_at:type_name -> google.protobuf.Timestamp
-	11, // 4: tradesvc.v1.Order.expired_at:type_name -> google.protobuf.Timestamp
-	11, // 5: tradesvc.v1.Order.canceled_at:type_name -> google.protobuf.Timestamp
-	11, // 6: tradesvc.v1.Order.failed_at:type_name -> google.protobuf.Timestamp
-	11, // 7: tradesvc.v1.Order.replaced_at:type_name -> google.protobuf.Timestamp
-	5,  // 8: tradesvc.v1.Order.asset_class:type_name -> tradesvc.v1.AssetClass
-	2,  // 9: tradesvc.v1.Order.order_class:type_name -> tradesvc.v1.OrderClass
-	1,  // 10: tradesvc.v1.Order.type:type_name -> tradesvc.v1.OrderType
-	0,  // 11: tradesvc.v1.Order.side:type_name -> tradesvc.v1.Side
-	3,  // 12: tradesvc.v1.Order.time_in_force:type_name -> tradesvc.v1.TimeInForce
-	8,  // 13: tradesvc.v1.Order.legs:type_name -> tradesvc.v1.Order
-	0,  // 14: tradesvc.v1.Trade.side:type_name -> tradesvc.v1.Side
-	1,  // 15: tradesvc.v1.Trade.order_type:type_name -> tradesvc.v1.OrderType
-	3,  // 16: tradesvc.v1.Trade.tif:type_name -> tradesvc.v1.TimeInForce
-	2,  // 17: tradesvc.v1.Trade.class:type_name -> tradesvc.v1.OrderClass
-	6,  // 18: tradesvc.v1.Trade.take_profit:type_name -> tradesvc.v1.TakeProfit
-	7,  // 19: tradesvc.v1.Trade.stop_loss:type_name -> tradesvc.v1.StopLoss
-	4,  // 20: tradesvc.v1.Trade.position_intent:type_name -> tradesvc.v1.PositionIntent
-	11, // 21: tradesvc.v1.TradeUpdate.at:type_name -> google.protobuf.Timestamp
-	8,  // 22: tradesvc.v1.TradeUpdate.order:type_name -> tradesvc.v1.Order
-	11, // 23: tradesvc.v1.TradeUpdate.timestamp:type_name -> google.protobuf.Timestamp
+var file_tradesvc_v0_tradesvc_proto_depIdxs = []int32{
+	11, // 0: tradesvc.v0.Order.created_at:type_name -> google.protobuf.Timestamp
+	11, // 1: tradesvc.v0.Order.updated_at:type_name -> google.protobuf.Timestamp
+	11, // 2: tradesvc.v0.Order.submitted_at:type_name -> google.protobuf.Timestamp
+	11, // 3: tradesvc.v0.Order.filled_at:type_name -> google.protobuf.Timestamp
+	11, // 4: tradesvc.v0.Order.expired_at:type_name -> google.protobuf.Timestamp
+	11, // 5: tradesvc.v0.Order.canceled_at:type_name -> google.protobuf.Timestamp
+	11, // 6: tradesvc.v0.Order.failed_at:type_name -> google.protobuf.Timestamp
+	11, // 7: tradesvc.v0.Order.replaced_at:type_name -> google.protobuf.Timestamp
+	5,  // 8: tradesvc.v0.Order.asset_class:type_name -> tradesvc.v0.AssetClass
+	2,  // 9: tradesvc.v0.Order.order_class:type_name -> tradesvc.v0.OrderClass
+	1,  // 10: tradesvc.v0.Order.type:type_name -> tradesvc.v0.OrderType
+	0,  // 11: tradesvc.v0.Order.side:type_name -> tradesvc.v0.Side
+	3,  // 12: tradesvc.v0.Order.time_in_force:type_name -> tradesvc.v0.TimeInForce
+	8,  // 13: tradesvc.v0.Order.legs:type_name -> tradesvc.v0.Order
+	0,  // 14: tradesvc.v0.Trade.side:type_name -> tradesvc.v0.Side
+	1,  // 15: tradesvc.v0.Trade.order_type:type_name -> tradesvc.v0.OrderType
+	3,  // 16: tradesvc.v0.Trade.tif:type_name -> tradesvc.v0.TimeInForce
+	2,  // 17: tradesvc.v0.Trade.class:type_name -> tradesvc.v0.OrderClass
+	6,  // 18: tradesvc.v0.Trade.take_profit:type_name -> tradesvc.v0.TakeProfit
+	7,  // 19: tradesvc.v0.Trade.stop_loss:type_name -> tradesvc.v0.StopLoss
+	4,  // 20: tradesvc.v0.Trade.position_intent:type_name -> tradesvc.v0.PositionIntent
+	11, // 21: tradesvc.v0.TradeUpdate.at:type_name -> google.protobuf.Timestamp
+	8,  // 22: tradesvc.v0.TradeUpdate.order:type_name -> tradesvc.v0.Order
+	11, // 23: tradesvc.v0.TradeUpdate.timestamp:type_name -> google.protobuf.Timestamp
 	24, // [24:24] is the sub-list for method output_type
 	24, // [24:24] is the sub-list for method input_type
 	24, // [24:24] is the sub-list for extension type_name
@@ -1289,13 +1289,13 @@ var file_tradesvc_v1_tradesvc_proto_depIdxs = []int32{
 	0,  // [0:24] is the sub-list for field type_name
 }
 
-func init() { file_tradesvc_v1_tradesvc_proto_init() }
-func file_tradesvc_v1_tradesvc_proto_init() {
-	if File_tradesvc_v1_tradesvc_proto != nil {
+func init() { file_tradesvc_v0_tradesvc_proto_init() }
+func file_tradesvc_v0_tradesvc_proto_init() {
+	if File_tradesvc_v0_tradesvc_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_tradesvc_v1_tradesvc_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_tradesvc_v0_tradesvc_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TakeProfit); i {
 			case 0:
 				return &v.state
@@ -1307,7 +1307,7 @@ func file_tradesvc_v1_tradesvc_proto_init() {
 				return nil
 			}
 		}
-		file_tradesvc_v1_tradesvc_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_tradesvc_v0_tradesvc_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*StopLoss); i {
 			case 0:
 				return &v.state
@@ -1319,7 +1319,7 @@ func file_tradesvc_v1_tradesvc_proto_init() {
 				return nil
 			}
 		}
-		file_tradesvc_v1_tradesvc_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_tradesvc_v0_tradesvc_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Order); i {
 			case 0:
 				return &v.state
@@ -1331,7 +1331,7 @@ func file_tradesvc_v1_tradesvc_proto_init() {
 				return nil
 			}
 		}
-		file_tradesvc_v1_tradesvc_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_tradesvc_v0_tradesvc_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Trade); i {
 			case 0:
 				return &v.state
@@ -1343,7 +1343,7 @@ func file_tradesvc_v1_tradesvc_proto_init() {
 				return nil
 			}
 		}
-		file_tradesvc_v1_tradesvc_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_tradesvc_v0_tradesvc_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TradeUpdate); i {
 			case 0:
 				return &v.state
@@ -1360,19 +1360,19 @@ func file_tradesvc_v1_tradesvc_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_tradesvc_v1_tradesvc_proto_rawDesc,
+			RawDescriptor: file_tradesvc_v0_tradesvc_proto_rawDesc,
 			NumEnums:      6,
 			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_tradesvc_v1_tradesvc_proto_goTypes,
-		DependencyIndexes: file_tradesvc_v1_tradesvc_proto_depIdxs,
-		EnumInfos:         file_tradesvc_v1_tradesvc_proto_enumTypes,
-		MessageInfos:      file_tradesvc_v1_tradesvc_proto_msgTypes,
+		GoTypes:           file_tradesvc_v0_tradesvc_proto_goTypes,
+		DependencyIndexes: file_tradesvc_v0_tradesvc_proto_depIdxs,
+		EnumInfos:         file_tradesvc_v0_tradesvc_proto_enumTypes,
+		MessageInfos:      file_tradesvc_v0_tradesvc_proto_msgTypes,
 	}.Build()
-	File_tradesvc_v1_tradesvc_proto = out.File
-	file_tradesvc_v1_tradesvc_proto_rawDesc = nil
-	file_tradesvc_v1_tradesvc_proto_goTypes = nil
-	file_tradesvc_v1_tradesvc_proto_depIdxs = nil
+	File_tradesvc_v0_tradesvc_proto = out.File
+	file_tradesvc_v0_tradesvc_proto_rawDesc = nil
+	file_tradesvc_v0_tradesvc_proto_goTypes = nil
+	file_tradesvc_v0_tradesvc_proto_depIdxs = nil
 }
