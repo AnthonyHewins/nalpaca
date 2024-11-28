@@ -1,0 +1,32 @@
+{{ if true}}
+# Global config for all deployments
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  # Logging
+  LOG_LEVEL: {{ .Values.logging.level }}
+  LOG_FMT: {{ .Values.logging.fmt }}
+  LOG_SRC: {{ .Values.logging.src }}
+
+  # Metrics
+  DISABLE_METRICS: {{ .Values.metrics.disabled }}
+  METRICS_PORT: {{ .Values.metrics.port }}
+  METRICS_WRITE_TIMEOUT: {{ .Values.metrics.writeTimeout }}
+  METRICS_ERR_POLICY: {{ .Values.metrics.errPolicy }}
+  METRICS_MAX_REQ_IN_FLIGHT: {{ .Values.metrics.maxReqInFlight }}
+  
+  # Tracing
+  DISABLE_TRACING: {{ .Values.tracing.disabled }}
+  TRACE_EXPORTER: {{ .Values.tracing.exporter }}
+  TRACE_EXPORTER_URL: {{ .Values.tracing.exportURL }}
+  TRACE_EXPORTER_TIMEOUT: {{ .Values.tracing.timeout }}
+
+  # Alpaca public config
+  ALPACA_URL: {{ .Values.alpaca.url }}
+  ALPACA_API_KEY: {{ .Values.alpaca.apiKey }}
+  ALPACA_OAUTH: {{ .Values.alpaca.oauth }}
+  ALPACA_RETRY_LIMIT: {{ .Values.alpaca.retryLimit }}
+  ALPACA_RETRY_DELAY: {{ .Values.alpaca.retryDelay }}
+{{ end }}

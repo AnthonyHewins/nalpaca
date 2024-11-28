@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/AnthonyHewins/nalpaca/gen/go/tradesvc/v1"
+	"github.com/AnthonyHewins/nalpaca/gen/go/tradesvc/v0"
 	"github.com/AnthonyHewins/nalpaca/internal/protomap"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/alpaca"
 	"github.com/golang/protobuf/ptypes/timestamp"

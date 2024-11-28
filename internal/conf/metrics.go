@@ -33,15 +33,15 @@ type Metrics struct {
 	// Port to expose for the Prometheus HTTP metrics API.
 	HTTPMetricsPort uint16 `env:"METRICS_PORT" envDefault:"8088"`
 
-	HTTPMetricsTimeout time.Duration `env:"HTTPMetricsWriteTimeout" envDefault:"10s"`
+	HTTPMetricsTimeout time.Duration `env:"METRICS_WRITE_TIMEOUT" envDefault:"10s"`
 
 	// The policy to use when an error is encountered; you can specify:
 	// return: send the error back to the requestor
 	// continue: move past the error
 	// panic: panic on error
-	HTTPMetricsErrPolicy MetricsErrPolicy `env:"HTTPMetricsErrPolicy" envDefault:""`
+	HTTPMetricsErrPolicy MetricsErrPolicy `env:"METRICS_ERR_POLICY" envDefault:""`
 
-	HTTPMetricsMaxRequestsInFlight uint `env:"HTTPMetricsMaxRequestsInFlight" envDefault:""`
+	HTTPMetricsMaxRequestsInFlight uint `env:"METRICS_MAX_REQ_IN_FLIGHT" envDefault:""`
 }
 
 type promLogger struct {

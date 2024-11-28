@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/AnthonyHewins/nalpaca/internal/nalpaca"
-	"github.com/alpacahq/alpaca-trade-api-go/v3/alpaca"
 	"github.com/nats-io/nats.go"
 )
 
@@ -19,7 +18,7 @@ type Controller struct {
 
 func NewController(
 	logger *slog.Logger,
-	client *alpaca.Client,
+	client nalpaca.Interface,
 	timeout time.Duration,
 	nc *nats.Conn,
 	topicPrefix string,

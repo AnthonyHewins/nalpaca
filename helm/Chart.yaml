@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nalpaca
+description: NATS alpaca trader
+type: application
+version: 0.1.0
+appVersion: latest

@@ -24,7 +24,7 @@ type HealthCheckable struct {
 	Fn   func(ctx context.Context) error
 }
 
-func (b *Bootstrapper) Health(h *Health, dependencies ...HealthCheckable) *HealthServer {
+func (b *Bootstrapper) HealthServer(h *Health, dependencies ...HealthCheckable) *HealthServer {
 	if h.DisableHealth {
 		b.Logger.Info("health server disabled")
 		return nil

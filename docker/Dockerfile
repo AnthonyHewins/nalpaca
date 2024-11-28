@@ -11,4 +11,4 @@ WORKDIR /root/
 COPY --from=build /app/bin/* /root
 
 EXPOSE 8088 7654
-ENTRYPOINT ["/root/nalpaca"]
+ENTRYPOINT ["/root/orders"]

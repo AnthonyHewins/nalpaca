@@ -20,21 +20,12 @@ const appName = "nalpaca"
 var version string
 
 type config struct {
-	conf.Logger
-	conf.Metrics
-	conf.Health
-	conf.Tracer
-	conf.NATS
-	conf.Alpaca
+	conf.BootstrapConf
 
-	HttpClientTimeout time.Duration `env:"HTTP_CLIENT_TIMEOUT" envDefault:"15s"`
+	TradeUpdaterStream string `env:"TRADE_UPDATER_STREAM_NAME" envDefault:"nalpaca-tradeupdate-stream-v0"`
 
-	CacheSize uint16 `env:"CACHE_SIZE" envDefault:"100"`
-
-	StreamPrefix       string          `env:"STREAM_PREFIX" envDefault:"nalpaca"`
-	StreamMaxRedeliver uint8           `env:"STREAM_MAX_REDELIVER" envDefault:"3"`
-	StreamBackoff      []time.Duration `env:"STREAM_BACKOFF" envDefault:""`
-	ProcessingTimeout  time.Duration   `env:"PROCESSING_TIMEOUT" envDefault:"3s"`
+	StreamPrefix      string        `env:"STREAM_PREFIX" envDefault:"nalpaca"`
+	ProcessingTimeout time.Duration `env:"PROCESSING_TIMEOUT" envDefault:"3s"`
 }
 
 func main() {
@@ -52,7 +43,7 @@ func main() {
 	defer signal.Stop(interrupt)
 
 	if info, ok := debug.ReadBuildInfo(); ok {
-		a.logger.InfoContext(ctx,
+		a.Logger.InfoContext(ctx,
 			"Starting "+appName,
 			"version", info.Main.Version,
 			"path", info.Main.Path,
@@ -66,11 +57,11 @@ func main() {
 
 	select { // watch for signal interruptions or context completion
 	case sig := <-interrupt:
-		a.logger.Warn("kill signal received", "sig", sig.String())
+		a.Logger.Warn("kill signal received", "sig", sig.String())
 		cancel()
 		break
 	case <-ctx.Done():
-		a.logger.Warn("context canceled", "err", ctx.Err())
+		a.Logger.Warn("context canceled", "err", ctx.Err())
 		break
 	}
 
@@ -80,32 +71,27 @@ func main() {
 		return
 	}
 
-	a.logger.ErrorContext(ctx, "server goroutines stopped with error", "error", err)
+	a.Logger.ErrorContext(ctx, "server goroutines stopped with error", "error", err)
 	os.Exit(1)
 }
 
 func (a *app) start(ctx context.Context, g *errgroup.Group) {
 	g.Go(func() error {
-		var err error
-		a.order.ctx, err = a.order.ingestor.Consume(a.trader.Consume)
-		if err != nil {
-			a.logger.ErrorContext(ctx, "failed starting order consumer", "err", err)
-		}
-
-		return err
+		a.Logger.InfoContext(ctx, "starting trade updater event loop")
+		return a.tradeupdater.EventLoop(ctx)
 	})
 
-	if a.metrics != nil {
+	if a.Metrics != nil {
 		g.Go(func() error {
-			a.logger.InfoContext(ctx, "starting metrics server")
-			return a.metrics.ListenAndServe()
+			a.Logger.InfoContext(ctx, "starting metrics server")
+			return a.Metrics.ListenAndServe()
 		})
 	}
 
-	if a.health != nil {
+	if a.Health != nil {
 		g.Go(func() error {
-			a.logger.InfoContext(ctx, "starting health server")
-			return a.health.Start(ctx)
+			a.Logger.InfoContext(ctx, "starting health server")
+			return a.Health.Start(ctx)
 		})
 	}
 }

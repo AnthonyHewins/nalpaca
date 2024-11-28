@@ -1,6 +1,6 @@
 services:
   nats:
-    image: docker.io/natsio/nats:latest
+    image: nats:latest
     ports:
       - 4225:4222
     command: "--js"
