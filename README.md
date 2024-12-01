@@ -18,6 +18,7 @@ Subjects are prefixed by a configurable prefix that defaults to `nalpaca`, and t
 **Push** to these subjects:
 
 - `<prefix>.orders.v0.<string client order id (<=128 chars)>`: push [`tradesvc.v0.Trade`](./api/proto/tradesvc/v0/tradesvc.proto) on this subject to perform a trade on the logged in portfolio. You'll need to generate a client ID first
+- `<prefix>.cancel.v0.<order ID or special keyword "ALL">`: push on this subject to cancel the specific order. Using special keyword `ALL` will initiate a cancel of all orders
 
 **Pull** to these subjects:
 

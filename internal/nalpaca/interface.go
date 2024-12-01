@@ -9,4 +9,6 @@ import (
 type Interface interface {
 	StreamTradeUpdates(context.Context, func(alpaca.TradeUpdate), alpaca.StreamTradeUpdatesRequest) error
 	PlaceOrder(req alpaca.PlaceOrderRequest) (*alpaca.Order, error)
+	CancelOrder(orderID string) error
+	CancelAllOrders() error
 }

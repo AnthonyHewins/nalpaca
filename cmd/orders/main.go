@@ -24,7 +24,10 @@ type config struct {
 
 	CacheSize uint16 `env:"CACHE_SIZE" envDefault:"30"`
 
-	OrderConsumerStream string `env:"ORDER_CONSUMER_NAME" envDefault:"nalpaca-order-stream-v0"`
+	CancelStream   string `env:"CANCEL_STREAM" envDefault:"nalpaca-cancel-stream-v0"`
+	CancelConsumer string `env:"CANCEL_CONSUMER" envDefault:"nalpaca-cancel-consumer-v0"`
+
+	OrderConsumerStream string `env:"ORDER_CONSUMER_STREAM" envDefault:"nalpaca-order-stream-v0"`
 	OrderConsumerName   string `env:"ORDER_CONSUMER_NAME" envDefault:"nalpaca-order-consumer-v0"`
 
 	ProcessingTimeout time.Duration `env:"PROCESSING_TIMEOUT" envDefault:"3s"`

@@ -14,6 +14,7 @@ type app struct {
 	*conf.Bootstrapper
 	trader *trader.Controller
 	order  consumer
+	cancel consumer
 }
 
 type consumer struct {
@@ -61,18 +62,29 @@ func (a *app) connectConsumers(ctx context.Context, c *config) error {
 		return err
 	}
 
-	l := a.Logger.With(
-		"stream", c.OrderConsumerStream,
-		"consumer", c.OrderConsumerName,
-	)
-
 	a.order.ingestor, err = js.Consumer(ctx, c.OrderConsumerStream, c.OrderConsumerName)
 	if err != nil {
-		l.ErrorContext(ctx, "failed connecting to order consumer", "err", err)
+		a.Logger.ErrorContext(ctx,
+			"failed connecting to order consumer",
+			"err", err,
+			"stream", c.OrderConsumerStream,
+			"consumer", c.OrderConsumerName,
+		)
 		return err
 	}
 
-	l.InfoContext(ctx, "connected NATS consumer")
+	a.cancel.ingestor, err = js.Consumer(ctx, c.CancelStream, c.CancelConsumer)
+	if err != nil {
+		a.Logger.ErrorContext(ctx,
+			"failed connecting to cancel order",
+			"err", err,
+			"stream", c.OrderConsumerStream,
+			"consumer", c.OrderConsumerName,
+		)
+		return err
+	}
+
+	a.Logger.InfoContext(ctx, "connected all NATS consumers")
 	return err
 }
 
@@ -82,8 +94,22 @@ func (a *app) shutdown() {
 
 	a.Bootstrapper.Shutdown(ctx)
 
-	if c := a.order.ctx; c != nil {
-		c.Drain()
-		c.Stop()
+	type consumers struct {
+		name     string
+		consumer jetstream.ConsumeContext
+	}
+
+	for _, v := range []consumers{
+		{name: "order consumer", consumer: a.order.ctx},
+		{name: "cancel consumer", consumer: a.cancel.ctx},
+	} {
+		if v.consumer == nil {
+			continue
+		}
+
+		a.Logger.InfoContext(ctx, "shutting down "+v.name)
+		v.consumer.Drain()
+		v.consumer.Stop()
+		a.Logger.InfoContext(ctx, "shut down "+v.name)
 	}
 }

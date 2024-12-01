@@ -25,9 +25,7 @@ func (b *Bootstrapper) NATSConn(n *NATS) (*nats.Conn, error) {
 		"len(pass)>0", len(n.Password) > 0,
 	)
 
-	opts := []nats.Option{
-		nats.Compression(n.Compression),
-	}
+	opts := []nats.Option{nats.Compression(n.Compression)}
 
 	if n.User != "" && n.Password != "" {
 		l.Debug("user credentials set, adding as option")
