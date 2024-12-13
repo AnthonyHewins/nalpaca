@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/AnthonyHewins/nalpaca/internal/nalpaca"
-	lru "github.com/hashicorp/golang-lru/v2"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -14,8 +13,6 @@ type Controller struct {
 	logger            *slog.Logger
 	processingTimeout time.Duration
 	alpaca            nalpaca.Interface
-
-	clientIDCache *lru.Cache[string, struct{}]
 }
 
 func NewController(
@@ -25,12 +22,10 @@ func NewController(
 	processingTimeout time.Duration,
 	cache uint,
 ) *Controller {
-	c, _ := lru.New[string, struct{}](int(cache))
 	return &Controller{
 		tracer:            tracer,
 		logger:            logger,
 		processingTimeout: processingTimeout,
 		alpaca:            client,
-		clientIDCache:     c,
 	}
 }

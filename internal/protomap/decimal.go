@@ -2,7 +2,7 @@ package protomap
 
 import "github.com/shopspring/decimal"
 
-func Decimal(s string) (*decimal.Decimal, error) {
+func ToDecimal(s string) (*decimal.Decimal, error) {
 	if s == "" {
 		return nil, nil
 	}
@@ -13,4 +13,12 @@ func Decimal(s string) (*decimal.Decimal, error) {
 	}
 
 	return &x, nil
+}
+
+func ToString(x *decimal.Decimal) string {
+	if x == nil {
+		return ""
+	}
+
+	return x.String()
 }

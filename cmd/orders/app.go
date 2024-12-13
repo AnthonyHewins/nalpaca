@@ -8,11 +8,45 @@ import (
 	"github.com/AnthonyHewins/nalpaca/internal/trader"
 	"github.com/caarlos0/env/v11"
 	"github.com/nats-io/nats.go/jetstream"
+	"github.com/prometheus/client_golang/prometheus"
+)
+
+var (
+	tradesCanceled = prometheus.NewCounter(prometheus.CounterOpts{
+		Namespace: "nalpaca",
+		Subsystem: appName,
+		Name:      "canceled",
+		Help:      "The number of trades that were canceled",
+	})
+
+	tradeCancelErrs = prometheus.NewCounter(prometheus.CounterOpts{
+		Namespace: "nalpaca",
+		Subsystem: appName,
+		Name:      "order_cancel_errs",
+		Help:      "Number of errors encountered canceling orders",
+	})
+
+	cancelAllCounter = prometheus.NewCounter(prometheus.CounterOpts{
+		Namespace: "nalpaca",
+		Subsystem: appName,
+		Name:      "cancel_all_count",
+		Help:      "The number of times a 'cancel all' was executed",
+	})
+
+	cancelAllFails = prometheus.NewCounter(prometheus.CounterOpts{
+		Namespace: "nalpaca",
+		Subsystem: appName,
+		Name:      "cancel_all_errs",
+		Help:      "The number of times a 'cancel all' failed",
+	})
 )
 
 type app struct {
 	*conf.Bootstrapper
-	trader *trader.Controller
+
+	canceler canceler
+	trader   *trader.Controller
+
 	order  consumer
 	cancel consumer
 }
@@ -52,6 +86,16 @@ func newApp(ctx context.Context) (*app, error) {
 		uint(c.CacheSize),
 	)
 
+	a.canceler = canceler{
+		logger:         a.Logger,
+		cancelCount:    tradesCanceled,
+		cancelFail:     tradeCancelErrs,
+		cancelAllCount: cancelAllCounter,
+		cancelAllFail:  cancelAllFails,
+		client:         a.Nalpaca,
+		timeout:        c.ProcessingTimeout,
+	}
+
 	return &a, nil
 }
 
@@ -62,30 +106,32 @@ func (a *app) connectConsumers(ctx context.Context, c *config) error {
 		return err
 	}
 
-	a.order.ingestor, err = js.Consumer(ctx, c.OrderConsumerStream, c.OrderConsumerName)
+	a.order.ingestor, err = a.connect(ctx, js, c.OrderConsumerStream, c.OrderConsumerName)
 	if err != nil {
-		a.Logger.ErrorContext(ctx,
-			"failed connecting to order consumer",
-			"err", err,
-			"stream", c.OrderConsumerStream,
-			"consumer", c.OrderConsumerName,
-		)
 		return err
 	}
 
-	a.cancel.ingestor, err = js.Consumer(ctx, c.CancelStream, c.CancelConsumer)
+	a.cancel.ingestor, err = a.connect(ctx, js, c.CancelStream, c.CancelConsumer)
 	if err != nil {
-		a.Logger.ErrorContext(ctx,
-			"failed connecting to cancel order",
-			"err", err,
-			"stream", c.OrderConsumerStream,
-			"consumer", c.OrderConsumerName,
-		)
 		return err
 	}
 
 	a.Logger.InfoContext(ctx, "connected all NATS consumers")
 	return err
+}
+
+func (a *app) connect(ctx context.Context, js jetstream.JetStream, stream, consumer string) (jetstream.Consumer, error) {
+	x, err := js.Consumer(ctx, stream, consumer)
+	if err != nil {
+		a.Logger.ErrorContext(ctx,
+			"failed connecting to cancel order",
+			"err", err,
+			"stream", stream,
+			"consumer", consumer,
+		)
+	}
+
+	return x, err
 }
 
 func (a *app) shutdown() {

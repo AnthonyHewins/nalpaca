@@ -59,18 +59,20 @@ func (c *Controller) handler(u alpaca.TradeUpdate) {
 		EventId:     u.EventID,
 		ExecutionId: u.ExecutionID,
 		Order:       protomap.PBFOrder(&u.Order),
-		PositionQty: u.PositionQty.String(),
-		Price:       u.Price.String(),
-		Qty:         u.Qty.String(),
+		PositionQty: protomap.ToString(u.PositionQty),
+		Price:       protomap.ToString(u.Price),
+		Qty:         protomap.ToString(u.Qty),
 		Timestamp:   t,
 	})
 
 	if err != nil {
-		l.ErrorContext(ctx, "failed order marshal", "err", err)
+		l.ErrorContext(ctx, "failed pushing out order update, failed marshal", "err", err)
 		return
 	}
 
 	if err = c.nc.Publish(c.topicPrefix+"."+u.Order.Symbol, buf); err != nil {
 		l.ErrorContext(ctx, "failed publishing order", "err", err)
 	}
+
+	l.DebugContext(ctx, "pushed order update")
 }

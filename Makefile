@@ -4,12 +4,11 @@
 # command aliases
 test := CONFIG_ENV=test go test ./...
 
-targets := nalpaca
+targets := orders tradeupdater
 
 VERSION ?= v?.?.?
 COMMIT ?= $(shell git rev-list -1 HEAD)
 IMAGE := ahewins/nalpaca
-build_flag_path := github.com/AnthonyHewins/$@
 BUILD_FLAGS := 
 ifneq (,$(wildcard ./vendor))
 	$(info Found vendor directory; setting "-mod vendor" to any "go build" commands)
@@ -20,7 +19,7 @@ endif
 # Local builds
 #======================================
 $(targets): ## Build a target server binary
-	go build $(BUILD_FLAGS) -ldflags "-X $(build_flag_path)=$(VERSION)-$(COMMIT)" -o bin/$@ ./cmd/$@
+	go build $(BUILD_FLAGS) -ldflags "-X main.version=$(COMMIT)" -o bin/$@ ./cmd/$@
 
 all: $(targets) ## Build all targets
 

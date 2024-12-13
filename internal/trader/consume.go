@@ -9,7 +9,7 @@ import (
 )
 
 func (c *Controller) term(ctx context.Context, m jetstream.Msg, reason string) {
-	c.logger.DebugContext(ctx, "terminating msg", "reason", reason)
+	c.logger.ErrorContext(ctx, "terminating msg", "reason", reason)
 	if err := m.TermWithReason(reason); err != nil {
 		c.logger.ErrorContext(ctx, "failed termination", "reason", reason, "err", err)
 	}
@@ -32,12 +32,6 @@ func (c *Controller) Consume(m jetstream.Msg) {
 		return
 	}
 
-	if c.clientIDCache.Contains(clientOrderID) {
-		c.logger.DebugContext(ctx, "client ID already seen, quitting early", "id", clientOrderID)
-		c.ack(ctx, m)
-		return
-	}
-
 	trade, err := c.getMsg(m, clientOrderID)
 	if err != nil {
 		c.term(ctx, m, err.Error())
@@ -50,11 +44,6 @@ func (c *Controller) Consume(m jetstream.Msg) {
 		}
 		return
 	}
-
-	c.logger.DebugContext(ctx,
-		"added to cache",
-		"evicted?", c.clientIDCache.Add(trade.ClientOrderID, struct{}{}),
-	)
 
 	c.ack(ctx, m)
 }

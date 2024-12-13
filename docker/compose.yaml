@@ -4,6 +4,12 @@ services:
     ports:
       - 4225:4222
     command: "--js"
+    healthcheck:
+      test: wget http://nats:4222/healthz -q -S -O -
+      start_period: 1s
+      retries: 1
+      timeout: 1s
+      interval: 15s
 
   natsbox:
     image: docker.io/natsio/nats-box:latest
@@ -11,17 +17,34 @@ services:
       - ./nats-init.sh:/bin/init.sh
     command: "sh /bin/init.sh"
     depends_on:
-      - "nats"
+      nats:
+        condition: service_started
 
-  server:
-    image: server
+  orders:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
-    environment:
-      DISABLE_TRACING: "true"
-      DISABLE_METRICS: "true"
-      DISABLE_HEALTH: "true"
+      args:
+        target: orders
+    command: "/root/orders"
+    env_file: ../.env
+    environment: &env
+      DISABLE_METRICS: true
+      DISABLE_HEALTH: true
+      DISABLE_TRACING: true
       NATS_URL: nats://nats:4222
-    depends_on:
-      - natsbox
+      LOG_LEVEL: debug
+    depends_on: &eventdeps
+      natsbox:
+        condition: service_completed_successfully
+
+  tradeupdater:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+      args:
+        target: tradeupdater
+    command: "/root/tradeupdater"
+    env_file: ../.env
+    environment: *env
+    depends_on: *eventdeps

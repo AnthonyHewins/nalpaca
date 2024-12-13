@@ -7,7 +7,7 @@ initJob:
 
 nats:
   url: ""
-  user: "" # if set, must also set password in secrets
+  user: "" # if set, must also set NATS_PASSWORD in secrets.name
   useCompression: true
   subjectPrefix: nalpaca # all subjects will have this prefix attached
 

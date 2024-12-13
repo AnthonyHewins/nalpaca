@@ -18,8 +18,10 @@ func (c *Controller) getMsg(m jetstream.Msg, id string) (alpaca.PlaceOrderReques
 		return alpaca.PlaceOrderRequest{}, err
 	}
 
+	l := c.logger.With("trade", trade.String())
+
 	if trade.Symbol == "" {
-		c.logger.Error("no symbol passed")
+		l.Error("no symbol passed")
 		return alpaca.PlaceOrderRequest{}, fmt.Errorf("no symbol given")
 	}
 
@@ -37,7 +39,7 @@ func (c *Controller) getMsg(m jetstream.Msg, id string) (alpaca.PlaceOrderReques
 		{name: "trail price", price: trade.TrailPrice},
 		{name: "trail percent", price: trade.TrailPercent},
 	} {
-		l := c.logger.With("name", v.name, "val", v.price)
+		l = l.With("name", v.name, "val", v.price)
 
 		x, err := newDecimal(v.price)
 		if err != nil {
@@ -45,7 +47,7 @@ func (c *Controller) getMsg(m jetstream.Msg, id string) (alpaca.PlaceOrderReques
 			return alpaca.PlaceOrderRequest{}, err
 		}
 
-		if x.IsNegative() {
+		if x != nil && x.IsNegative() {
 			l.Error("invalid decimal", "name", v.name, "value", v.price)
 			return alpaca.PlaceOrderRequest{}, fmt.Errorf("invalid %s: %s", v.name, v.price)
 		}
@@ -92,7 +94,7 @@ func (c *Controller) getMsg(m jetstream.Msg, id string) (alpaca.PlaceOrderReques
 		{name: "time in force", value: string(o.TimeInForce)},
 		{name: "position intent", value: string(o.PositionIntent)},
 	} {
-		if v.value != "" {
+		if v.value == "" {
 			return alpaca.PlaceOrderRequest{}, fmt.Errorf("missing required value %s: got zero value", v.name)
 		}
 	}
@@ -101,7 +103,7 @@ func (c *Controller) getMsg(m jetstream.Msg, id string) (alpaca.PlaceOrderReques
 }
 
 func (c *Controller) toStopLoss(s *tradesvc.StopLoss) (*alpaca.StopLoss, error) {
-	if s.Limit == "" && s.Stop == "" {
+	if s == nil || s.Limit == "" && s.Stop == "" {
 		return nil, nil
 	}
 
@@ -121,7 +123,7 @@ func (c *Controller) toStopLoss(s *tradesvc.StopLoss) (*alpaca.StopLoss, error) 
 }
 
 func (c *Controller) toTakeProfit(t *tradesvc.TakeProfit) (*alpaca.TakeProfit, error) {
-	if t.LimitPrice == "" {
+	if t == nil || t.LimitPrice == "" {
 		return nil, nil
 	}
 

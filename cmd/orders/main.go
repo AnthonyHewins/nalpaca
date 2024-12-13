@@ -91,6 +91,16 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 		return err
 	})
 
+	g.Go(func() error {
+		var err error
+		a.cancel.ctx, err = a.cancel.ingestor.Consume(a.canceler.eventLoop)
+		if err != nil {
+			a.Logger.ErrorContext(ctx, "failed starting order cancel consumer", "err", err)
+		}
+
+		return err
+	})
+
 	if a.Metrics != nil {
 		g.Go(func() error {
 			a.Logger.InfoContext(ctx, "starting metrics server")

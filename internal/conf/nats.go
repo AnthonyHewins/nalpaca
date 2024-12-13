@@ -1,6 +1,10 @@
 package conf
 
-import "github.com/nats-io/nats.go"
+import (
+	"fmt"
+
+	"github.com/nats-io/nats.go"
+)
 
 type NATS struct {
 	Disable bool `env:"DISABLE_NATS" envDefault:"false"`
@@ -27,9 +31,19 @@ func (b *Bootstrapper) NATSConn(n *NATS) (*nats.Conn, error) {
 
 	opts := []nats.Option{nats.Compression(n.Compression)}
 
-	if n.User != "" && n.Password != "" {
+	if n.User != "" {
+		if n.Password == "" {
+			msg := "config error: you set NATS password, but not a user. Please set both, or neither"
+			l.Error(msg, "user", n.User)
+			return nil, fmt.Errorf(msg)
+		}
+
 		l.Debug("user credentials set, adding as option")
 		opts = append(opts, nats.UserInfo(n.User, n.Password))
+	} else if n.Password != "" {
+		msg := "config error: you set NATS password, but not a user. Please set both, or neither"
+		l.Error(msg)
+		return nil, fmt.Errorf(msg)
 	}
 
 	nc, err := nats.Connect(n.URL, opts...)
@@ -38,5 +52,6 @@ func (b *Bootstrapper) NATSConn(n *NATS) (*nats.Conn, error) {
 		return nil, err
 	}
 
+	l.Info("connected to NATS")
 	return nc, nil
 }

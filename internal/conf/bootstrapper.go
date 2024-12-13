@@ -8,6 +8,7 @@ import (
 
 	"github.com/AnthonyHewins/nalpaca/internal/nalpaca"
 	"github.com/nats-io/nats.go"
+	"github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/sdk/trace"
 )
 
@@ -31,7 +32,7 @@ type Bootstrapper struct {
 	Nalpaca nalpaca.Interface
 }
 
-func (b *BootstrapConf) New(ctx context.Context, appName string) (*Bootstrapper, error) {
+func (b *BootstrapConf) New(ctx context.Context, appName string, metrics ...prometheus.Collector) (*Bootstrapper, error) {
 	logger, err := b.Logger.Slog()
 	if err != nil {
 		return nil, err
@@ -55,7 +56,7 @@ func (b *BootstrapConf) New(ctx context.Context, appName string) (*Bootstrapper,
 		return nil, err
 	}
 
-	a.Metrics, err = a.PrometheusHTTP(&b.Metrics)
+	a.Metrics, err = a.PrometheusHTTP(&b.Metrics, metrics...)
 	if err != nil {
 		return nil, err
 	}
