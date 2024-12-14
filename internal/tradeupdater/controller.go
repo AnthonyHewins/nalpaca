@@ -24,9 +24,10 @@ func NewController(
 	topicPrefix string,
 ) *Controller {
 	return &Controller{
-		logger:  logger,
-		client:  client,
-		timeout: timeout,
-		nc:      nc,
+		logger:      logger,
+		client:      client,
+		timeout:     timeout,
+		nc:          nc,
+		topicPrefix: topicPrefix,
 	}
 }

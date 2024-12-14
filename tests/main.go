@@ -1,62 +1,77 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"fmt"
 	"os"
 	"time"
 
-	"github.com/AnthonyHewins/nalpaca/internal/conf"
-	"github.com/AnthonyHewins/nalpaca/pkg/nalpaca"
-	"github.com/caarlos0/env/v11"
+	"github.com/AnthonyHewins/nalpaca/tests/testcontrol"
 	"github.com/nats-io/nats.go"
-	"github.com/nats-io/nats.go/jetstream"
 )
 
 type config struct {
-	conf.Logger
-	conf.NATS
-
-	Timeout time.Duration `env:"TIMEOUT" envDefault:"1s"`
+	logger
+	url     string
+	timeout time.Duration
 }
 
 func main() {
-	c := config{}
-	if err := env.Parse(&c); err != nil {
-		panic(err)
+	c, err := newTester()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer c.Shutdown()
+
+	var errs []error
+	for _, v := range c.Tests() {
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		if err = v.Fn(ctx); err != nil {
+			errs = append(errs, fmt.Errorf("%s: %w", v.Name, err))
+		}
 	}
 
-	l, err := c.Logger.Slog()
+	for _, v := range errs {
+		fmt.Printf("FAIL %s\n", v)
+	}
+}
+
+func newTester() (*testcontrol.Controller, error) {
+	c := config{}
+
+	flag.BoolVar(&c.quiet, "s", false, "Silent mode: no logs")
+	flag.StringVar(&c.fmt, "format", "text", "Log format")
+	flag.StringVar(&c.level, "log-level", "error", "Log level")
+	flag.BoolVar(&c.src, "log-src", false, "log source line")
+
+	flag.StringVar(&c.url, "server", "localhost:4225", "NATS url to connect to")
+
+	flag.DurationVar(&c.timeout, "timeout", time.Second, "timeout each test after this")
+
+	flag.Parse()
+
+	l, err := c.logger.slog()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	nc, err := nats.Connect(c.NATS.URL)
+	nc, err := nats.Connect(c.url)
 	if err != nil {
-		l.Error("failed connecting to nats", "err", err, "url", c.NATS.URL)
-		os.Exit(1)
+		l.Error("failed connecting to nats", "err", err, "url", c.url)
+		return nil, err
 	}
-	l.Debug("connected to nats", "url", c.NATS.URL)
-	defer nc.Close()
+	l.Debug("connected to nats", "url", c.url)
 
-	js, err := jetstream.New(nc)
+	x, err := testcontrol.NewController(l, nc)
 	if err != nil {
-		l.Error("nats connection is not jetstream", "err", err)
-		os.Exit(1)
+		nc.Close()
+		return nil, err
 	}
 
-	x := controller{
-		nc:      nc,
-		timeout: c.Timeout,
-		client:  nalpaca.NewClient(js, "nalpaca"),
-	}
-
-	for _, fn := range []func() error{
-		x.cancel,
-	} {
-		if err = fn(); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-	}
+	return x, nil
 }

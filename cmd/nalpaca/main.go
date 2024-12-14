@@ -21,10 +21,11 @@ var version string
 
 type config struct {
 	conf.BootstrapConf
+	CancelConf
+	OrdersConf
+	tradeupdaterConf
+	StreamPrefix string `env:"STREAM_PREFIX" envDefault:"nalpaca"`
 
-	TradeUpdaterStream string `env:"TRADE_UPDATER_STREAM_NAME" envDefault:"nalpaca-tradeupdate-stream-v0"`
-
-	StreamPrefix      string        `env:"STREAM_PREFIX" envDefault:"nalpaca"`
 	ProcessingTimeout time.Duration `env:"PROCESSING_TIMEOUT" envDefault:"3s"`
 }
 
@@ -77,8 +78,28 @@ func main() {
 
 func (a *app) start(ctx context.Context, g *errgroup.Group) {
 	g.Go(func() error {
+		var err error
+		a.order.ctx, err = a.order.ingestor.Consume(a.trader.Consume)
+		if err != nil {
+			a.Logger.ErrorContext(ctx, "failed starting order consumer", "err", err)
+		}
+
+		return err
+	})
+
+	g.Go(func() error {
+		var err error
+		a.cancel.ctx, err = a.cancel.ingestor.Consume(a.canceler.EventLoop)
+		if err != nil {
+			a.Logger.ErrorContext(ctx, "failed starting order cancel consumer", "err", err)
+		}
+
+		return err
+	})
+
+	g.Go(func() error {
 		a.Logger.InfoContext(ctx, "starting trade updater event loop")
-		return a.tradeupdater.EventLoop(ctx)
+		return a.updater.EventLoop(ctx)
 	})
 
 	if a.Metrics != nil {

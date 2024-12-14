@@ -4,48 +4,44 @@ import (
 	"context"
 	"time"
 
+	"github.com/AnthonyHewins/nalpaca/internal/canceler"
 	"github.com/AnthonyHewins/nalpaca/internal/conf"
 	"github.com/AnthonyHewins/nalpaca/internal/trader"
+	"github.com/AnthonyHewins/nalpaca/internal/tradeupdater"
 	"github.com/caarlos0/env/v11"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+func newCounter(system, name, desc string) prometheus.Counter {
+	return prometheus.NewCounter(prometheus.CounterOpts{
+		Namespace: appName,
+		Subsystem: system,
+		Name:      name,
+		Help:      desc,
+	})
+}
+
 var (
-	tradesCanceled = prometheus.NewCounter(prometheus.CounterOpts{
-		Namespace: "nalpaca",
-		Subsystem: appName,
-		Name:      "canceled",
-		Help:      "The number of trades that were canceled",
-	})
+	cancelCounters = canceler.Counters{
+		CancelCount:    newCounter("canceler", "cancel_count", "The number of trades that were canceled"),
+		CancelFail:     newCounter("canceler", "order_cancel_errs", "Number of errors encountered canceling orders"),
+		CancelAllCount: newCounter("canceler", "cancel_all_count", "The number of times a 'cancel all' was executed"),
+		CancelAllFail:  newCounter("canceler", "cancel_all_errs", "The number of times a 'cancel all' failed"),
+	}
 
-	tradeCancelErrs = prometheus.NewCounter(prometheus.CounterOpts{
-		Namespace: "nalpaca",
-		Subsystem: appName,
-		Name:      "order_cancel_errs",
-		Help:      "Number of errors encountered canceling orders",
-	})
-
-	cancelAllCounter = prometheus.NewCounter(prometheus.CounterOpts{
-		Namespace: "nalpaca",
-		Subsystem: appName,
-		Name:      "cancel_all_count",
-		Help:      "The number of times a 'cancel all' was executed",
-	})
-
-	cancelAllFails = prometheus.NewCounter(prometheus.CounterOpts{
-		Namespace: "nalpaca",
-		Subsystem: appName,
-		Name:      "cancel_all_errs",
-		Help:      "The number of times a 'cancel all' failed",
-	})
+	orderCounters = trader.Counters{
+		OrderCreatedCount: newCounter("orders", "orders_created_count", "Number of times an order was created successfully"),
+		OrderFailCount:    newCounter("orders", "orders_failed_count", "Number of times an order creation failed"),
+	}
 )
 
 type app struct {
 	*conf.Bootstrapper
 
-	canceler canceler
+	canceler *canceler.Canceler
 	trader   *trader.Controller
+	updater  *tradeupdater.Controller
 
 	order  consumer
 	cancel consumer
@@ -67,7 +63,9 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	a := app{Bootstrapper: b}
+	a := app{
+		Bootstrapper: b,
+	}
 	defer func() {
 		if err != nil {
 			a.shutdown()
@@ -78,24 +76,7 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	a.trader = trader.NewController(
-		a.TP.Tracer("trader"),
-		a.Logger,
-		a.Nalpaca,
-		c.ProcessingTimeout,
-		uint(c.CacheSize),
-	)
-
-	a.canceler = canceler{
-		logger:         a.Logger,
-		cancelCount:    tradesCanceled,
-		cancelFail:     tradeCancelErrs,
-		cancelAllCount: cancelAllCounter,
-		cancelAllFail:  cancelAllFails,
-		client:         a.Nalpaca,
-		timeout:        c.ProcessingTimeout,
-	}
-
+	a.initTradeUpdater(&c)
 	return &a, nil
 }
 
@@ -106,17 +87,15 @@ func (a *app) connectConsumers(ctx context.Context, c *config) error {
 		return err
 	}
 
-	a.order.ingestor, err = a.connect(ctx, js, c.OrderConsumerStream, c.OrderConsumerName)
-	if err != nil {
-		return err
+	for _, fn := range []func(context.Context, jetstream.JetStream, *config) error{
+		a.initCanceler,
+		a.initOrders,
+	} {
+		if err = fn(ctx, js, c); err != nil {
+			return err
+		}
 	}
 
-	a.cancel.ingestor, err = a.connect(ctx, js, c.CancelStream, c.CancelConsumer)
-	if err != nil {
-		return err
-	}
-
-	a.Logger.InfoContext(ctx, "connected all NATS consumers")
 	return err
 }
 
@@ -124,7 +103,7 @@ func (a *app) connect(ctx context.Context, js jetstream.JetStream, stream, consu
 	x, err := js.Consumer(ctx, stream, consumer)
 	if err != nil {
 		a.Logger.ErrorContext(ctx,
-			"failed connecting to cancel order",
+			"failed connecting to consumer",
 			"err", err,
 			"stream", stream,
 			"consumer", consumer,

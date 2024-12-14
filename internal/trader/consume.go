@@ -13,6 +13,16 @@ func (c *Controller) term(ctx context.Context, m jetstream.Msg, reason string) {
 	if err := m.TermWithReason(reason); err != nil {
 		c.logger.ErrorContext(ctx, "failed termination", "reason", reason, "err", err)
 	}
+
+	c.Counters.OrderFailCount.Inc()
+}
+
+func (c *Controller) nak(ctx context.Context, m jetstream.Msg) {
+	if err := m.Nak(); err != nil {
+		c.logger.ErrorContext(ctx, "failed nak", "err", err)
+	}
+
+	c.Counters.OrderFailCount.Inc()
 }
 
 func (c *Controller) ack(ctx context.Context, m jetstream.Msg) {
@@ -20,6 +30,8 @@ func (c *Controller) ack(ctx context.Context, m jetstream.Msg) {
 		c.logger.ErrorContext(ctx, "failed ACK", "err", err)
 		return
 	}
+
+	c.Counters.OrderCreatedCount.Inc()
 }
 
 func (c *Controller) Consume(m jetstream.Msg) {
@@ -39,9 +51,7 @@ func (c *Controller) Consume(m jetstream.Msg) {
 	}
 
 	if err = c.trade(ctx, trade); err != nil {
-		if err = m.Nak(); err != nil {
-			c.logger.ErrorContext(ctx, "failed nak", "err", err)
-		}
+		c.nak(ctx, m)
 		return
 	}
 

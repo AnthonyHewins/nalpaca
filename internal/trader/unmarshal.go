@@ -103,7 +103,7 @@ func (c *Controller) getMsg(m jetstream.Msg, id string) (alpaca.PlaceOrderReques
 }
 
 func (c *Controller) toStopLoss(s *tradesvc.StopLoss) (*alpaca.StopLoss, error) {
-	if s == nil || s.Limit == "" && s.Stop == "" {
+	if s == nil || (s.Limit == "" && s.Stop == "") {
 		return nil, nil
 	}
 

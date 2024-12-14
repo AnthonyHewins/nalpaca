@@ -1,5 +1,9 @@
 api/
 assets/
+bin/
 docker/
 helm/
 buf.*
+tests/
+pkg/
+README.md

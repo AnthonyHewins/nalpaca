@@ -5,10 +5,17 @@ import (
 	"time"
 
 	"github.com/AnthonyHewins/nalpaca/internal/nalpaca"
+	"github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/trace"
 )
 
+type Counters struct {
+	OrderCreatedCount prometheus.Counter
+	OrderFailCount    prometheus.Counter
+}
+
 type Controller struct {
+	Counters
 	tracer            trace.Tracer
 	logger            *slog.Logger
 	processingTimeout time.Duration
@@ -18,11 +25,12 @@ type Controller struct {
 func NewController(
 	tracer trace.Tracer,
 	logger *slog.Logger,
+	counters Counters,
 	client nalpaca.Interface,
 	processingTimeout time.Duration,
-	cache uint,
 ) *Controller {
 	return &Controller{
+		Counters:          counters,
 		tracer:            tracer,
 		logger:            logger,
 		processingTimeout: processingTimeout,

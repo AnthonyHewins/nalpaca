@@ -122,3 +122,9 @@ nats consumer add $STREAM $CONSUMER \
   --filter $SUBJECT \
   --backoff-steps $ORDER_STREAM_BACKOFF \
   --defaults 1> /dev/null
+
+#=================================
+# Portfolio KV store
+#=================================
+echo "Creating portfolio KV store"
+nats kv add ${PORTFOLIO:-portfolios} -s $SERVER 1> /dev/null

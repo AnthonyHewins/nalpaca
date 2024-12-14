@@ -8,5 +8,6 @@ import (
 )
 
 type Interface interface {
-	PushTrade(ctx context.Context, idemKey string, order *tradesvc.Trade) (*jetstream.PubAck, error)
+	PushTrade(ctx context.Context, idemKey string, order *tradesvc.Trade, opts ...jetstream.PublishOpt) (*jetstream.PubAck, error)
+	Cancel(ctx context.Context, idemKey string, opts ...jetstream.PublishOpt) (*jetstream.PubAck, error)
 }

@@ -20,31 +20,20 @@ services:
       nats:
         condition: service_started
 
-  orders:
+  nalpaca:
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
       args:
-        target: orders
-    command: "/root/orders"
+        target: nalpaca
+    command: "/root/nalpaca"
     env_file: ../.env
-    environment: &env
+    environment:
       DISABLE_METRICS: true
       DISABLE_HEALTH: true
       DISABLE_TRACING: true
       NATS_URL: nats://nats:4222
       LOG_LEVEL: debug
-    depends_on: &eventdeps
+    depends_on:
       natsbox:
         condition: service_completed_successfully
-
-  tradeupdater:
-    build:
-      context: ..
-      dockerfile: ./docker/Dockerfile
-      args:
-        target: tradeupdater
-    command: "/root/tradeupdater"
-    env_file: ../.env
-    environment: *env
-    depends_on: *eventdeps

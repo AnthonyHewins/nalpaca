@@ -12,11 +12,16 @@ import (
 
 var (
 	ErrMissingSymbol = errors.New("missing symbol")
+	ErrMissingOrder  = errors.New("no order passed")
 )
 
-func (c *Client) PushTrade(ctx context.Context, idemKey string, order *tradesvc.Trade) (*jetstream.PubAck, error) {
+func (c *Client) PushTrade(ctx context.Context, idemKey string, order *tradesvc.Trade, opts ...jetstream.PublishOpt) (*jetstream.PubAck, error) {
 	if len(idemKey) > 128 {
 		return nil, fmt.Errorf("invalid idempotent order ID: %s. Must be under 128 chars", idemKey)
+	}
+
+	if order == nil {
+		return nil, ErrMissingOrder
 	}
 
 	if order.Symbol == "" {
@@ -28,5 +33,5 @@ func (c *Client) PushTrade(ctx context.Context, idemKey string, order *tradesvc.
 		return nil, err
 	}
 
-	return c.nc.Publish(ctx, c.prefix+".orders.v0."+idemKey, buf)
+	return c.nc.Publish(ctx, c.prefix+".orders.v0."+idemKey, buf, opts...)
 }

@@ -1,4 +1,4 @@
-package main
+package testcontrol
 
 import (
 	"context"
@@ -7,22 +7,23 @@ import (
 	"github.com/google/uuid"
 )
 
-func (c *controller) cancel() error {
-	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
-	defer cancel()
-
-	id := uuid.New().String()
+func (c *Controller) TestCancel(ctx context.Context) error {
+	id := uuid.NewString()
 	_, err := c.client.PushTrade(ctx, id, &tradesvc.Trade{
 		Symbol:         "AAPL",
 		Qty:            "1",
 		Side:           tradesvc.Side_SIDE_BUY,
-		OrderType:      tradesvc.OrderType_ORDER_TYPE_LIMIT,
-		Tif:            tradesvc.TimeInForce_TIME_IN_FORCE_DAY,
-		LimitPrice:     "1.0",
+		OrderType:      tradesvc.OrderType_ORDER_TYPE_TRAILING_STOP,
 		PositionIntent: tradesvc.PositionIntent_POSITION_INTENT_BUY_TO_OPEN,
+		Tif:            tradesvc.TimeInForce_TIME_IN_FORCE_DAY,
+		TrailPercent:   "5",
 	})
 
 	if err != nil {
+		return err
+	}
+
+	if _, err = c.client.Cancel(ctx, id); err != nil {
 		return err
 	}
 

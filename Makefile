@@ -4,7 +4,7 @@
 # command aliases
 test := CONFIG_ENV=test go test ./...
 
-targets := orders tradeupdater
+targets := nalpaca
 
 VERSION ?= v?.?.?
 COMMIT ?= $(shell git rev-list -1 HEAD)

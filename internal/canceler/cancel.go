@@ -1,4 +1,4 @@
-package main
+package canceler
 
 import (
 	"context"
@@ -11,35 +11,46 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type canceler struct {
-	logger *slog.Logger
-
-	cancelCount, cancelFail       prometheus.Counter
-	cancelAllCount, cancelAllFail prometheus.Counter
-
-	client  nalpaca.Interface
-	timeout time.Duration
+type Canceler struct {
+	counters Counters
+	logger   *slog.Logger
+	client   nalpaca.Interface
+	timeout  time.Duration
 }
 
-func (c *canceler) ack(m jetstream.Msg) {
+type Counters struct {
+	CancelCount, CancelFail       prometheus.Counter
+	CancelAllCount, CancelAllFail prometheus.Counter
+}
+
+func New(logger *slog.Logger, client nalpaca.Interface, counters Counters, timeout time.Duration) *Canceler {
+	return &Canceler{
+		counters: counters,
+		logger:   logger,
+		client:   client,
+		timeout:  timeout,
+	}
+}
+
+func (c *Canceler) ack(m jetstream.Msg) {
 	if err := m.Ack(); err != nil {
 		c.logger.Error("failed ack", "err", err)
 	}
 }
 
-func (c *canceler) nak(m jetstream.Msg) {
+func (c *Canceler) nak(m jetstream.Msg) {
 	if err := m.Nak(); err != nil {
 		c.logger.Error("failed nak", "err", err)
 	}
 }
 
-func (c *canceler) term(m jetstream.Msg, reason string) {
+func (c *Canceler) term(m jetstream.Msg, reason string) {
 	if err := m.TermWithReason(reason); err != nil {
 		c.logger.Error("failed term", "err", err, "reason", reason)
 	}
 }
 
-func (c *canceler) eventLoop(m jetstream.Msg) {
+func (c *Canceler) EventLoop(m jetstream.Msg) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 
@@ -69,26 +80,26 @@ func (c *canceler) eventLoop(m jetstream.Msg) {
 
 	if err := c.client.CancelOrder(id); err != nil {
 		l.ErrorContext(ctx, "failed canceling order", "err", err)
-		c.cancelFail.Inc()
+		c.counters.CancelFail.Inc()
 		c.nak(m)
 		return
 	}
 
 	l.InfoContext(ctx, "successful cancel")
-	c.cancelCount.Inc()
+	c.counters.CancelCount.Inc()
 	c.ack(m)
 }
 
-func (c *canceler) cancelAll(m jetstream.Msg) {
+func (c *Canceler) cancelAll(m jetstream.Msg) {
 	c.logger.Warn("received cancel all orders request")
 	if err := c.client.CancelAllOrders(); err != nil {
 		c.logger.Error("failed canceling all orders", "err", err)
-		c.cancelAllFail.Inc()
+		c.counters.CancelAllFail.Inc()
 		c.nak(m)
 		return
 	}
 
 	c.logger.Info("successfully canceled all orders")
-	c.cancelAllCount.Inc()
+	c.counters.CancelAllCount.Inc()
 	c.ack(m)
 }
