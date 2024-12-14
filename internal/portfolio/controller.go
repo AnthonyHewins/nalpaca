@@ -2,6 +2,7 @@ package portfolio
 
 import (
 	"log/slog"
+	"time"
 
 	"github.com/AnthonyHewins/nalpaca/internal/nalpaca"
 	"github.com/nats-io/nats.go/jetstream"
@@ -9,13 +10,28 @@ import (
 
 type Controller struct {
 	logger  *slog.Logger
-	nalpaca nalpaca.Interface
-	kv      jetstream.KeyValue
+	client  nalpaca.Interface
+	timeout time.Duration
+	js      jetstream.JetStream
+
+	portfolioKV jetstream.KeyValue
+
+	topicPrefix string
 }
 
-func NewController(logger *slog.Logger, kv jetstream.KeyValue) *Controller {
+func NewController(
+	logger *slog.Logger,
+	client nalpaca.Interface,
+	timeout time.Duration,
+	nc jetstream.JetStream,
+	portfolioKV jetstream.KeyValue,
+	topicPrefix string,
+) *Controller {
 	return &Controller{
-		logger: logger,
-		kv:     kv,
+		logger:      logger,
+		client:      client,
+		timeout:     timeout,
+		js:          nc,
+		topicPrefix: topicPrefix,
 	}
 }

@@ -1,6 +1,7 @@
 package testcontrol
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/AnthonyHewins/nalpaca/pkg/nalpaca"
@@ -10,6 +11,8 @@ import (
 
 type Controller struct {
 	nc     *nats.Conn
+	js     jetstream.JetStream
+	kv     jetstream.KeyValue
 	client *nalpaca.Client
 	logger *slog.Logger
 }
@@ -21,9 +24,17 @@ func NewController(logger *slog.Logger, nc *nats.Conn) (*Controller, error) {
 		return nil, err
 	}
 
+	kv, err := js.KeyValue(context.Background(), "nalpaca")
+	if err != nil {
+		logger.Error("failed connecting to kv", "err", err)
+		return nil, err
+	}
+
 	return &Controller{
 		nc:     nc,
-		client: nalpaca.NewClient(js, "nalpaca"),
+		js:     js,
+		kv:     kv,
+		client: nalpaca.NewClient(js, kv, "nalpaca"),
 		logger: logger,
 	}, nil
 }

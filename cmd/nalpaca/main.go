@@ -23,8 +23,10 @@ type config struct {
 	conf.BootstrapConf
 	CancelConf
 	OrdersConf
-	tradeupdaterConf
+	TradeUpdaterConf
+
 	StreamPrefix string `env:"STREAM_PREFIX" envDefault:"nalpaca"`
+	Bucket       string `env:"NATS_KV_BUCKET" envDefault:"nalpaca"`
 
 	ProcessingTimeout time.Duration `env:"PROCESSING_TIMEOUT" envDefault:"3s"`
 }
@@ -99,7 +101,7 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 
 	g.Go(func() error {
 		a.Logger.InfoContext(ctx, "starting trade updater event loop")
-		return a.updater.EventLoop(ctx)
+		return a.updater.TradeUpdateLoop(ctx)
 	})
 
 	if a.Metrics != nil {

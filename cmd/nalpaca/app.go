@@ -6,8 +6,8 @@ import (
 
 	"github.com/AnthonyHewins/nalpaca/internal/canceler"
 	"github.com/AnthonyHewins/nalpaca/internal/conf"
+	"github.com/AnthonyHewins/nalpaca/internal/portfolio"
 	"github.com/AnthonyHewins/nalpaca/internal/trader"
-	"github.com/AnthonyHewins/nalpaca/internal/tradeupdater"
 	"github.com/caarlos0/env/v11"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/prometheus/client_golang/prometheus"
@@ -41,7 +41,7 @@ type app struct {
 
 	canceler *canceler.Canceler
 	trader   *trader.Controller
-	updater  *tradeupdater.Controller
+	updater  *portfolio.Controller
 
 	order  consumer
 	cancel consumer
@@ -72,18 +72,23 @@ func newApp(ctx context.Context) (*app, error) {
 		}
 	}()
 
-	if err = a.connectConsumers(ctx, &c); err != nil {
+	if err = a.connectNATS(ctx, &c); err != nil {
 		return nil, err
 	}
 
-	a.initTradeUpdater(&c)
 	return &a, nil
 }
 
-func (a *app) connectConsumers(ctx context.Context, c *config) error {
+func (a *app) connectNATS(ctx context.Context, c *config) error {
 	js, err := jetstream.New(a.NC)
 	if err != nil {
 		a.Logger.ErrorContext(ctx, "failed connecting to jetstream", "err", err)
+		return err
+	}
+
+	kv, err := js.KeyValue(ctx, c.Bucket)
+	if err != nil {
+		a.Logger.ErrorContext(ctx, "failed connecting to nalpaca KV bucket", "err", err, "bucket", c.Bucket)
 		return err
 	}
 
@@ -96,6 +101,7 @@ func (a *app) connectConsumers(ctx context.Context, c *config) error {
 		}
 	}
 
+	a.initTradeUpdater(ctx, js, kv, c)
 	return err
 }
 

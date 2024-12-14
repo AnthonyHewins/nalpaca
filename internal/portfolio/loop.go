@@ -1,4 +1,4 @@
-package tradeupdater
+package portfolio
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (c *Controller) EventLoop(ctx context.Context) error {
+func (c *Controller) TradeUpdateLoop(ctx context.Context) error {
 	var lastMessage time.Time
 	for {
 		req := alpaca.StreamTradeUpdatesRequest{}
@@ -68,9 +68,10 @@ func (c *Controller) handler(u alpaca.TradeUpdate) {
 		return
 	}
 
-	if err = c.nc.Publish(c.topicPrefix+"."+u.Order.Symbol, buf); err != nil {
+	ack, err := c.js.Publish(ctx, c.topicPrefix+"."+u.Order.Symbol, buf)
+	if err != nil {
 		l.ErrorContext(ctx, "failed publishing order", "err", err)
 	}
 
-	l.DebugContext(ctx, "pushed order update")
+	l.DebugContext(ctx, "pushed order update", "ack", ack)
 }

@@ -7,8 +7,13 @@ import (
 type Client struct {
 	prefix string
 	nc     jetstream.JetStream
+	kv     jetstream.KeyValue
 }
 
-func NewClient(nc jetstream.JetStream, prefix string) *Client {
-	return &Client{nc: nc, prefix: prefix}
+func NewClient(nc jetstream.JetStream, kv jetstream.KeyValue, prefix string) *Client {
+	return &Client{
+		prefix: prefix,
+		nc:     nc,
+		kv:     kv,
+	}
 }

@@ -134,3 +134,64 @@ message TradeUpdate {
     string qty = 8;
     google.protobuf.Timestamp timestamp = 9;
 }
+
+// message Account {
+// 	string ID = 1;
+// 	string AccountNumber = 2;
+// 	string Status = 3;
+// 	string CryptoStatus = 4;
+// 	string Currency = 5;
+// 	string BuyingPower = 6;
+// 	string RegTBuyingPower = 7;
+// 	string DaytradingBuyingPower = 8;
+// 	string EffectiveBuyingPower = 9;
+// 	string NonMarginBuyingPower = 10;
+// 	string BodDtbp = 11;
+// 	string Cash = 12;
+// 	string AccruedFees = 13;
+// 	string PortfolioValue = 14;
+// 	bool   PatternDayTrader = 15;
+// 	bool   TradingBlocked = 16;
+// 	bool   TransfersBlocked = 17;
+// 	bool   AccountBlocked = 18;
+// 	bool   ShortingEnabled = 19;
+// 	bool   TradeSuspendedByUser = 20;
+// 	google.protobuf.Timestamp CreatedAt = 21;
+// 	string Multiplier = 22;
+// 	string Equity = 23;
+// 	string LastEquity = 24;
+// 	string LongMarketValue = 25;
+// 	string ShortMarketValue = 26;
+// 	string PositionMarketValue = 27;
+// 	string InitialMargin = 28;
+// 	string MaintenanceMargin = 29;
+// 	string LastMaintenanceMargin = 30;
+// 	string SMA = 31;
+// 	int64 DaytradeCount = 32;
+// 	int32 CryptoTier = 33;
+// }
+
+message Position {
+	string     asset_id                 = 1;
+	string     symbol                   = 2;
+	string     exchange                 = 3;
+	AssetClass asset_class              = 4;
+	bool       asset_marginable         = 5;
+	string     qty                      = 6;
+	string     qty_available            = 7;
+	string     avg_entry_price          = 8;
+	string     side                     = 9;
+	string     market_value             = 10;
+	string     cost_basis               = 11;
+	string     unrealized_pl            = 12;
+	string     unrealized_plpc          = 13;
+	string     unrealized_intraday_pl   = 14;
+	string     unrealized_intraday_plpc = 15;
+	string     current_price            = 16;
+	string     lastday_price            = 17;
+	string     change_today             = 18;
+}
+
+message Positions {
+	repeated Position positions = 1;
+}

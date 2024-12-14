@@ -12,6 +12,7 @@ type Mock struct {
 	CancelFn             func(string) error
 	CancelAllOrdersFn    func() error
 	GetAcctFn            func() (*alpaca.Account, error)
+	PositionsFn          func() ([]alpaca.Position, error)
 }
 
 func (m Mock) StreamTradeUpdates(ctx context.Context, fn func(alpaca.TradeUpdate), req alpaca.StreamTradeUpdatesRequest) error {
@@ -32,4 +33,8 @@ func (m Mock) CancelAllOrders() error {
 
 func (m Mock) GetAccount() (*alpaca.Account, error) {
 	return m.GetAcctFn()
+}
+
+func (m Mock) GetPositions() ([]alpaca.Position, error) {
+	return m.GetPositions()
 }

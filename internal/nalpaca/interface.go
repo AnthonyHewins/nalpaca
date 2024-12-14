@@ -11,5 +11,6 @@ type Interface interface {
 	PlaceOrder(req alpaca.PlaceOrderRequest) (*alpaca.Order, error)
 	CancelOrder(orderID string) error
 	CancelAllOrders() error
-	GetAccount() (*alpaca.Account, error)
+	// GetAccount() (*alpaca.Account, error)
+	GetPositions() ([]alpaca.Position, error)
 }

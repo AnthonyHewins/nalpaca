@@ -18,15 +18,20 @@ type config struct {
 }
 
 func main() {
-	c, err := newTester()
+	tester, err := newTester()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	defer c.Shutdown()
+	defer tester.Shutdown()
 
-	var errs []error
-	for _, v := range c.Tests() {
+	tests := tester.Tests()
+	if len(tests) == 0 {
+		panic("no tests exist")
+	}
+
+	errs := make([]error, 0, len(tests))
+	for _, v := range tests {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
