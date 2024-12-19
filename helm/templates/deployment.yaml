@@ -1,8 +1,7 @@
-{{ if .Values.tradeupdater.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: orders
+  name: nalpaca
   labels:
     {{- include "helm.labels" . | nindent 4 }}
 spec:
@@ -32,17 +31,14 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "docker.io/ahewins/nalpaca:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          entryPoint: "/root/nalpaca"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: "/root/tradeupdater"
           {{- if .Values.metrics.enabled }}
           ports:
             - name: prom-metrics
               containerPort: "8088"
               protocol: TCP
           {{- end }}
-          environment:
-            - name: PROCESSING_TIMEOUT
-              value: {{ .Values.orders.processingTimeout }}
           envFrom:
             - configMapRef:
               name: app-config
@@ -60,10 +56,31 @@ spec:
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
+      {{- with .Values.nats.initJob }}
+      {{ if .enabled }}
+      initContainers:
+        - name: nats-box
+          image: docker.io/natsio/nats-box:latest
+          command: ['sh', '-c', '/init.sh']
+          volumeMounts:
+            name: initjob
+            mountPath: "/"
+            readOnly: true
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        - name: initJob
+          configMap:
+            name: nats-init
+            items:
+              - key: "init.sh"
+                path: "init.sh"
+              {{- range $val := list "orders" "cancel" }}
+              - key: "{{ $val }}-stream.json"
+                path: "{{ $val }}-stream.json"
+              - key: "{{ $val }}-consumer.json"
+                path: "{{ $val }}-consumer.json"
+              {{- end -}}
+      {{ end }}
+      {{ end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -76,4 +93,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-{{end}}

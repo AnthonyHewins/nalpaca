@@ -126,5 +126,5 @@ nats consumer add $STREAM $CONSUMER \
 #=================================
 # Portfolio KV store
 #=================================
-echo "Creating portfolio KV store"
-nats kv add ${PORTFOLIO:-portfolios} -s $SERVER 1> /dev/null
+echo "Creating bucket"
+nats kv add ${PORTFOLIO:-nalpaca} -s $SERVER 1> /dev/null

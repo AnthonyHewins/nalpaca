@@ -10,7 +10,7 @@ import (
 
 const PositionsKey = "positions"
 
-func (c *Controller) Initialize(ctx context.Context) error {
+func (c *Controller) UpdatePositionsKV(ctx context.Context) error {
 	p, err := c.client.GetPositions()
 	if err != nil {
 		c.logger.ErrorContext(ctx, "failed getting positions", "err", err)
@@ -34,12 +34,11 @@ func (c *Controller) Initialize(ctx context.Context) error {
 		return err
 	}
 
-	bytesWritten, err := c.portfolioKV.Put(ctx, PositionsKey, b)
-	if err != nil {
+	if _, err = c.portfolioKV.Put(ctx, PositionsKey, b); err != nil {
 		c.logger.ErrorContext(ctx, "failed writing portfolio to KV store", "err", err, "positions", positions)
 		return err
 	}
 
-	c.logger.InfoContext(ctx, "successfully wrote initial portfolio status", "bytesWritten", bytesWritten)
+	c.logger.InfoContext(ctx, "successfully wrote initial portfolio status")
 	return nil
 }

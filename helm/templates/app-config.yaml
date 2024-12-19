@@ -5,6 +5,9 @@ kind: ConfigMap
 metadata:
   name: app-config
 data:
+  # App config
+  PROCESSING_TIMEOUT: {{ .Values.conf.processingTimeout }}
+
   # Logging
   LOG_LEVEL: {{ .Values.logging.level }}
   LOG_FMT: {{ .Values.logging.fmt }}

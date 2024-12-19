@@ -32,6 +32,7 @@ func NewController(
 		client:      client,
 		timeout:     timeout,
 		js:          nc,
+		portfolioKV: portfolioKV,
 		topicPrefix: topicPrefix,
 	}
 }

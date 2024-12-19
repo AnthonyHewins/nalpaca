@@ -16,7 +16,7 @@ ifneq (,$(wildcard ./vendor))
 endif
 
 #======================================
-# Local builds
+# Builds
 #======================================
 $(targets): ## Build a target server binary
 	go build $(BUILD_FLAGS) -ldflags "-X main.version=$(COMMIT)" -o bin/$@ ./cmd/$@
@@ -44,7 +44,7 @@ run-compose: ## Run a binary with docker compose
 	docker-compose -f ./docker/compose.yaml up
 
 #======================================
-# Tooling
+# Protobuf
 #======================================
 proto: ## buf generate
 	rm -rf gen

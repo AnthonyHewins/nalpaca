@@ -2,14 +2,46 @@ replicaCount: 1
 
 # Run the init job. Will initialize all the NATS resources.
 # Also, configure everything about the init here
-initJob:
-  enabled: true
 
 nats:
+  initJob:
+    enabled: true
   url: ""
   user: "" # if set, must also set NATS_PASSWORD in secrets.name
   useCompression: true
   subjectPrefix: nalpaca # all subjects will have this prefix attached
+  defaultStreamConfig:
+    max_consumers: -1
+    max_msgs_per_subject: -1
+    max_msgs: -1
+    max_bytes: -1
+    max_age: 0
+    max_msg_size: -1
+    storage: "memory"
+    discard: "old"
+    num_replicas: 1
+    duplicate_window: 20000000000
+    compression: "s2"
+    sealed: false
+    deny_delete: false
+    deny_purge: false
+    allow_rollup_hdrs: false
+    allow_direct: true
+    mirror_direct: false
+  defaultConsumerConfig:
+    ack_policy: "explicit"
+    ack_wait: 30000000000
+    deliver_policy: "all"
+    max_ack_pending: 1000
+    max_deliver: 3
+    max_waiting: 512
+    replay_policy: "instant"
+    num_replicas: 1
+
+orders:
+  enabled: true
+  streamConfig: {}
+  consumerConfig: {}
 
 alpaca:
   url: https://paper-api.alpaca.markets
@@ -25,12 +57,7 @@ alpaca:
 secrets:
   name: ""
 
-tradeupdater:
-  enabled: true
-  processingTimeout: 3s
-
-orders:
-  enabled: true
+conf:
   processingTimeout: 3s
 
 logging:
@@ -110,19 +137,6 @@ autoscaling:
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
-
-# Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
 
 nodeSelector: {}
 

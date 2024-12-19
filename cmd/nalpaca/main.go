@@ -101,6 +101,10 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 
 	g.Go(func() error {
 		a.Logger.InfoContext(ctx, "starting trade updater event loop")
+		if err := a.updater.UpdatePositionsKV(ctx); err != nil {
+			return err
+		}
+
 		return a.updater.TradeUpdateLoop(ctx)
 	})
 

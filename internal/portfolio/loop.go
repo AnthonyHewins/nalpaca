@@ -44,6 +44,8 @@ func (c *Controller) handler(u alpaca.TradeUpdate) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 
+	go c.UpdatePositionsKV(ctx)
+
 	l := c.logger.With("order", u)
 
 	var t *timestamp.Timestamp
@@ -71,6 +73,7 @@ func (c *Controller) handler(u alpaca.TradeUpdate) {
 	ack, err := c.js.Publish(ctx, c.topicPrefix+"."+u.Order.Symbol, buf)
 	if err != nil {
 		l.ErrorContext(ctx, "failed publishing order", "err", err)
+		return
 	}
 
 	l.DebugContext(ctx, "pushed order update", "ack", ack)

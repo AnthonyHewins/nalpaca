@@ -1,0 +1,57 @@
+{{ if .Values.nats.initJob.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nats-init
+data:
+    init.sh: |
+        echo "EXEC"
+    orders-stream.json: |
+        {{- $subjects := list (printf "%s.orders.v0.*" .Values.nats.subjectPrefix) }}
+        {{- $x := dict
+            "name" "nalpaca-order-stream-v0"
+            "description" "Nalpaca order stream. Push an order protobuf on this stream and the consumer will execute the trade"
+            "subjects"  $subjects
+            "retention" "workqueue"
+        }}
+        {{ merge .Values.nats.defaultStreamConfig .Values.orders.streamConfig $x | toJson }}
+    orders-consumer.json: |
+        {{- $x := dict
+            "durable_name" "nalpaca-order-consumer-v0"
+            "description" "Nalpaca order stream consumer. Nalpaca will consume messages on this stream and send them."
+            "filter_subject"  $subjects
+        }}
+        {{ merge .Values.nats.defaultConsumerConfig .Values.orders.consumerConfig $x | toJson }}
+    cancel-stream.json: |
+        {{- $subjects := list (printf "%s.cancel.v0.*" .Values.nats.subjectPrefix) }}
+        {{- $x := dict
+            "name" "nalpaca-cancel-stream-v0"
+            "description" "Nalpaca cancel stream. Push on this subject to cancel orders"
+            "subjects"  $subjects
+            "retention" "workqueue"
+        }}
+        {{ merge .Values.nats.defaultStreamConfig .Values.cancel.streamConfig $x | toJson }}
+    cancel-consumer.json: |
+        {{- $x := dict
+            "durable_name" "nalpaca-cancel-consumer-v0"
+            "description" "Nalpaca cancel consumer. Listens to the cancel stream and cancels orders as they come in"
+            "filter_subject"  $subjects
+        }}
+        {{ merge .Values.nats.defaultConsumerConfig .Values.cancel.consumerConfig $x | toJson }}
+    trade-updater.json: |
+        {{- $subjects := list (printf "%s.tradeupdates.v0.*" .Values.nats.subjectPrefix) }}
+        {{- $x := dict
+            "name" "nalpaca-order-stream-v0"
+            "description" "Nalpaca trade update stream. When a trade update is seen for the portfolio, nalpaca will push the update on the stream"
+            "subjects"  $subjects
+            "retention" "workqueue"
+        }}
+        {{ merge .Values.nats.defaultStreamConfig .Values.orders.streamConfig $x | toJson }}
+    orders-consumer.json: |
+        {{- $x := dict
+            "durable_name" "nalpaca-order-consumer-v0"
+            "description" "Nalpaca trade update consumer. Connect to this consumer to receive trade updates"
+            "filter_subject"  $subjects
+        }}
+        {{ merge .Values.nats.defaultConsumerConfig .Values.orders.consumerConfig $x | toJson }}
+{{ end }}
