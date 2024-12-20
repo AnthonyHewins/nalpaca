@@ -1,12 +1,12 @@
 replicaCount: 1
 
-# Run the init job. Will initialize all the NATS resources.
-# Also, configure everything about the init here
+conf: # App config
+  processingTimeout: 3s
 
 nats:
   initJob:
     enabled: true
-  url: ""
+  url: "nats.nats.svc.local"
   user: "" # if set, must also set NATS_PASSWORD in secrets.name
   useCompression: true
   subjectPrefix: nalpaca # all subjects will have this prefix attached
@@ -43,6 +43,16 @@ orders:
   streamConfig: {}
   consumerConfig: {}
 
+tradeupdater:
+  enabled: true
+  streamConfig: {}
+  consumerConfig: {}
+
+cancel:
+  enabled: true
+  streamConfig: {}
+  consumerConfig: {}
+
 alpaca:
   url: https://paper-api.alpaca.markets
   apiKey: "" # API secret is under the "secrets" block
@@ -56,9 +66,6 @@ alpaca:
 # NATS_PASSWORD (only if you need NATS auth)
 secrets:
   name: ""
-
-conf:
-  processingTimeout: 3s
 
 logging:
   level: info # info | debug | warn | error

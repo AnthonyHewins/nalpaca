@@ -5,11 +5,11 @@ metadata:
   name: nats-init
 data:
     init.sh: |
-        echo "EXEC"
+        {{- .Files.Get "includes/init-nats.sh" | nindent 8 }}
     orders-stream.json: |
         {{- $subjects := list (printf "%s.orders.v0.*" .Values.nats.subjectPrefix) }}
         {{- $x := dict
-            "name" "nalpaca-order-stream-v0"
+            "name" "nalpaca-orders-stream-v0"
             "description" "Nalpaca order stream. Push an order protobuf on this stream and the consumer will execute the trade"
             "subjects"  $subjects
             "retention" "workqueue"
@@ -17,7 +17,7 @@ data:
         {{ merge .Values.nats.defaultStreamConfig .Values.orders.streamConfig $x | toJson }}
     orders-consumer.json: |
         {{- $x := dict
-            "durable_name" "nalpaca-order-consumer-v0"
+            "durable_name" "nalpaca-orders-consumer-v0"
             "description" "Nalpaca order stream consumer. Nalpaca will consume messages on this stream and send them."
             "filter_subject"  $subjects
         }}
@@ -41,17 +41,17 @@ data:
     trade-updater.json: |
         {{- $subjects := list (printf "%s.tradeupdates.v0.*" .Values.nats.subjectPrefix) }}
         {{- $x := dict
-            "name" "nalpaca-order-stream-v0"
+            "name" "nalpaca-tradeupdater-stream-v0"
             "description" "Nalpaca trade update stream. When a trade update is seen for the portfolio, nalpaca will push the update on the stream"
             "subjects"  $subjects
             "retention" "workqueue"
         }}
-        {{ merge .Values.nats.defaultStreamConfig .Values.orders.streamConfig $x | toJson }}
-    orders-consumer.json: |
+        {{ merge .Values.nats.defaultStreamConfig .Values.tradeupdater.streamConfig $x | toJson }}
+    trade-updater.json: |
         {{- $x := dict
-            "durable_name" "nalpaca-order-consumer-v0"
+            "durable_name" "nalpaca-tradeupdater-consumer-v0"
             "description" "Nalpaca trade update consumer. Connect to this consumer to receive trade updates"
             "filter_subject"  $subjects
         }}
-        {{ merge .Values.nats.defaultConsumerConfig .Values.orders.consumerConfig $x | toJson }}
+        {{ merge .Values.nats.defaultConsumerConfig .Values.tradeupdater.consumerConfig $x | toJson }}
 {{ end }}

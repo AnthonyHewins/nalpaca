@@ -30,7 +30,7 @@ set +x
 #=================================
 # Orders
 #=================================
-STREAM=nalpaca-order-stream-v0 
+STREAM=nalpaca-orders-stream-v0 
 SUBJECT="$SUBJECT_PREFIX.orders.v0.*"
 echo Creating stream $STREAM
 nats stream add $STREAM \
@@ -45,7 +45,7 @@ nats stream add $STREAM \
   --discard old \
   --defaults 1> /dev/null
 
-CONSUMER=nalpaca-order-consumer-v0
+CONSUMER=nalpaca-orders-consumer-v0
 echo Creating consumer $CONSUMER
 nats consumer add $STREAM $CONSUMER \
   -s $SERVER \
