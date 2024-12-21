@@ -41,9 +41,9 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-              name: app-config
+                name: app-config
             - secretRef:
-              name: {{ .Values.secrets.name }}
+                name: {{ .Values.secrets.name }}
           livenessProbe:
             grpc:
               port: 7654
