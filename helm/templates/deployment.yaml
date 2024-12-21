@@ -63,7 +63,7 @@ spec:
           command: ['sh', '-c', '/init.sh']
           volumeMounts:
             name: initJob
-            mountPath: "/"
+            # mountPath: "/"
           env:
             {{ if .Values.nats.user }}
             - name: NATS_USER
