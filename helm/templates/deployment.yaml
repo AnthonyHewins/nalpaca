@@ -67,9 +67,9 @@ spec:
           environment:
             NATS_URL: {{ .Values.nats.url }}
             NATS_USER: {{ .Values.nats.user }}
-            ORDERS_ENABLED: {{ .Values.orders.enabled }}
-            TRADEUPDATER_ENABLED: {{ .Values.tradeupdater.enabled }}
-            CANCEL_ENABLED: {{ .Values.cancel.enabled }}
+            ORDERS_ENABLED: "{{ .Values.orders.enabled }}"
+            TRADEUPDATER_ENABLED: "{{ .Values.tradeupdater.enabled }}"
+            CANCEL_ENABLED: "{{ .Values.cancel.enabled }}"
           envFrom:
             - secretRef: {{ .Values.secrets.name }}
       volumes:
