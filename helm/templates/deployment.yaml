@@ -31,7 +31,6 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "docker.io/ahewins/nalpaca:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          entryPoint: "/root/nalpaca"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.metrics.enabled }}
           ports:
