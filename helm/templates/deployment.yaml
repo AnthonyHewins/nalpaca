@@ -64,7 +64,6 @@ spec:
           volumeMounts:
             name: initJob
             mountPath: "/"
-            readOnly: true
           environment:
             NATS_URL: {{ .Values.nats.url }}
             NATS_USER: {{ .Values.nats.user }}
