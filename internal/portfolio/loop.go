@@ -8,7 +8,6 @@ import (
 	"github.com/AnthonyHewins/nalpaca/gen/go/tradesvc/v0"
 	"github.com/AnthonyHewins/nalpaca/internal/protomap"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/alpaca"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -48,7 +47,7 @@ func (c *Controller) handler(u alpaca.TradeUpdate) {
 
 	l := c.logger.With("order", u)
 
-	var t *timestamp.Timestamp
+	var t *timestamppb.Timestamp
 	if u.Timestamp != nil {
 		t = timestamppb.New(*u.Timestamp)
 	}

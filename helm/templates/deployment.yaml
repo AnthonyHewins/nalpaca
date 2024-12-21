@@ -62,11 +62,11 @@ spec:
           image: docker.io/natsio/nats-box:latest
           command: ['sh', '-c', '/init.sh']
           volumeMounts:
-            name: initjob
+            name: initJob
             mountPath: "/"
             readOnly: true
           environment:
-            SERVER: {{ .Values.nats.url }}
+            NATS_URL: {{ .Values.nats.url }}
             NATS_USER: {{ .Values.nats.user }}
             ORDERS_ENABLED: {{ .Values.orders.enabled }}
             TRADEUPDATER_ENABLED: {{ .Values.tradeupdater.enabled }}

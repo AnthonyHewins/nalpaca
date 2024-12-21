@@ -4,7 +4,6 @@ go 1.22.8
 
 require (
 	github.com/alpacahq/alpaca-trade-api-go/v3 v3.7.0
-	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0
 	github.com/nats-io/nats.go v1.38.0
 	github.com/prometheus/client_golang v1.20.5

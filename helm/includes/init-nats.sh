@@ -1,10 +1,10 @@
-${SERVER:?Must set to point to correct NATS location}
+${NATS_URL:?Must set to point to correct NATS location}
 
 if [[ $NATS_USER != "" ]]; then
     ${NATS_PASSWORD:?must set password if using NATS_USER}
 fi
 
-echo Using server $SERVER
+echo Using server $NATS_URL
 echo Using NATS user $NATS_USER
 
 function create_component() {
@@ -27,8 +27,8 @@ function create_component() {
 
     echo Creating $1 component...
     set -x
-    nats stream add nalpaca-$1-stream-v0 -s $SERVER --config $streamconf
-    nats consumer add nalpaca-$1-consumer-v0 -s $SERVER --config $consumerconf
+    nats stream add nalpaca-$1-stream-v0 --config $streamconf
+    nats consumer add nalpaca-$1-consumer-v0 --config $consumerconf
     set +x
 }
 
