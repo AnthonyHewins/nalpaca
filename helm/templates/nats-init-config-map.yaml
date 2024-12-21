@@ -38,7 +38,7 @@ data:
             "filter_subject"  $subjects
         }}
         {{ merge .Values.nats.defaultConsumerConfig .Values.cancel.consumerConfig $x | toJson }}
-    trade-updater.json: |
+    tradeupdater-stream.json: |
         {{- $subjects := list (printf "%s.tradeupdates.v0.*" .Values.nats.subjectPrefix) }}
         {{- $x := dict
             "name" "nalpaca-tradeupdater-stream-v0"
@@ -47,7 +47,7 @@ data:
             "retention" "workqueue"
         }}
         {{ merge .Values.nats.defaultStreamConfig .Values.tradeupdater.streamConfig $x | toJson }}
-    trade-updater.json: |
+    tradeupdater-consumer.json: |
         {{- $x := dict
             "durable_name" "nalpaca-tradeupdater-consumer-v0"
             "description" "Nalpaca trade update consumer. Connect to this consumer to receive trade updates"
