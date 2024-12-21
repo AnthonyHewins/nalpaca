@@ -64,16 +64,24 @@ spec:
           volumeMounts:
             name: initJob
             mountPath: "/"
-          environment:
+          env:
             {{ if .Values.nats.user }}
-            NATS_USER: {{ .Values.nats.user }}
+            - name: NATS_USER
+              value: {{ .Values.nats.user }}
+            - name: NATS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: NATS_PASSWORD
             {{ end }}
-            NATS_URL: {{ .Values.nats.url }}
-            ORDERS_ENABLED: "{{ .Values.orders.enabled }}"
-            TRADEUPDATER_ENABLED: "{{ .Values.tradeupdater.enabled }}"
-            CANCEL_ENABLED: "{{ .Values.cancel.enabled }}"
-          envFrom:
-            - secretRef: {{ .Values.secrets.name }}
+            - name: NATS_URL
+              value: {{ .Values.nats.url }}
+            - name: ORDERS_ENABLED
+              value: "{{ .Values.orders.enabled }}"
+            - name: TRADEUPDATER_ENABLED
+              value: "{{ .Values.tradeupdater.enabled }}"
+            - name: CANCEL_ENABLED
+              value: "{{ .Values.cancel.enabled }}"
       volumes:
         - name: initJob
           configMap:
