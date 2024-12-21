@@ -61,8 +61,8 @@ spec:
           image: docker.io/natsio/nats-box:latest
           command: ['sh', '-c', '/init.sh']
           volumeMounts:
-            name: initJob
-            # mountPath: "/"
+            - name: initJob
+              mountPath: "/"
           env:
             {{ if .Values.nats.user }}
             - name: NATS_USER
