@@ -11,17 +11,17 @@ data:
   # Logging
   LOG_LEVEL: {{ .Values.logging.level | toJson }}
   LOG_FMT: {{ .Values.logging.fmt | toJson }}
-  LOG_SRC: {{ .Values.logging.src | toJson }}
+  LOG_SRC: "{{ .Values.logging.src | toJson }}"
 
   # Metrics
-  DISABLE_METRICS: {{ .Values.metrics.disabled | toJson }}
-  METRICS_PORT: {{ .Values.metrics.port | toJson }}
+  DISABLE_METRICS: "{{ .Values.metrics.disabled | toJson }}"
+  METRICS_PORT: "{{ .Values.metrics.port | toJson }}"
   METRICS_WRITE_TIMEOUT: {{ .Values.metrics.writeTimeout | toJson }}
   METRICS_ERR_POLICY: {{ .Values.metrics.errPolicy | toJson }}
   METRICS_MAX_REQ_IN_FLIGHT: {{ .Values.metrics.maxReqInFlight | toJson }}
   
   # Tracing
-  DISABLE_TRACING: {{ .Values.tracing.disabled | toJson }}
+  DISABLE_TRACING: "{{ .Values.tracing.disabled | toJson }}"
   TRACE_EXPORTER: {{ .Values.tracing.exporter | toJson }}
   TRACE_EXPORTER_URL: {{ .Values.tracing.exportURL | toJson }}
   TRACE_EXPORTER_TIMEOUT: {{ .Values.tracing.timeout | toJson }}
@@ -30,6 +30,6 @@ data:
   ALPACA_URL: {{ .Values.alpaca.url | toJson }}
   ALPACA_API_KEY: {{ .Values.alpaca.apiKey | toJson }}
   ALPACA_OAUTH: {{ .Values.alpaca.oauth | toJson }}
-  ALPACA_RETRY_LIMIT: {{ .Values.alpaca.retryLimit | toJson }}
+  ALPACA_RETRY_LIMIT: "{{ .Values.alpaca.retryLimit | toJson }}"
   ALPACA_RETRY_DELAY: {{ .Values.alpaca.retryDelay | toJson }}
 {{ end }}
