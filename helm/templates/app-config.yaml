@@ -18,7 +18,7 @@ data:
   METRICS_PORT: "{{ .Values.metrics.port | toJson }}"
   METRICS_WRITE_TIMEOUT: {{ .Values.metrics.writeTimeout | toJson }}
   METRICS_ERR_POLICY: {{ .Values.metrics.errPolicy | toJson }}
-  METRICS_MAX_REQ_IN_FLIGHT: {{ .Values.metrics.maxReqInFlight | toJson }}
+  METRICS_MAX_REQ_IN_FLIGHT: "{{ .Values.metrics.maxReqInFlight | toJson }}"
   
   # Tracing
   DISABLE_TRACING: "{{ .Values.tracing.disabled | toJson }}"
