@@ -6,30 +6,30 @@ metadata:
   name: app-config
 data:
   # App config
-  PROCESSING_TIMEOUT: {{ .Values.conf.processingTimeout }}
+  PROCESSING_TIMEOUT: {{ .Values.conf.processingTimeout | toJson }}
 
   # Logging
-  LOG_LEVEL: {{ .Values.logging.level }}
-  LOG_FMT: {{ .Values.logging.fmt }}
-  LOG_SRC: {{ .Values.logging.src }}
+  LOG_LEVEL: {{ .Values.logging.level | toJson }}
+  LOG_FMT: {{ .Values.logging.fmt | toJson }}
+  LOG_SRC: {{ .Values.logging.src | toJson }}
 
   # Metrics
-  DISABLE_METRICS: {{ .Values.metrics.disabled }}
-  METRICS_PORT: {{ .Values.metrics.port }}
-  METRICS_WRITE_TIMEOUT: {{ .Values.metrics.writeTimeout }}
-  METRICS_ERR_POLICY: {{ .Values.metrics.errPolicy }}
-  METRICS_MAX_REQ_IN_FLIGHT: {{ .Values.metrics.maxReqInFlight }}
+  DISABLE_METRICS: {{ .Values.metrics.disabled | toJson }}
+  METRICS_PORT: {{ .Values.metrics.port | toJson }}
+  METRICS_WRITE_TIMEOUT: {{ .Values.metrics.writeTimeout | toJson }}
+  METRICS_ERR_POLICY: {{ .Values.metrics.errPolicy | toJson }}
+  METRICS_MAX_REQ_IN_FLIGHT: {{ .Values.metrics.maxReqInFlight | toJson }}
   
   # Tracing
-  DISABLE_TRACING: {{ .Values.tracing.disabled }}
-  TRACE_EXPORTER: {{ .Values.tracing.exporter }}
-  TRACE_EXPORTER_URL: {{ .Values.tracing.exportURL }}
-  TRACE_EXPORTER_TIMEOUT: {{ .Values.tracing.timeout }}
+  DISABLE_TRACING: {{ .Values.tracing.disabled | toJson }}
+  TRACE_EXPORTER: {{ .Values.tracing.exporter | toJson }}
+  TRACE_EXPORTER_URL: {{ .Values.tracing.exportURL | toJson }}
+  TRACE_EXPORTER_TIMEOUT: {{ .Values.tracing.timeout | toJson }}
 
   # Alpaca public config
-  ALPACA_URL: {{ .Values.alpaca.url }}
-  ALPACA_API_KEY: {{ .Values.alpaca.apiKey }}
-  ALPACA_OAUTH: {{ .Values.alpaca.oauth }}
-  ALPACA_RETRY_LIMIT: {{ .Values.alpaca.retryLimit }}
-  ALPACA_RETRY_DELAY: {{ .Values.alpaca.retryDelay }}
+  ALPACA_URL: {{ .Values.alpaca.url | toJson }}
+  ALPACA_API_KEY: {{ .Values.alpaca.apiKey | toJson }}
+  ALPACA_OAUTH: {{ .Values.alpaca.oauth | toJson }}
+  ALPACA_RETRY_LIMIT: {{ .Values.alpaca.retryLimit | toJson }}
+  ALPACA_RETRY_DELAY: {{ .Values.alpaca.retryDelay | toJson }}
 {{ end }}
