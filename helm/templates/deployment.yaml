@@ -65,8 +65,10 @@ spec:
             name: initJob
             mountPath: "/"
           environment:
-            NATS_URL: {{ .Values.nats.url }}
+            {{ if .Values.nats.user }}
             NATS_USER: {{ .Values.nats.user }}
+            {{ end }}
+            NATS_URL: {{ .Values.nats.url }}
             ORDERS_ENABLED: "{{ .Values.orders.enabled }}"
             TRADEUPDATER_ENABLED: "{{ .Values.tradeupdater.enabled }}"
             CANCEL_ENABLED: "{{ .Values.cancel.enabled }}"
