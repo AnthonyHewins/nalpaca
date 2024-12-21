@@ -65,7 +65,7 @@ alpaca:
 # ALPACA_API_SECRET (required)
 # NATS_PASSWORD (only if you need NATS auth)
 secrets:
-  name: ""
+  name: "nalpaca-secrets"
 
 logging:
   level: info # info | debug | warn | error
