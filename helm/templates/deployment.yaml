@@ -61,7 +61,7 @@ spec:
           image: docker.io/natsio/nats-box:latest
           command: ['sh', '-c', '/init.sh']
           volumeMounts:
-            - name: initJob
+            - name: initjob
               mountPath: "/"
           env:
             {{ if .Values.nats.user }}
@@ -82,7 +82,7 @@ spec:
             - name: CANCEL_ENABLED
               value: "{{ .Values.cancel.enabled }}"
       volumes:
-        - name: initJob
+        - name: initjob
           configMap:
             name: nats-init
             items:
