@@ -24,13 +24,15 @@ function create_component() {
         echo "Found config $i..."
     done
 
-    echo Creating $1 stream with the config below
+    streamname=nalpaca-$1-stream-v0
+    echo Creating $streamname with the config below
     cat $streamconf
-    nats stream add nalpaca-$1-stream-v0 --config $streamconf
+    nats stream add $streamname --config $streamconf
 
-    echo Creating $1 consumer with the config below
+    consumername=nalpaca-$1-consumer-v0 
+    echo Creating $consumername under stream $streamname with the config below
     cat $consumerconf
-    nats consumer add nalpaca-$1-consumer-v0 --config $consumerconf
+    nats consumer add $streamname $consumername --config $consumerconf
 }
 
 create_component "orders" $ORDERS_ENABLED
