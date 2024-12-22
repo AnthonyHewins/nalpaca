@@ -1,11 +1,13 @@
-${NATS_URL:?Must set to point to correct NATS location}
+echo Using server ${NATS_URL:?Must set to point to correct NATS location}
 
 if [[ $NATS_USER != "" ]]; then
-    ${NATS_PASSWORD:?must set password if using NATS_USER}
+    echo Using NATS user $NATS_USER
+    ${NATS_PASSWORD:?must set password if using NATS_USER, either unset user to null or empty, or supply password}
+    exit 1
 fi
 
-echo Using server $NATS_URL
-echo Using NATS user $NATS_USER
+echo Listing filesystem:
+echo $(find /conf -type f)
 
 function create_component() {
     if [[ $2 != "true" ]]; then
