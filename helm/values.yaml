@@ -6,17 +6,17 @@ conf: # App config
 nats:
   initJob:
     enabled: true
-  url: "nats.nats.svc.local:4222"
+  url: "nats-headless.nats.svc.cluster.local:4222"
   user: "" # if set, must also set NATS_PASSWORD in secrets.name
   useCompression: true
   subjectPrefix: nalpaca # all subjects will have this prefix attached
   defaultStreamConfig:
     max_consumers: -1
-    max_msgs_per_subject: -1
-    max_msgs: -1
-    max_bytes: -1
+    max_msgs_per_subject: 3
+    max_msgs: 5
+    max_bytes: 1024
     max_age: 0
-    max_msg_size: -1
+    max_msg_size: 248
     storage: "memory"
     discard: "old"
     num_replicas: 1
