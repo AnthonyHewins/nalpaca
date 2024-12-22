@@ -6,9 +6,6 @@ if [[ $NATS_USER != "" ]]; then
     exit 1
 fi
 
-echo Listing filesystem at script location $(pwd):
-echo $(find . -type f)
-
 function create_component() {
     if [[ $2 != "true" ]]; then
         echo Component $1 is marked disabled, got $2. Skipping...
@@ -27,11 +24,13 @@ function create_component() {
         echo "Found config $i..."
     done
 
-    echo Creating $1 component...
-    set -x
+    echo Creating $1 stream with the config below
+    cat $streamconf
     nats stream add nalpaca-$1-stream-v0 --config $streamconf
+
+    echo Creating $1 consumer with the config below
+    cat $consumerconf
     nats consumer add nalpaca-$1-consumer-v0 --config $consumerconf
-    set +x
 }
 
 create_component "orders" $ORDERS_ENABLED

@@ -6,7 +6,7 @@ conf: # App config
 nats:
   initJob:
     enabled: true
-  url: "nats.nats.svc.local"
+  url: "nats.nats.svc.local:4222"
   user: "" # if set, must also set NATS_PASSWORD in secrets.name
   useCompression: true
   subjectPrefix: nalpaca # all subjects will have this prefix attached
