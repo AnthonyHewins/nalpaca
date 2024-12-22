@@ -59,10 +59,10 @@ spec:
       initContainers:
         - name: nats-box
           image: docker.io/natsio/nats-box:latest
-          command: ['sh', '-c', '/init.sh']
+          command: ['sh', '-c', '/conf/init.sh']
           volumeMounts:
             - name: initjob
-              mountPath: "/"
+              mountPath: "/conf"
           env:
             {{ if .Values.nats.user }}
             - name: NATS_USER
