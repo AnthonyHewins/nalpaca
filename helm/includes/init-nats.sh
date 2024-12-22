@@ -1,5 +1,4 @@
 ${NATS_URL:?Must set to point to correct NATS location}
-${CONFIG_PATH:?Must set config path}
 
 if [[ $NATS_USER != "" ]]; then
     ${NATS_PASSWORD:?must set password if using NATS_USER}
@@ -14,8 +13,8 @@ function create_component() {
         return
     fi
 
-    streamconf=$CONFIG_PATH/$1-stream.json
-    consumerconf=$CONFIG_PATH/$1-consumer.json
+    streamconf=$1-stream.json
+    consumerconf=$1-consumer.json
 
     for i in $streamconf $consumerconf; do
         if [ ! -f $i ]; then
