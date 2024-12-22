@@ -15,8 +15,8 @@ function create_component() {
         return
     fi
 
-    streamconf=./$1-stream.json
-    consumerconf=./$1-consumer.json
+    streamconf=/conf/$1-stream.json
+    consumerconf=/conf/$1-consumer.json
 
     for i in $streamconf $consumerconf; do
         if [ ! -f $i ]; then
