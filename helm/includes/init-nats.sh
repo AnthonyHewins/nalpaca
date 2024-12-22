@@ -7,7 +7,7 @@ if [[ $NATS_USER != "" ]]; then
 fi
 
 echo Listing filesystem:
-echo $(find /conf -type f)
+echo $(find . -type f)
 
 function create_component() {
     if [[ $2 != "true" ]]; then
@@ -15,8 +15,8 @@ function create_component() {
         return
     fi
 
-    streamconf=$1-stream.json
-    consumerconf=$1-consumer.json
+    streamconf=./$1-stream.json
+    consumerconf=./$1-consumer.json
 
     for i in $streamconf $consumerconf; do
         if [ ! -f $i ]; then
