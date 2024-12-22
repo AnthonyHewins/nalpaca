@@ -73,6 +73,8 @@ spec:
                   name: {{ .Values.secrets.name }}
                   key: NATS_PASSWORD
             {{ end }}
+            - name: CONFIG_PATH
+              value: conf
             - name: NATS_URL
               value: {{ .Values.nats.url }}
             - name: ORDERS_ENABLED
