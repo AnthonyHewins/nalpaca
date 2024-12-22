@@ -6,7 +6,7 @@ if [[ $NATS_USER != "" ]]; then
     exit 1
 fi
 
-echo Listing filesystem:
+echo Listing filesystem at script location $(pwd):
 echo $(find . -type f)
 
 function create_component() {
