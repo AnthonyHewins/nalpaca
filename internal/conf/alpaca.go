@@ -2,8 +2,8 @@ package conf
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/AnthonyHewins/nalpaca/internal/nalpaca"
@@ -15,8 +15,8 @@ type Alpaca struct {
 	Mock bool `env:"MOCK_ALPACA"`
 
 	BaseURL   string `env:"ALPACA_URL" envDefault:"https://paper-api.alpaca.markets"`
-	APIKey    string `env:"ALPACA_API_KEY"`
-	APISecret string `env:"ALPACA_API_SECRET"`
+	APIKey    string `env:"ALPACA_API_KEY,required"`
+	APISecret string `env:"ALPACA_API_SECRET,required"`
 
 	OAuth      string        `env:"ALPACA_OAUTH" envDefault:""`
 	RetryLimit uint          `env:"ALPACA_RETRY_LIMIT"`
@@ -54,23 +54,20 @@ func (b *Bootstrapper) Alpaca(a *Alpaca, httpClient *http.Client) (nalpaca.Inter
 		}, nil
 	}
 
+	secret := strings.TrimSpace(a.APISecret)
 	l := b.Logger.With(
 		"apikey", a.APIKey,
-		"len(secret)>0", len(a.APISecret) > 0,
+		"len(secret)>0 after trimming spaces", len(a.APISecret) > 0,
 		"baseURL", a.BaseURL,
 		"oAuth", a.OAuth,
 		"retryLimit", a.RetryLimit,
 		"retryDelay", a.RetryDelay,
 	)
 
-	if len(a.APISecret) == 0 {
-		l.Error("missing api secret")
-		return nil, fmt.Errorf("no API secret for alpaca")
-	}
-
+	l.Info("created alpaca client")
 	return alpaca.NewClient(alpaca.ClientOpts{
 		APIKey:     a.APIKey,
-		APISecret:  a.APISecret,
+		APISecret:  secret,
 		BaseURL:    a.BaseURL,
 		OAuth:      a.OAuth,
 		RetryLimit: int(a.RetryLimit),
