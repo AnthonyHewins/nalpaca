@@ -19,7 +19,14 @@ data:
   METRICS_WRITE_TIMEOUT: {{ .Values.metrics.writeTimeout | toJson }}
   METRICS_ERR_POLICY: {{ .Values.metrics.errPolicy | toJson }}
   METRICS_MAX_REQ_IN_FLIGHT: "{{ .Values.metrics.maxReqInFlight | toJson }}"
-  
+
+  # NATS
+  {{ with .Values.nats.user }}
+  NATS_USER: {{ . | toJson }}
+  {{ end }}
+  NATS_URL: {{ .Values.nats.url }}
+  NATS_USE_COMPRESSION: {{ .Values.nats.useCompression }}
+
   # Tracing
   DISABLE_TRACING: "{{ .Values.tracing.disabled | toJson }}"
   TRACE_EXPORTER: {{ .Values.tracing.exporter | toJson }}

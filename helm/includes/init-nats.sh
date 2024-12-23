@@ -32,7 +32,8 @@ function create_component() {
     echo Creating $streamname with the config below
     cat $streamconf
     nats stream add $streamname --config $streamconf
-    echo "\n"
+    echo
+    echo
 
     consumername=nalpaca-$1-consumer-v0 
     echo Creating $consumername under stream $streamname with the config below
