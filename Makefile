@@ -28,9 +28,9 @@ all: $(targets) ## Build all targets
 #======================================
 docker: ## build docker image
 	go mod tidy
-	podman build -t $(IMAGE) --build-arg target=nalpaca -f docker/Dockerfile .
 	podman login docker.io
-	podman push $(IMAGE) docker.io/$(IMAGE)
+	podman build -t $(IMAGE) --build-arg target=nalpaca -f docker/Dockerfile .
+	podman push $(IMAGE)
 
 compose: ## build docker compose
 	docker-compose -f ./docker/compose.yaml build

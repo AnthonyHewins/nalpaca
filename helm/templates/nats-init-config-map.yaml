@@ -39,7 +39,7 @@ data:
         }}
         {{ mustMerge $cancelconsumer .Values.cancel.consumerConfig .Values.nats.defaultConsumerConfig | toJson }}
     tradeupdater-stream.json: |
-        {{- $tradesubj := printf "%s.tradeupdates.v0.*" .Values.nats.subjectPrefix }}
+        {{- $tradesubj := printf "%s.tradeupdater.v0.*" .Values.nats.subjectPrefix }}
         {{- $tradestream := dict
             "name" "nalpaca-tradeupdater-stream-v0"
             "description" "Nalpaca trade update stream. When a trade update is seen for the portfolio, nalpaca will push the update on the stream"
