@@ -7,51 +7,51 @@ data:
     init.sh: |
         {{- .Files.Get "includes/init-nats.sh" | nindent 8 }}
     orders-stream.json: |
-        {{- $subject := printf "%s.orders.v0.*" .Values.nats.subjectPrefix }}
-        {{- $x := dict
+        {{- $ordersubj := printf "%s.orders.v0.*" .Values.nats.subjectPrefix }}
+        {{- $ordersstream := dict
             "name" "nalpaca-orders-stream-v0"
             "description" "Nalpaca order stream. Push an order protobuf on this stream and the consumer will execute the trade"
-            "subjects"  (list $subject)
+            "subjects"  (list $ordersubj)
             "retention" "workqueue"
         }}
-        {{ merge .Values.nats.defaultStreamConfig .Values.orders.streamConfig $x | toJson }}
+        {{ mustMerge $ordersstream .Values.orders.streamConfig .Values.nats.defaultStreamConfig | toJson }}
     orders-consumer.json: |
-        {{- $x := dict
+        {{- $ordersconsumer := dict
             "durable_name" "nalpaca-orders-consumer-v0"
             "description" "Nalpaca order stream consumer. Nalpaca will consume messages on this stream and send them."
-            "filter_subject"  $subject
+            "filter_subject"  $ordersubj
         }}
-        {{ merge .Values.nats.defaultConsumerConfig .Values.orders.consumerConfig $x | toJson }}
+        {{ mustMerge $ordersconsumer .Values.orders.consumerConfig .Values.nats.defaultConsumerConfig | toJson }}
     cancel-stream.json: |
-        {{- $subject := printf "%s.cancel.v0.*" .Values.nats.subjectPrefix }}
-        {{- $x := dict
+        {{- $cancelsubj := printf "%s.cancel.v0.*" .Values.nats.subjectPrefix }}
+        {{- $cancelstream := dict
             "name" "nalpaca-cancel-stream-v0"
             "description" "Nalpaca cancel stream. Push on this subject to cancel orders"
-            "subjects"  (list $subject)
+            "subjects"  (list $cancelsubj)
             "retention" "workqueue"
         }}
-        {{ merge .Values.nats.defaultStreamConfig .Values.cancel.streamConfig $x | toJson }}
+        {{ mustMerge $cancelstream .Values.cancel.streamConfig .Values.nats.defaultStreamConfig | toJson }}
     cancel-consumer.json: |
-        {{- $x := dict
+        {{- $cancelconsumer := dict
             "durable_name" "nalpaca-cancel-consumer-v0"
             "description" "Nalpaca cancel consumer. Listens to the cancel stream and cancels orders as they come in"
-            "filter_subject"  $subject
+            "filter_subject"  $cancelsubj
         }}
-        {{ merge .Values.nats.defaultConsumerConfig .Values.cancel.consumerConfig $x | toJson }}
+        {{ mustMerge $cancelconsumer .Values.cancel.consumerConfig .Values.nats.defaultConsumerConfig | toJson }}
     tradeupdater-stream.json: |
-        {{- $subject := printf "%s.tradeupdates.v0.*" .Values.nats.subjectPrefix }}
-        {{- $x := dict
+        {{- $tradesubj := printf "%s.tradeupdates.v0.*" .Values.nats.subjectPrefix }}
+        {{- $tradestream := dict
             "name" "nalpaca-tradeupdater-stream-v0"
             "description" "Nalpaca trade update stream. When a trade update is seen for the portfolio, nalpaca will push the update on the stream"
-            "subjects"  (list $subject)
+            "subjects"  (list $tradesubj)
             "retention" "workqueue"
         }}
-        {{ merge .Values.nats.defaultStreamConfig .Values.tradeupdater.streamConfig $x | toJson }}
+        {{ mustMerge $tradestream .Values.tradeupdater.streamConfig .Values.nats.defaultStreamConfig | toJson }}
     tradeupdater-consumer.json: |
-        {{- $x := dict
+        {{- $tradeconsumer := dict
             "durable_name" "nalpaca-tradeupdater-consumer-v0"
             "description" "Nalpaca trade update consumer. Connect to this consumer to receive trade updates"
-            "filter_subject"  $subject
+            "filter_subject"  $tradesubj
         }}
-        {{ merge .Values.nats.defaultConsumerConfig .Values.tradeupdater.consumerConfig $x | toJson }}
+        {{ mustMerge $tradeconsumer .Values.tradeupdater.consumerConfig .Values.nats.defaultConsumerConfig | toJson }}
 {{ end }}

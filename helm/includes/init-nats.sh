@@ -12,8 +12,12 @@ function create_component() {
         return
     fi
 
-    streamconf=/conf/$1-stream.json
-    consumerconf=/conf/$1-consumer.json
+    echo "==============================================="
+    echo "$1"
+    echo "==============================================="
+
+    local streamconf=/conf/$1-stream.json
+    local consumerconf=/conf/$1-consumer.json
 
     for i in $streamconf $consumerconf; do
         if [ ! -f $i ]; then
@@ -28,11 +32,13 @@ function create_component() {
     echo Creating $streamname with the config below
     cat $streamconf
     nats stream add $streamname --config $streamconf
+    echo "\n"
 
     consumername=nalpaca-$1-consumer-v0 
     echo Creating $consumername under stream $streamname with the config below
     cat $consumerconf
     nats consumer add $streamname $consumername --config $consumerconf
+    echo "\n"
 }
 
 create_component "orders" $ORDERS_ENABLED

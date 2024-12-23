@@ -11,11 +11,11 @@ nats:
   useCompression: true
   subjectPrefix: nalpaca # all subjects will have this prefix attached
   defaultStreamConfig:
-    max_consumers: -1
+    # max_consumers: -1
+    # max_age: 0
     max_msgs_per_subject: 3
     max_msgs: 5
     max_bytes: 1024
-    max_age: 0
     max_msg_size: 248
     storage: "memory"
     discard: "old"
