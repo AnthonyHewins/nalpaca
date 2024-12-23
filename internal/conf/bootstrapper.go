@@ -66,7 +66,11 @@ func (b *BootstrapConf) New(ctx context.Context, appName string, metrics ...prom
 		return nil, err
 	}
 
-	a.Nalpaca = a.Alpaca(&b.Alpaca, &http.Client{Timeout: b.HTTPClientTimeout})
+	a.Nalpaca, err = a.Alpaca(&b.Alpaca, &http.Client{Timeout: b.HTTPClientTimeout})
+	if err != nil {
+		return nil, err
+	}
+
 	return &a, nil
 }
 

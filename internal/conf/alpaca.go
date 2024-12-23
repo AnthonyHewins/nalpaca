@@ -2,6 +2,7 @@ package conf
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -14,15 +15,15 @@ type Alpaca struct {
 	Mock bool `env:"MOCK_ALPACA"`
 
 	BaseURL   string `env:"ALPACA_URL" envDefault:"https://paper-api.alpaca.markets"`
-	APIKey    string `env:"API_KEY"`
-	APISecret string `env:"API_SECRET"`
+	APIKey    string `env:"ALPACA_API_KEY"`
+	APISecret string `env:"ALPACA_API_SECRET"`
 
 	OAuth      string        `env:"ALPACA_OAUTH" envDefault:""`
 	RetryLimit uint          `env:"ALPACA_RETRY_LIMIT"`
 	RetryDelay time.Duration `env:"ALPACA_RETRY_LIMIT"`
 }
 
-func (b *Bootstrapper) Alpaca(a *Alpaca, httpClient *http.Client) nalpaca.Interface {
+func (b *Bootstrapper) Alpaca(a *Alpaca, httpClient *http.Client) (nalpaca.Interface, error) {
 	if a.Mock {
 		b.Logger.Info("mock set, mocking Alpaca")
 		return nalpaca.Mock{
@@ -50,7 +51,21 @@ func (b *Bootstrapper) Alpaca(a *Alpaca, httpClient *http.Client) nalpaca.Interf
 			PlaceOrderFn: func(req alpaca.PlaceOrderRequest) (*alpaca.Order, error) {
 				return &alpaca.Order{}, nil
 			},
-		}
+		}, nil
+	}
+
+	l := b.Logger.With(
+		"apikey", a.APIKey,
+		"len(secret)>0", len(a.APISecret) > 0,
+		"baseURL", a.BaseURL,
+		"oAuth", a.OAuth,
+		"retryLimit", a.RetryLimit,
+		"retryDelay", a.RetryDelay,
+	)
+
+	if len(a.APISecret) == 0 {
+		l.Error("missing api secret")
+		return nil, fmt.Errorf("no API secret for alpaca")
 	}
 
 	return alpaca.NewClient(alpaca.ClientOpts{
@@ -61,5 +76,5 @@ func (b *Bootstrapper) Alpaca(a *Alpaca, httpClient *http.Client) nalpaca.Interf
 		RetryLimit: int(a.RetryLimit),
 		RetryDelay: a.RetryDelay,
 		HTTPClient: httpClient,
-	})
+	}), nil
 }
