@@ -10,6 +10,7 @@ nats:
   user: "" # if set, must also set NATS_PASSWORD in secrets.name
   useCompression: true
   subjectPrefix: nalpaca # all subjects will have this prefix attached
+  kvBucket: nalpaca # keyvalue bucket to use, if enabled
   defaultStreamConfig:
     # max_consumers: -1
     # max_age: 0

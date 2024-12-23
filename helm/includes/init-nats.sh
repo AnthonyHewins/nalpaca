@@ -6,9 +6,9 @@ if [[ $NATS_USER != "" ]]; then
     exit 1
 fi
 
-function create_component() {
+function create_stream_consumer() {
     if [[ $2 != "true" ]]; then
-        echo Component $1 is marked disabled, got $2. Skipping...
+        echo stream_consumer $1 is marked disabled, got $2. Skipping...
         return
     fi
 
@@ -42,6 +42,16 @@ function create_component() {
     echo "\n"
 }
 
-create_component "orders" $ORDERS_ENABLED
-create_component "tradeupdater" $TRADEUPDATER_ENABLED
-create_component "cancel" $CANCEL_ENABLED
+create_stream_consumer "orders" $ORDERS_ENABLED
+create_stream_consumer "tradeupdater" $TRADEUPDATER_ENABLED
+create_stream_consumer "cancel" $CANCEL_ENABLED
+
+if [[ $TRADEUPDATER_ENABLED != "true" ]]; then
+    echo "Trade updater disabled, so not creating KV bucket"
+    exit 0
+fi
+
+echo "=================================================="
+echo "KV bucket"
+echo "=================================================="
+nats kv add ${BUCKET:?Must have a bucket defined to make KV, or disable trade updater}

@@ -81,6 +81,8 @@ spec:
               value: "{{ .Values.tradeupdater.enabled }}"
             - name: CANCEL_ENABLED
               value: "{{ .Values.cancel.enabled }}"
+            - name: BUCKET
+              value: {{ .Values.nats.kvBucket }}
       volumes:
         - name: initjob
           configMap:
