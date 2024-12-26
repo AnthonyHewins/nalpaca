@@ -55,8 +55,8 @@ cancel:
   consumerConfig: {}
 
 alpaca:
-  url: https://paper-api.alpaca.markets
-  apiKey: "" # API secret is under the "secrets" block
+  url: https://paper-api.alpaca.markets # live trading: https://api.alpaca.markets
+  apiKey: "" # API secret is set in secret specified by secrets.name
   oauth: ""
   retryLimit: 0
   retryDelay: 3s

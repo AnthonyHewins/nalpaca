@@ -5,6 +5,7 @@ package tradesvc.v0;
 import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/AnthonyHewins/nalpaca/gen/go/tradesvcsvc/v0;tradesvc";
+option java_package = "com.nalpaca.tradesvc";
 
 enum Side {
     SIDE_UNSPECIFIED = 0;

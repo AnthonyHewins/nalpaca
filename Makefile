@@ -10,6 +10,7 @@ VERSION ?= v?.?.?
 COMMIT ?= $(shell git rev-list -1 HEAD)
 IMAGE := docker.io/ahewins/nalpaca
 BUILD_FLAGS := 
+docker_bin ?= podman
 ifneq (,$(wildcard ./vendor))
 	$(info Found vendor directory; setting "-mod vendor" to any "go build" commands)
 	BUILD_FLAGS += -mod vendor
@@ -26,11 +27,11 @@ all: $(targets) ## Build all targets
 #======================================
 # Docker
 #======================================
-docker: ## build docker image
+docker: ## build docker image 
 	go mod tidy
-	podman login docker.io
-	podman build -t $(IMAGE) --build-arg target=nalpaca -f docker/Dockerfile .
-	podman push $(IMAGE)
+	$(docker_bin) login docker.io
+	$(docker_bin) build -t $(IMAGE) --build-arg target=nalpaca -f docker/Dockerfile .
+	$(docker_bin) push $(IMAGE)
 
 compose: ## build docker compose
 	docker-compose -f ./docker/compose.yaml build
