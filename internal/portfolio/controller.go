@@ -4,13 +4,13 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/AnthonyHewins/nalpaca/internal/nalpaca"
+	"github.com/AnthonyHewins/nalpaca/internal/bridge"
 	"github.com/nats-io/nats.go/jetstream"
 )
 
 type Controller struct {
 	logger  *slog.Logger
-	client  nalpaca.Interface
+	client  bridge.AlpacaInterface
 	timeout time.Duration
 	js      jetstream.JetStream
 
@@ -21,7 +21,7 @@ type Controller struct {
 
 func NewController(
 	logger *slog.Logger,
-	client nalpaca.Interface,
+	client bridge.AlpacaInterface,
 	timeout time.Duration,
 	nc jetstream.JetStream,
 	portfolioKV jetstream.KeyValue,

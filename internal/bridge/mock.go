@@ -1,4 +1,4 @@
-package nalpaca
+package bridge
 
 import (
 	"context"

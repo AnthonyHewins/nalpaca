@@ -6,6 +6,7 @@ import (
 
 	"github.com/AnthonyHewins/nalpaca/internal/canceler"
 	"github.com/AnthonyHewins/nalpaca/internal/conf"
+	"github.com/AnthonyHewins/nalpaca/internal/optionquotes"
 	"github.com/AnthonyHewins/nalpaca/internal/portfolio"
 	"github.com/AnthonyHewins/nalpaca/internal/trader"
 	"github.com/caarlos0/env/v11"
@@ -37,11 +38,12 @@ var (
 )
 
 type app struct {
-	*conf.Bootstrapper
+	*conf.Server
 
 	canceler *canceler.Canceler
 	trader   *trader.Controller
 	updater  *portfolio.Controller
+	quotes   *optionquotes.Controller
 
 	order  consumer
 	cancel consumer
@@ -63,9 +65,7 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	a := app{
-		Bootstrapper: b,
-	}
+	a := app{Server: (*conf.Server)(b)}
 	defer func() {
 		if err != nil {
 			a.shutdown()
@@ -120,10 +120,8 @@ func (a *app) connect(ctx context.Context, js jetstream.JetStream, stream, consu
 }
 
 func (a *app) shutdown() {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
-
-	a.Bootstrapper.Shutdown(ctx)
 
 	type consumers struct {
 		name     string
@@ -143,4 +141,6 @@ func (a *app) shutdown() {
 		v.consumer.Stop()
 		a.Logger.InfoContext(ctx, "shut down "+v.name)
 	}
+
+	a.Server.Shutdown(ctx)
 }

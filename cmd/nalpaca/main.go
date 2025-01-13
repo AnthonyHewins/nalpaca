@@ -23,6 +23,7 @@ type config struct {
 	conf.BootstrapConf
 	CancelConf
 	OrdersConf
+	Quotes
 	TradeUpdaterConf
 
 	StreamPrefix string `env:"STREAM_PREFIX" envDefault:"nalpaca"`

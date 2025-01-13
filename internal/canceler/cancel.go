@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AnthonyHewins/nalpaca/internal/nalpaca"
+	"github.com/AnthonyHewins/nalpaca/internal/bridge"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -14,7 +14,7 @@ import (
 type Canceler struct {
 	counters Counters
 	logger   *slog.Logger
-	client   nalpaca.Interface
+	client   bridge.AlpacaInterface
 	timeout  time.Duration
 }
 
@@ -23,7 +23,7 @@ type Counters struct {
 	CancelAllCount, CancelAllFail prometheus.Counter
 }
 
-func New(logger *slog.Logger, client nalpaca.Interface, counters Counters, timeout time.Duration) *Canceler {
+func New(logger *slog.Logger, client bridge.AlpacaInterface, counters Counters, timeout time.Duration) *Canceler {
 	return &Canceler{
 		counters: counters,
 		logger:   logger,

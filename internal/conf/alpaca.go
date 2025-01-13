@@ -1,18 +1,17 @@
 package conf
 
 import (
-	"context"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/AnthonyHewins/nalpaca/internal/nalpaca"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/alpaca"
-	"github.com/shopspring/decimal"
+	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata"
+	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
 )
 
 type Alpaca struct {
-	Mock bool `env:"MOCK_ALPACA"`
+	OptionsStream
 
 	BaseURL   string `env:"ALPACA_URL" envDefault:"https://paper-api.alpaca.markets"`
 	APIKey    string `env:"ALPACA_API_KEY,required"`
@@ -23,37 +22,7 @@ type Alpaca struct {
 	RetryDelay time.Duration `env:"ALPACA_RETRY_LIMIT"`
 }
 
-func (b *Bootstrapper) Alpaca(a *Alpaca, httpClient *http.Client) (nalpaca.Interface, error) {
-	if a.Mock {
-		b.Logger.Info("mock set, mocking Alpaca")
-		return nalpaca.Mock{
-			StreamTradeUpdatesFn: func(ctx context.Context, fn func(alpaca.TradeUpdate), req alpaca.StreamTradeUpdatesRequest) error {
-				ticker := time.NewTicker(time.Second * 5)
-				for {
-					select {
-					case <-ticker.C:
-						fn(alpaca.TradeUpdate{
-							At:          time.Now(),
-							Event:       "",
-							EventID:     "",
-							ExecutionID: "",
-							Order:       alpaca.Order{},
-							PositionQty: &decimal.Decimal{},
-							Price:       &decimal.Decimal{},
-							Qty:         &decimal.Decimal{},
-							Timestamp:   &time.Time{},
-						})
-					case <-ctx.Done():
-						return ctx.Err()
-					}
-				}
-			},
-			PlaceOrderFn: func(req alpaca.PlaceOrderRequest) (*alpaca.Order, error) {
-				return &alpaca.Order{}, nil
-			},
-		}, nil
-	}
-
+func (b *Bootstrapper) Alpaca(a *Alpaca, httpClient *http.Client) (*alpaca.Client, error) {
 	secret := strings.TrimSpace(a.APISecret)
 	l := b.Logger.With(
 		"apikey", a.APIKey,
@@ -74,4 +43,28 @@ func (b *Bootstrapper) Alpaca(a *Alpaca, httpClient *http.Client) (nalpaca.Inter
 		RetryDelay: a.RetryDelay,
 		HTTPClient: httpClient,
 	}), nil
+}
+
+//go:generate enumer -type optionFeed -text
+type optionFeed byte
+
+const (
+	indicative optionFeed = iota
+	opra
+)
+
+type OptionsStream struct {
+	BaseURL    string     `env:"OPTIONS_STREAM_BASE_URL" envDefault:"wss://stream.data.sandbox.alpaca.markets"`
+	Feed       optionFeed `env:"OPTIONS_STREAM_FEED_TYPE" envDefault:"indicative"`
+	Processors uint16     `env:"OPTIONS_STREAM_GOROUTINES" envDefault:"1"`
+}
+
+func (b *Bootstrapper) OptionsStream(a *Alpaca) *stream.OptionClient {
+	o := a.OptionsStream
+
+	return stream.NewOptionClient(marketdata.IEX,
+		stream.WithBaseURL(o.BaseURL),
+		stream.WithCredentials(a.APIKey, a.APISecret),
+		stream.WithProcessors(int(o.Processors)),
+	)
 }

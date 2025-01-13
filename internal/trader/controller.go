@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/AnthonyHewins/nalpaca/internal/nalpaca"
+	"github.com/AnthonyHewins/nalpaca/internal/bridge"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -19,14 +19,14 @@ type Controller struct {
 	tracer            trace.Tracer
 	logger            *slog.Logger
 	processingTimeout time.Duration
-	alpaca            nalpaca.Interface
+	alpaca            bridge.AlpacaInterface
 }
 
 func NewController(
 	tracer trace.Tracer,
 	logger *slog.Logger,
 	counters Counters,
-	client nalpaca.Interface,
+	client bridge.AlpacaInterface,
 	processingTimeout time.Duration,
 ) *Controller {
 	return &Controller{
