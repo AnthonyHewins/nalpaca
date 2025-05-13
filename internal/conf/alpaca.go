@@ -12,6 +12,7 @@ import (
 
 type Alpaca struct {
 	OptionsStream
+	// StockStream
 
 	BaseURL   string `env:"ALPACA_URL" envDefault:"https://paper-api.alpaca.markets"`
 	APIKey    string `env:"ALPACA_API_KEY,required"`
@@ -68,3 +69,23 @@ func (b *Bootstrapper) OptionsStream(a *Alpaca) *stream.OptionClient {
 		stream.WithProcessors(int(o.Processors)),
 	)
 }
+
+/*
+type StockStream struct {
+	Symbols string `env:"SYMBOLS"`
+}
+
+func (b *Bootstrapper) DataStream(d *Alpaca, opts ...stream.StockOption) {
+	symbols := strings.Split(d.Symbols, ",")
+
+	c := stream.NewStocksClient(marketdata.SIP,
+		append(
+			opts,
+			stream.WithCredentials(d.APIKey, d.APISecret),
+			stream.WithBars(func(b stream.Bar) {})
+		)...,
+	)
+
+	return c, nil
+}
+*/
