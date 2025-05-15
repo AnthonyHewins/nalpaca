@@ -29,6 +29,8 @@ services:
     command: "/root/nalpaca"
     env_file: ../.env
     environment:
+      ENABLE_STOCK_STREAM: true
+      STOCK_STREAM_SYMBOLS: AAPL
       DISABLE_METRICS: true
       DISABLE_HEALTH: true
       DISABLE_TRACING: true
