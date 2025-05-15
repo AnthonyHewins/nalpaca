@@ -17,12 +17,13 @@
 Alpaca over NATS, with k8s support via helm. Nalpaca steps in front of the Alpaca API and makes certain things available to you in NATS.
 Nalpaca will take on the onus of trade retries, trade updates, backoffs, failures, metrics, logging and basically everything that you'd probably want
 out of your own code interacting with alpaca. It uses protobuf to make messaging as fast and small as possible.
-You get to control everything through NATS. Here are some example things it can do:
+Here are some example things it can do:
 
 - **Trades**: push trades on the NATS message bus, then the trader will perform these trades for you, retrying as much as you want
 - **Trade updates**: when a trade is filled, it will push notifications
 - **Positions**: positions are available in a KV store
 - **Trade cancels**: cancel trades (in progress)
+- **Streaming**: stream stocks, and eventually options
 
 ## Deploying
 

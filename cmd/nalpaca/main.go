@@ -23,7 +23,6 @@ type config struct {
 	conf.BootstrapConf
 	CancelConf
 	OrdersConf
-	Quotes
 	TradeUpdaterConf
 
 	StreamPrefix string `env:"STREAM_PREFIX" envDefault:"nalpaca"`
@@ -120,6 +119,13 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 		g.Go(func() error {
 			a.Logger.InfoContext(ctx, "starting health server")
 			return a.Health.Start(ctx)
+		})
+	}
+
+	if a.stockStream != nil {
+		g.Go(func() error {
+			a.Logger.InfoContext(ctx, "starting stock streaming")
+			return a.stockStream.Stream(ctx)
 		})
 	}
 }

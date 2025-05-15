@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/AnthonyHewins/nalpaca/internal/bridge"
+	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
 	"github.com/nats-io/nats.go"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/sdk/trace"
@@ -30,6 +31,7 @@ type Server struct {
 	Metrics *http.Server
 	TP      *trace.TracerProvider
 	Nalpaca bridge.AlpacaInterface
+	Stocks  *stream.StocksClient
 }
 
 type Bootstrapper Server

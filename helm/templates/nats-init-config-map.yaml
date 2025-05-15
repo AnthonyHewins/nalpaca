@@ -54,4 +54,20 @@ data:
             "filter_subject"  $tradesubj
         }}
         {{ mustMerge $tradeconsumer .Values.tradeupdater.consumerConfig .Values.nats.defaultConsumerConfig | toJson }}
+    stockstream-stream.json: |
+        {{- $tradesubj := printf "%s.stockstream.v0.*" .Values.nats.subjectPrefix }}
+        {{- $tradestream := dict
+            "name" "nalpaca-stockstream-stream-v0"
+            "description" "Nalpaca stock stream. Gives bar updates by the minute"
+            "subjects"  (list $tradesubj)
+            "retention" "workqueue"
+        }}
+        {{ mustMerge $tradestream .Values.stockstream.streamConfig .Values.nats.defaultStreamConfig | toJson }}
+    stockstream-consumer.json: |
+        {{- $tradeconsumer := dict
+            "durable_name" "nalpaca-stockstream-consumer-v0"
+            "description" "Nalpaca stock stream consumer. Connect to this consumer to receive bar updates by the minute"
+            "filter_subject"  $tradesubj
+        }}
+        {{ mustMerge $tradeconsumer .Values.stockstream.consumerConfig .Values.nats.defaultConsumerConfig | toJson }}
 {{ end }}

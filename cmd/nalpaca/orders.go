@@ -8,13 +8,13 @@ import (
 )
 
 type OrdersConf struct {
-	DisableOrders       bool   `env:"DISABLE_ORDERS" envDefault:"false"`
+	EnableOrders        bool   `env:"ENABLE_ORDERS" envDefault:"false"`
 	OrderConsumerStream string `env:"ORDER_CONSUMER_STREAM" envDefault:"nalpaca-orders-stream-v0"`
 	OrderConsumerName   string `env:"ORDER_CONSUMER_NAME" envDefault:"nalpaca-orders-consumer-v0"`
 }
 
 func (a *app) initOrders(ctx context.Context, js jetstream.JetStream, c *config) error {
-	if c.DisableOrders {
+	if !c.EnableOrders {
 		return nil
 	}
 

@@ -5,22 +5,24 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AnthonyHewins/nalpaca/internal/streaming"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/alpaca"
-	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata"
-	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
 )
 
 type Alpaca struct {
-	OptionsStream
-	// StockStream
+	// DisableOptionStream bool             `env:"DISABLE_OPTIONS_STREAM"`
+	// OptionsStream       streaming.Stream `envPrefix:"OPTIONS_STREAM"`
+
+	EnableStockStream bool             `env:"ENABLE_STOCK_STREAM" envDefault:"false"`
+	StockStream       streaming.Stream `envPrefix:"STOCK_STREAM"`
 
 	BaseURL   string `env:"ALPACA_URL" envDefault:"https://paper-api.alpaca.markets"`
 	APIKey    string `env:"ALPACA_API_KEY,required"`
 	APISecret string `env:"ALPACA_API_SECRET,required"`
 
-	OAuth      string        `env:"ALPACA_OAUTH" envDefault:""`
+	OAuth      string        `env:"ALPACA_OAUTH"`
 	RetryLimit uint          `env:"ALPACA_RETRY_LIMIT"`
-	RetryDelay time.Duration `env:"ALPACA_RETRY_LIMIT"`
+	RetryDelay time.Duration `env:"ALPACA_RETRY_DELAY"`
 }
 
 func (b *Bootstrapper) Alpaca(a *Alpaca, httpClient *http.Client) (*alpaca.Client, error) {
@@ -45,47 +47,3 @@ func (b *Bootstrapper) Alpaca(a *Alpaca, httpClient *http.Client) (*alpaca.Clien
 		HTTPClient: httpClient,
 	}), nil
 }
-
-//go:generate enumer -type optionFeed -text
-type optionFeed byte
-
-const (
-	indicative optionFeed = iota
-	opra
-)
-
-type OptionsStream struct {
-	BaseURL    string     `env:"OPTIONS_STREAM_BASE_URL" envDefault:"wss://stream.data.sandbox.alpaca.markets"`
-	Feed       optionFeed `env:"OPTIONS_STREAM_FEED_TYPE" envDefault:"indicative"`
-	Processors uint16     `env:"OPTIONS_STREAM_GOROUTINES" envDefault:"1"`
-}
-
-func (b *Bootstrapper) OptionsStream(a *Alpaca) *stream.OptionClient {
-	o := a.OptionsStream
-
-	return stream.NewOptionClient(marketdata.IEX,
-		stream.WithBaseURL(o.BaseURL),
-		stream.WithCredentials(a.APIKey, a.APISecret),
-		stream.WithProcessors(int(o.Processors)),
-	)
-}
-
-/*
-type StockStream struct {
-	Symbols string `env:"SYMBOLS"`
-}
-
-func (b *Bootstrapper) DataStream(d *Alpaca, opts ...stream.StockOption) {
-	symbols := strings.Split(d.Symbols, ",")
-
-	c := stream.NewStocksClient(marketdata.SIP,
-		append(
-			opts,
-			stream.WithCredentials(d.APIKey, d.APISecret),
-			stream.WithBars(func(b stream.Bar) {})
-		)...,
-	)
-
-	return c, nil
-}
-*/

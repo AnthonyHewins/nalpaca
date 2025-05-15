@@ -81,6 +81,8 @@ spec:
               value: "{{ .Values.tradeupdater.enabled }}"
             - name: CANCEL_ENABLED
               value: "{{ .Values.cancel.enabled }}"
+            - name: STOCKSTREAM_ENABLED
+              value: "{{ .Values.stockstream.enabled }}"
             - name: BUCKET
               value: {{ .Values.nats.kvBucket }}
       volumes:
@@ -91,7 +93,7 @@ spec:
             items:
               - key: "init.sh"
                 path: "init.sh"
-              {{- range $val := list "orders" "cancel" "tradeupdater" }}
+              {{- range $val := list "orders" "cancel" "tradeupdater" "stockstream" }}
               - key: "{{ $val }}-stream.json"
                 path: "{{ $val }}-stream.json"
               - key: "{{ $val }}-consumer.json"
