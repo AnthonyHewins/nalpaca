@@ -8,12 +8,12 @@ import (
 )
 
 type TradeUpdaterConf struct {
-	DisableTradeUpdater bool   `env:"DISABLE_TRADE_UPDATER" envDefault:"false"`
-	TradeUpdaterStream  string `env:"TRADE_UPDATER_STREAM" envDefault:"nalpaca-tradeupdater-stream-v0"`
+	EnableTradeUpdater bool   `env:"ENABLE_TRADE_UPDATER" envDefault:"false"`
+	TradeUpdaterStream string `env:"TRADE_UPDATER_STREAM" envDefault:"nalpaca-tradeupdater-stream-v0"`
 }
 
 func (a *app) initTradeUpdater(ctx context.Context, js jetstream.JetStream, kv jetstream.KeyValue, c *config) error {
-	if c.TradeUpdaterConf.DisableTradeUpdater {
+	if !c.TradeUpdaterConf.EnableTradeUpdater {
 		return nil
 	}
 

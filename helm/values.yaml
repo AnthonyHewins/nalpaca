@@ -4,7 +4,7 @@ conf: # App config
   processingTimeout: 3s
 
 nats:
-  initJob:
+  initJob: # init job will create all the consumers/streams. Only needs to be ran once
     enabled: true
   url: "nats-headless.nats.svc.cluster.local:4222"
   user: "" # if set, must also set NATS_PASSWORD in secrets.name
@@ -40,19 +40,32 @@ nats:
     num_replicas: 1
 
 orders:
-  enabled: true
+  enabled: false
   streamConfig: {}
   consumerConfig: {}
 
 tradeupdater:
-  enabled: true
+  enabled: false
   streamConfig: {}
   consumerConfig: {}
 
 cancel:
-  enabled: true
+  enabled: false
   streamConfig: {}
   consumerConfig: {}
+
+stockstream:
+  enabled: false
+  streamConfig: {}
+  consumerConfig: {}
+  initialSymbols: [] # list of tickers to use
+  wsOpts:
+    feed: "iex" # iex | sip | otc | delayed_sip
+    baseURL: wss://stream.data.sandbox.alpaca.markets
+    processors: 1 # alpaca's default; increasing may cause msgs to get out of order
+    buffer: 100000 # buffer size in bytes; this is alpaca's SDK default
+    reconnectLimit: 20 # default in SDK
+    reconnectDelay: 150ms # default in SDK
 
 alpaca:
   url: https://paper-api.alpaca.markets # live trading: https://api.alpaca.markets

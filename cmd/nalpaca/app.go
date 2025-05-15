@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/AnthonyHewins/nalpaca/internal/canceler"
 	"github.com/AnthonyHewins/nalpaca/internal/conf"
-	"github.com/AnthonyHewins/nalpaca/internal/optionquotes"
 	"github.com/AnthonyHewins/nalpaca/internal/portfolio"
+	"github.com/AnthonyHewins/nalpaca/internal/streaming"
 	"github.com/AnthonyHewins/nalpaca/internal/trader"
 	"github.com/caarlos0/env/v11"
 	"github.com/nats-io/nats.go/jetstream"
@@ -40,10 +41,11 @@ var (
 type app struct {
 	*conf.Server
 
-	canceler *canceler.Canceler
-	trader   *trader.Controller
-	updater  *portfolio.Controller
-	quotes   *optionquotes.Controller
+	canceler    *canceler.Canceler
+	trader      *trader.Controller
+	updater     *portfolio.Controller
+	stockStream *streaming.Stocks
+	// quotes   *optionquotes.Controller
 
 	order  consumer
 	cancel consumer
@@ -72,20 +74,32 @@ func newApp(ctx context.Context) (*app, error) {
 		}
 	}()
 
-	if err = a.connectNATS(ctx, &c); err != nil {
+	js, err := jetstream.New(a.NC)
+	if err != nil {
+		a.Logger.ErrorContext(ctx, "failed connecting to jetstream", "err", err)
 		return nil, err
+	}
+
+	if err = a.connectNATS(ctx, js, &c); err != nil {
+		return nil, err
+	}
+
+	if c.Alpaca.EnableStockStream {
+		a.stockStream = streaming.NewStocks(
+			b.Logger,
+			streaming.NewMetrics(appName),
+			js,
+			fmt.Sprintf("%s.stock", c.StreamPrefix),
+			c.Alpaca.APIKey,
+			c.Alpaca.APISecret,
+			&c.Alpaca.StockStream,
+		)
 	}
 
 	return &a, nil
 }
 
-func (a *app) connectNATS(ctx context.Context, c *config) error {
-	js, err := jetstream.New(a.NC)
-	if err != nil {
-		a.Logger.ErrorContext(ctx, "failed connecting to jetstream", "err", err)
-		return err
-	}
-
+func (a *app) connectNATS(ctx context.Context, js jetstream.JetStream, c *config) error {
 	kv, err := js.KeyValue(ctx, c.Bucket)
 	if err != nil {
 		a.Logger.ErrorContext(ctx, "failed connecting to nalpaca KV bucket", "err", err, "bucket", c.Bucket)

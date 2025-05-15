@@ -39,4 +39,20 @@ data:
   ALPACA_OAUTH: {{ .Values.alpaca.oauth | toJson }}
   ALPACA_RETRY_LIMIT: "{{ .Values.alpaca.retryLimit | toJson }}"
   ALPACA_RETRY_DELAY: {{ .Values.alpaca.retryDelay | toJson }}
+
+  # Orders
+  ENABLE_ORDERS: "{{ .Values.orders.enabled }}"
+
+  # Canceler
+  ENABLE_CANCELER: "{{ .Values.cancel.enabled }}"
+
+  # Trade updater
+  ENABLE_TRADE_UPDATER: "{{ .Values.tradeupdater.enabled }}"
+
+  # Stock stream
+  ENABLE_STOCK_STREAM: "{{ .Values.stockstream.enabled }}"
+  STOCK_STREAM_SYMBOLS: {{ join "," .Values.stockstream.initialSymbols | toJson }}
+  {{- range $key, $value := .Values.stockstream.wsOpts }}
+  STOCK_STREAM_{{ $key | snakecase | upper }}: {{ $value | quote }}
+  {{- end }}
 {{ end }}

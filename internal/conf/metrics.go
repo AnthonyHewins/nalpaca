@@ -28,7 +28,7 @@ const (
 
 type Metrics struct {
 	// Disable the prometheus metrics server.
-	DisableMetrics bool `env:"DISABLE_METRICS" envDefault:"false"`
+	DisableMetrics bool `env:"DISABLE_METRICS" envDefault:"true"`
 
 	// Port to expose for the Prometheus HTTP metrics API.
 	HTTPMetricsPort uint16 `env:"METRICS_PORT" envDefault:"8088"`

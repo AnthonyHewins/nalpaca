@@ -8,13 +8,13 @@ import (
 )
 
 type CancelConf struct {
-	DisableCancel  bool   `env:"DISABLE_CANCELER" envDefault:"false"`
+	EnableCancel   bool   `env:"ENABLE_CANCELER" envDefault:"false"`
 	CancelStream   string `env:"CANCEL_STREAM" envDefault:"nalpaca-cancel-stream-v0"`
 	CancelConsumer string `env:"CANCEL_CONSUMER" envDefault:"nalpaca-cancel-consumer-v0"`
 }
 
 func (a *app) initCanceler(ctx context.Context, js jetstream.JetStream, c *config) error {
-	if c.CancelConf.DisableCancel {
+	if !c.CancelConf.EnableCancel {
 		return nil
 	}
 
