@@ -5,7 +5,7 @@ metadata:
   name: nats-init
 data:
     init.sh: |
-        {{- .Files.Get "includes/init-nats.sh" | nindent 8 }}
+        {{- .Files.Get "includes/nats/init.sh" | nindent 8 }}
 
 ---
 apiVersion: v1
@@ -15,7 +15,7 @@ metadata:
 data:
     action-stream.json: |
         {{- $x := .Files.Get "includes/nats/action/stream.json" | fromJson -}}
-        {{ mustMerge .Values.nats.actionStream $x | toJson | nindent 8 }}
+        {{ mustMerge .Values.nats.initJob.actionStream $x | toJson | nindent 8 }}
     orders-consumer.json: |
         {{- $x := .Files.Get "includes/nats/action/order-consumer.json" | fromJson -}}
         {{ mustMerge .Values.orders.consumerConfig $x | toJson | nindent 8 }}
@@ -31,7 +31,7 @@ metadata:
 data:
     data-stream.json: |
         {{- $x := .Files.Get "includes/nats/data/stream.json" | fromJson -}}
-        {{ mustMerge .Values.nats.dataStream $x | toJson | nindent 8 }}
+        {{ mustMerge .Values.nats.initJob.dataStream $x | toJson | nindent 8 }}
     stock-consumer.json: |
         {{- $x := .Files.Get "includes/nats/data/stock-consumer.json" | fromJson -}}
         {{ mustMerge .Values.stockstream.consumerConfig $x | toJson | nindent 8 }}
