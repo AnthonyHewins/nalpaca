@@ -4,64 +4,51 @@ conf: # App config
   processingTimeout: 3s
 
 nats:
-  initJob: # init job will create all the consumers/streams. Only needs to be ran once
-    enabled: true
   url: "nats-headless.nats.svc.cluster.local:4222"
   user: "" # if set, must also set NATS_PASSWORD in secrets.name
   useCompression: true
-  subjectPrefix: nalpaca # all subjects will have this prefix attached
   kvBucket: nalpaca # keyvalue bucket to use, if enabled
-  defaultStreamConfig:
-    # max_consumers: -1
-    # max_age: 0
-    max_msgs_per_subject: 3
-    max_msgs: 5
-    max_bytes: 1024
-    max_msg_size: 248
-    storage: "memory"
-    discard: "old"
-    num_replicas: 1
-    duplicate_window: 20000000000
-    compression: "s2"
-    sealed: false
-    deny_delete: false
-    deny_purge: false
-    allow_rollup_hdrs: false
-    allow_direct: true
-    mirror_direct: false
-  defaultConsumerConfig:
-    ack_policy: "explicit"
-    ack_wait: 30000000000
-    deliver_policy: "all"
-    max_ack_pending: 1000
-    max_deliver: 3
-    max_waiting: 512
-    replay_policy: "instant"
-    num_replicas: 1
+  initJob:
+    enabled: true # enable the init job
+    actionStream: # overrides for the config for the nalpaca action stream
+      # max_consumers: -1
+      # max_age: 0
+      max_msgs_per_subject: 3
+      max_msgs: 5
+      max_bytes: 1024
+      max_msg_size: 248
+      storage: "memory"
+      discard: "old"
+      num_replicas: 1
+      duplicate_window: 20000000000
+      compression: "s2"
+      sealed: false
+      deny_delete: false
+      deny_purge: false
+      allow_rollup_hdrs: false
+      allow_direct: true
+      mirror_direct: false
+    dataStream: {} # overrides for the config of the nalpaca data stream (same args as actionStream)
 
 orders:
   enabled: false
-  streamConfig: {}
   consumerConfig: {}
 
 tradeupdater:
   enabled: false
-  streamConfig: {}
   consumerConfig: {}
 
 cancel:
   enabled: false
-  streamConfig: {}
   consumerConfig: {}
 
 stockstream:
   enabled: false
-  streamConfig: {}
   consumerConfig: {}
   initialSymbols: [] # list of tickers to use
   wsOpts:
     feed: "iex" # iex | sip | otc | delayed_sip
-    baseURL: wss://stream.data.sandbox.alpaca.markets
+    baseURL: wss://stream.data.sandbox.alpaca.markets # prod: wss://stream.data.alpaca.markets
     processors: 1 # alpaca's default; increasing may cause msgs to get out of order
     buffer: 100000 # buffer size in bytes; this is alpaca's SDK default
     reconnectLimit: 20 # default in SDK

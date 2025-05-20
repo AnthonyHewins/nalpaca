@@ -69,7 +69,7 @@ func (c *Controller) handler(u alpaca.TradeUpdate) {
 		return
 	}
 
-	ack, err := c.js.Publish(ctx, c.topicPrefix+"."+u.Order.Symbol, buf)
+	ack, err := c.js.Publish(ctx, c.prefix+"."+u.Order.Symbol, buf)
 	if err != nil {
 		l.ErrorContext(ctx, "failed publishing order", "err", err)
 		return

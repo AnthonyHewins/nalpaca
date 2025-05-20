@@ -7,7 +7,6 @@ import (
 	"time"
 
 	protoStream "github.com/AnthonyHewins/nalpaca/gen/go/stream/v0"
-	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/prometheus/client_golang/prometheus"
@@ -44,7 +43,18 @@ type Stocks struct {
 	prefix  string
 }
 
-func NewStocks(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, prefix, key, secret string, d *Stream) *Stocks {
+func NewStocks(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, prefix, key, secret string, d *Stream) (*Stocks, error) {
+	if d == nil {
+		return nil, fmt.Errorf("missing stream opts")
+	}
+
+	switch d.Feed {
+	case "sip", "iex", "otc", "delayed_sip":
+	default:
+		logger.Error("invalid feed", "feed", d.Feed)
+		return nil, fmt.Errorf("invalid feed %s", d.Feed)
+	}
+
 	s := &Stocks{
 		logger:  logger,
 		metrics: metrics,
@@ -58,9 +68,9 @@ func NewStocks(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, pre
 	}
 
 	symbols := d.Symbols
-	logger.Info("creating stocks stream client", "initial symbols", symbols)
-	s.s = stream.NewStocksClient(marketdata.SIP, append(so, stream.WithBars(s.bars, symbols...))...)
-	return s
+	logger.Info("creating stocks stream client", "conf", d, "key", key, "len(secret)>0", len(secret) > 0, "prefix", prefix)
+	s.s = stream.NewStocksClient(d.Feed, append(so, stream.WithBars(s.bars, symbols...))...)
+	return s, nil
 }
 
 func (c *Stocks) bars(b stream.Bar) {

@@ -1,0 +1,10 @@
+{
+  "ack_policy": "none",
+  "deliver_policy": "all",
+  "durable_name": "nalpaca-datastream-stock-consumer-v0",
+  "filter_subject": "nalpaca.datastream.v0.stocks.*",
+  "max_deliver": -1,
+  "replay_policy": "instant",
+  "num_replicas": 0,
+  "pause_until": "0001-01-01T00:00:00Z"
+}

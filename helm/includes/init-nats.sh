@@ -45,7 +45,7 @@ function create_stream_consumer() {
 create_stream_consumer "orders" $ORDERS_ENABLED
 create_stream_consumer "tradeupdater" $TRADEUPDATER_ENABLED
 create_stream_consumer "cancel" $CANCEL_ENABLED
-create_stream_consumer "stockstream" $STOCKSTREAM_ENABLED
+create_stream_consumer "datastream" $STOCKSTREAM_ENABLED
 
 if [[ $TRADEUPDATER_ENABLED != "true" ]]; then
     echo "Trade updater disabled, so not creating KV bucket"

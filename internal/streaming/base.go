@@ -8,20 +8,10 @@ import (
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
 )
 
-//go:generate enumer -type marketFeed -text -transform snake-upper
-type marketFeed byte
-
-const (
-	iex marketFeed = iota
-	sip
-	otc
-	delayedSip
-)
-
 type Stream struct {
-	Feed           marketFeed    `env:"FEED_TYPE" envDefault:"iex"`
+	Feed           string        `env:"FEED_TYPE" envDefault:"sip"`
 	Symbols        []string      `env:"SYMBOLS"` // use ',' as delimiter
-	BaseURL        string        `env:"BASE_URL" envDefault:"wss://stream.data.sandbox.alpaca.markets"`
+	BaseURL        string        `env:"BASE_URL" envDefault:"https://stream.data.sandbox.alpaca.markets/v2"`
 	Processors     uint16        `env:"PROCESSORS" envDefault:"1"`
 	Buffer         uint32        `env:"BUFFER_SIZE" envDefault:"100000"`    // default in lib
 	ReconnectLimit uint16        `env:"RECONNECT_LIMIT" envDefault:"20"`    // default in lib

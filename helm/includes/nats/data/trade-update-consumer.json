@@ -1,0 +1,11 @@
+{
+  "description": "Nalpaca trade updater consumer. Nalpaca will push messages to this consumer as trades update",
+  "ack_policy": "explicit",
+  "deliver_policy": "all",
+  "durable_name": "nalpaca-tradeupdate-consumer-v0",
+  "filter_subject": "nalpaca.data.v0.tradeupdates.*",
+  "max_deliver": 3,
+  "replay_policy": "instant",
+  "num_replicas": 1,
+  "pause_until": "0001-01-01T00:00:00Z"
+}

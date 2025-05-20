@@ -13,10 +13,9 @@ type Controller struct {
 	client  bridge.AlpacaInterface
 	timeout time.Duration
 	js      jetstream.JetStream
+	prefix  string
 
 	portfolioKV jetstream.KeyValue
-
-	topicPrefix string
 }
 
 func NewController(
@@ -25,7 +24,7 @@ func NewController(
 	timeout time.Duration,
 	nc jetstream.JetStream,
 	portfolioKV jetstream.KeyValue,
-	topicPrefix string,
+	prefix string,
 ) *Controller {
 	return &Controller{
 		logger:      logger,
@@ -33,6 +32,6 @@ func NewController(
 		timeout:     timeout,
 		js:          nc,
 		portfolioKV: portfolioKV,
-		topicPrefix: topicPrefix,
+		prefix:      prefix,
 	}
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/AnthonyHewins/nalpaca/internal/canceler"
@@ -80,46 +79,33 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	if err = a.connectNATS(ctx, js, &c); err != nil {
-		return nil, err
-	}
-
-	if c.Alpaca.EnableStockStream {
-		a.stockStream = streaming.NewStocks(
-			b.Logger,
-			streaming.NewMetrics(appName),
-			js,
-			fmt.Sprintf("%s.stock", c.StreamPrefix),
-			c.Alpaca.APIKey,
-			c.Alpaca.APISecret,
-			&c.Alpaca.StockStream,
-		)
-	}
-
-	return &a, nil
-}
-
-func (a *app) connectNATS(ctx context.Context, js jetstream.JetStream, c *config) error {
 	kv, err := js.KeyValue(ctx, c.Bucket)
 	if err != nil {
-		a.Logger.ErrorContext(ctx, "failed connecting to nalpaca KV bucket", "err", err, "bucket", c.Bucket)
-		return err
+		a.Logger.ErrorContext(ctx, "connected to keyvalue bucket", "err", err)
+		return nil, err
 	}
 
 	for _, fn := range []func(context.Context, jetstream.JetStream, *config) error{
 		a.initCanceler,
 		a.initOrders,
 	} {
-		if err = fn(ctx, js, c); err != nil {
-			return err
+		if err := fn(ctx, js, &c); err != nil {
+			return nil, err
 		}
 	}
 
-	a.initTradeUpdater(ctx, js, kv, c)
-	return err
+	if a.updater, err = a.initTradeUpdater(js, kv, &c); err != nil {
+		return nil, err
+	}
+
+	if a.stockStream, err = a.initStockStream(js, &c); err != nil {
+		return nil, err
+	}
+
+	return &a, nil
 }
 
-func (a *app) connect(ctx context.Context, js jetstream.JetStream, stream, consumer string) (jetstream.Consumer, error) {
+func (a *app) consumer(ctx context.Context, js jetstream.JetStream, stream, consumer string) (jetstream.Consumer, error) {
 	x, err := js.Consumer(ctx, stream, consumer)
 	if err != nil {
 		a.Logger.ErrorContext(ctx,

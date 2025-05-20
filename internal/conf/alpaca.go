@@ -13,8 +13,7 @@ type Alpaca struct {
 	// DisableOptionStream bool             `env:"DISABLE_OPTIONS_STREAM"`
 	// OptionsStream       streaming.Stream `envPrefix:"OPTIONS_STREAM"`
 
-	EnableStockStream bool             `env:"ENABLE_STOCK_STREAM" envDefault:"false"`
-	StockStream       streaming.Stream `envPrefix:"STOCK_STREAM"`
+	StockStream streaming.Stream `envPrefix:"STOCK_STREAM_"`
 
 	BaseURL   string `env:"ALPACA_URL" envDefault:"https://paper-api.alpaca.markets"`
 	APIKey    string `env:"ALPACA_API_KEY,required"`

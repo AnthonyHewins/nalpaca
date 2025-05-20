@@ -2,6 +2,7 @@ package conf
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -91,7 +92,7 @@ func (b *Bootstrapper) PrometheusHTTP(m *Metrics, collectors ...prometheus.Colle
 	if !ok {
 		msg := "failed reading build info: your go binary is not built in module mode"
 		logger.Error(msg)
-		return nil, fmt.Errorf(msg)
+		return nil, errors.New(msg)
 	}
 
 	versionGauge := prometheus.NewGaugeVec(prometheus.GaugeOpts{

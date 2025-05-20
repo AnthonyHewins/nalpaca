@@ -3,13 +3,13 @@
 ![Nalpaca](./assets/logo.jpg)
 
 - [Nalpaca](#nalpaca)
-  - [Deploying](#deploying)
-    - [Helm](#helm)
-  - [Client usage](#client-usage)
+  - [Components](#components)
     - [Trades](#trades)
     - [Cancels (in progress)](#cancels-in-progress)
     - [Trade updates by consumer](#trade-updates-by-consumer)
     - [Position updates by KV store](#position-updates-by-kv-store)
+  - [Deploying](#deploying)
+    - [Helm](#helm)
   - [Running locally](#running-locally)
     - [Spinning up](#spinning-up)
     - [Debugging](#debugging)
@@ -24,6 +24,31 @@ Here are some example things it can do:
 - **Positions**: positions are available in a KV store
 - **Trade cancels**: cancel trades (in progress)
 - **Streaming**: stream stocks, and eventually options
+
+## Components
+
+Nalpaca is based on NATS resources, there are 2 primary streams to look at that it creates and a myriad of consumers, and a single KV store
+
+1. **Action stream**: this stream is the stream that you will write to if you want to have nalpaca perform some actions on your behalf like executing trades. View the docs for the component you wish to use to see what subjects to publish to in order to use it
+  1. The action consumer is also created, which is configured as a `workqueue` and is reserved only for nalpaca to use
+3. **Data stream**: this stream is the stream that nalpaca writes to in order to publish information about live updates, which include updates on trades, stock bars, and more in future updates. Nalpaca will write to this stream, and any number of consumers it offers will be what you subscribe to in order to get info on it. See the component you want to use to get information on it
+1. **KV store**: this KV store is a global store for the app, where it will write useful things like your current position list, which you can subscribe to via keywatcher, or just access on the fly if needed. See the docs for the component you want to use for more
+
+### Trades
+
+To create trades, create a protobuf message of type [`tradesvc.v0.Trade`](./api/proto/tradesvc/v0/tradesvc.proto). Then create an idempotency ID that's <= 128 chars (a limit set by alpaca). Then send it on the topic `<prefix>.action.order.v0.<string client order id (<=128 chars)>`, where the prefix is the prefix set in the deployment (default: `nalpaca`)
+
+### Cancels (in progress)
+
+To execute a cancel, you just publish an empty message on `<prefix>.action.cancel.v0.<order ID or special keyword "ALL">`. Using special keyword `ALL` will initiate a cancel of all orders
+
+### Trade updates by consumer
+
+Updates on trades are received as a consumer. Connect to `nalpaca-tradeupdater-consumer-v0`. Once connected, the consumer will receive updates on subject `<prefix>.tradeupdates.v0.<TICKER>` with message type [`tradesvc.v0.TradeUpdate`](./api/proto/tradesvc/v0/tradesvc.proto)
+
+### Position updates by KV store
+
+Positions for the account are placed in a KV store under the bucket specified in the helm deployment (default bucket name: `nalpaca`). Once you connect to the bucket the key `positions` will store the positions of the account with type [`tradesvc.v0.Positions`](./api/proto/tradesvc/v0/tradesvc.proto). Being that it's a KV store you can subscribe to changes or choose to fetch whenever desired
 
 ## Deploying
 
@@ -43,26 +68,6 @@ The only real dependency for nalpaca is that you have an account and some NATS j
 
 1. Set the username in the NATS config block `nats.user`
 2. Add `NATS_PASSWORD` to the secret located at `secrets.name`
-
-## Client usage
-
-The client only will need access to a NATS jetstream connection, and NATS KV client if you need any of the KV features
-
-### Trades
-
-To create trades, create a protobuf message of type [`tradesvc.v0.Trade`](./api/proto/tradesvc/v0/tradesvc.proto). Then create an idempotency ID that's <= 128 chars (a limit set by alpaca). Then send it on the topic `<prefix>.orders.v0.<string client order id (<=128 chars)>`, where the prefix is the prefix set in the deployment (default: `nalpaca`)
-
-### Cancels (in progress)
-
-To execute a cancel, you just publish an empty message on `<prefix>.cancel.v0.<order ID or special keyword "ALL">`. Using special keyword `ALL` will initiate a cancel of all orders
-
-### Trade updates by consumer
-
-Updates on trades are received as a consumer. Connect to `nalpaca-tradeupdater-consumer-v0`. Once connected, the consumer will receive updates on subject `<prefix>.tradeupdates.v0.<TICKER>` with message type [`tradesvc.v0.TradeUpdate`](./api/proto/tradesvc/v0/tradesvc.proto)
-
-### Position updates by KV store
-
-Positions for the account are placed in a KV store under the bucket specified in the helm deployment (default bucket name: `nalpaca`). Once you connect to the bucket the key `positions` will store the positions of the account with type [`tradesvc.v0.Positions`](./api/proto/tradesvc/v0/tradesvc.proto). Being that it's a KV store you can subscribe to changes or choose to fetch whenever desired
 
 ## Running locally
 

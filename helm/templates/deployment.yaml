@@ -63,6 +63,10 @@ spec:
           volumeMounts:
             - name: initjob
               mountPath: "/conf"
+            - name: actionStreamConf
+              mountPath: "/conf/action"
+            - name: dataStreamConf
+              mountPath: "/conf/data"
           env:
             {{ if .Values.nats.user }}
             - name: NATS_USER
@@ -86,6 +90,26 @@ spec:
             - name: BUCKET
               value: {{ .Values.nats.kvBucket }}
       volumes:
+        - name: initjob
+          configMap:
+            name: nats-init
+            defaultMode: 0777
+            items:
+              - key: "init.sh"
+                path: "init.sh"
+        - name: actionStreamConf
+          configMap:
+            name: nats-init
+            defaultMode: 0777
+            items:
+              - key: "init.sh"
+                path: "init.sh"
+              {{- range $val := list "orders" "cancel" "tradeupdater" "stockstream" }}
+              - key: "{{ $val }}-stream.json"
+                path: "{{ $val }}-stream.json"
+              - key: "{{ $val }}-consumer.json"
+                path: "{{ $val }}-consumer.json"
+              {{- end -}}
         - name: initjob
           configMap:
             name: nats-init
