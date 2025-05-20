@@ -6,8 +6,8 @@ import (
 
 	"github.com/AnthonyHewins/nalpaca/internal/canceler"
 	"github.com/AnthonyHewins/nalpaca/internal/conf"
-	"github.com/AnthonyHewins/nalpaca/internal/optionquotes"
 	"github.com/AnthonyHewins/nalpaca/internal/portfolio"
+	"github.com/AnthonyHewins/nalpaca/internal/streaming"
 	"github.com/AnthonyHewins/nalpaca/internal/trader"
 	"github.com/caarlos0/env/v11"
 	"github.com/nats-io/nats.go/jetstream"
@@ -40,10 +40,11 @@ var (
 type app struct {
 	*conf.Server
 
-	canceler *canceler.Canceler
-	trader   *trader.Controller
-	updater  *portfolio.Controller
-	quotes   *optionquotes.Controller
+	canceler    *canceler.Canceler
+	trader      *trader.Controller
+	updater     *portfolio.Controller
+	stockStream *streaming.Stocks
+	// quotes   *optionquotes.Controller
 
 	order  consumer
 	cancel consumer
@@ -72,40 +73,39 @@ func newApp(ctx context.Context) (*app, error) {
 		}
 	}()
 
-	if err = a.connectNATS(ctx, &c); err != nil {
-		return nil, err
-	}
-
-	return &a, nil
-}
-
-func (a *app) connectNATS(ctx context.Context, c *config) error {
 	js, err := jetstream.New(a.NC)
 	if err != nil {
 		a.Logger.ErrorContext(ctx, "failed connecting to jetstream", "err", err)
-		return err
+		return nil, err
 	}
 
 	kv, err := js.KeyValue(ctx, c.Bucket)
 	if err != nil {
-		a.Logger.ErrorContext(ctx, "failed connecting to nalpaca KV bucket", "err", err, "bucket", c.Bucket)
-		return err
+		a.Logger.ErrorContext(ctx, "connected to keyvalue bucket", "err", err)
+		return nil, err
 	}
 
 	for _, fn := range []func(context.Context, jetstream.JetStream, *config) error{
 		a.initCanceler,
 		a.initOrders,
 	} {
-		if err = fn(ctx, js, c); err != nil {
-			return err
+		if err := fn(ctx, js, &c); err != nil {
+			return nil, err
 		}
 	}
 
-	a.initTradeUpdater(ctx, js, kv, c)
-	return err
+	if a.updater, err = a.initTradeUpdater(js, kv, &c); err != nil {
+		return nil, err
+	}
+
+	if a.stockStream, err = a.initStockStream(js, &c); err != nil {
+		return nil, err
+	}
+
+	return &a, nil
 }
 
-func (a *app) connect(ctx context.Context, js jetstream.JetStream, stream, consumer string) (jetstream.Consumer, error) {
+func (a *app) consumer(ctx context.Context, js jetstream.JetStream, stream, consumer string) (jetstream.Consumer, error) {
 	x, err := js.Consumer(ctx, stream, consumer)
 	if err != nil {
 		a.Logger.ErrorContext(ctx,

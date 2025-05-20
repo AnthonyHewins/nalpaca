@@ -29,7 +29,7 @@ func (l Logger) Slog() (*slog.Logger, error) {
 	case "err":
 		lvl = slog.HandlerOptions{Level: slog.LevelError, AddSource: l.Src}
 	default:
-		return nil, fmt.Errorf("invalid log level: " + l.Level)
+		return nil, fmt.Errorf("invalid log level: %s", l.Level)
 	}
 
 	exporter, err := l.exporter()

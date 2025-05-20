@@ -14,8 +14,10 @@ services:
   natsbox:
     image: docker.io/natsio/nats-box:latest
     volumes:
-      - ./nats-init.sh:/bin/init.sh
-    command: "sh /bin/init.sh"
+      - ../scripts/nats:/bin/nats
+    command: "sh /bin/nats/init.sh"
+    environment:
+      NATS_URL: nats://nats:4222
     depends_on:
       nats:
         condition: service_started
@@ -32,6 +34,15 @@ services:
       DISABLE_METRICS: true
       DISABLE_HEALTH: true
       DISABLE_TRACING: true
+
+      # ENABLE_TRADE_UPDATER: true
+      # ENABLE_CANCELER: true
+      # ENABLE_ORDERS: true
+
+      ENABLE_STOCK_STREAM: true
+      STOCK_STREAM_SYMBOLS: AAPL
+      STOCK_STREAM_BASE_URL: https://stream.data.alpaca.markets/v2
+
       NATS_URL: nats://nats:4222
       LOG_LEVEL: debug
     depends_on:

@@ -21,13 +21,23 @@ var version string
 
 type config struct {
 	conf.BootstrapConf
-	CancelConf
-	OrdersConf
-	Quotes
-	TradeUpdaterConf
 
-	StreamPrefix string `env:"STREAM_PREFIX" envDefault:"nalpaca"`
-	Bucket       string `env:"NATS_KV_BUCKET" envDefault:"nalpaca"`
+	Prefix string `env:"PREFIX" envDefault:"nalpaca"`
+
+	ActionStream string `env:"ACTION_STREAM" envDefault:"nalpaca-action-stream-v0"`
+	DataStream   string `env:"DATA_STREAM" envDefault:"nalpaca-data-stream-v0"`
+
+	EnableCancel   bool   `env:"ENABLE_CANCELER" envDefault:"false"`
+	CancelConsumer string `env:"CANCEL_CONSUMER" envDefault:"nalpaca-cancel-consumer-v0"`
+
+	EnableTradeUpdater bool `env:"ENABLE_TRADE_UPDATER" envDefault:"false"`
+
+	EnableOrders      bool   `env:"ENABLE_ORDERS" envDefault:"false"`
+	OrderConsumerName string `env:"ORDER_CONSUMER" envDefault:"nalpaca-orders-consumer-v0"`
+
+	EnableStockStream bool `env:"ENABLE_STOCK_STREAM" envDefault:"false"`
+
+	Bucket string `env:"NATS_KV_BUCKET" envDefault:"nalpaca"`
 
 	ProcessingTimeout time.Duration `env:"PROCESSING_TIMEOUT" envDefault:"3s"`
 }
@@ -80,34 +90,47 @@ func main() {
 }
 
 func (a *app) start(ctx context.Context, g *errgroup.Group) {
-	g.Go(func() error {
-		var err error
-		a.order.ctx, err = a.order.ingestor.Consume(a.trader.Consume)
-		if err != nil {
-			a.Logger.ErrorContext(ctx, "failed starting order consumer", "err", err)
-		}
+	if a.order.ingestor != nil {
+		g.Go(func() error {
+			var err error
+			a.order.ctx, err = a.order.ingestor.Consume(a.trader.Consume)
+			if err != nil {
+				a.Logger.ErrorContext(ctx, "failed starting order consumer", "err", err)
+			}
 
-		return err
-	})
-
-	g.Go(func() error {
-		var err error
-		a.cancel.ctx, err = a.cancel.ingestor.Consume(a.canceler.EventLoop)
-		if err != nil {
-			a.Logger.ErrorContext(ctx, "failed starting order cancel consumer", "err", err)
-		}
-
-		return err
-	})
-
-	g.Go(func() error {
-		a.Logger.InfoContext(ctx, "starting trade updater event loop")
-		if err := a.updater.UpdatePositionsKV(ctx); err != nil {
 			return err
-		}
+		})
+	}
 
-		return a.updater.TradeUpdateLoop(ctx)
-	})
+	if a.cancel.ingestor != nil {
+		g.Go(func() error {
+			var err error
+			a.cancel.ctx, err = a.cancel.ingestor.Consume(a.canceler.EventLoop)
+			if err != nil {
+				a.Logger.ErrorContext(ctx, "failed starting order cancel consumer", "err", err)
+			}
+
+			return err
+		})
+	}
+
+	if a.updater != nil {
+		g.Go(func() error {
+			a.Logger.InfoContext(ctx, "starting trade updater event loop")
+			if err := a.updater.UpdatePositionsKV(ctx); err != nil {
+				return err
+			}
+
+			return a.updater.TradeUpdateLoop(ctx)
+		})
+	}
+
+	if a.stockStream != nil {
+		g.Go(func() error {
+			a.Logger.InfoContext(ctx, "starting stock streaming")
+			return a.stockStream.Stream(ctx)
+		})
+	}
 
 	if a.Metrics != nil {
 		g.Go(func() error {

@@ -2,6 +2,7 @@ package conf
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -28,7 +29,7 @@ const (
 
 type Metrics struct {
 	// Disable the prometheus metrics server.
-	DisableMetrics bool `env:"DISABLE_METRICS" envDefault:"false"`
+	DisableMetrics bool `env:"DISABLE_METRICS" envDefault:"true"`
 
 	// Port to expose for the Prometheus HTTP metrics API.
 	HTTPMetricsPort uint16 `env:"METRICS_PORT" envDefault:"8088"`
@@ -91,7 +92,7 @@ func (b *Bootstrapper) PrometheusHTTP(m *Metrics, collectors ...prometheus.Colle
 	if !ok {
 		msg := "failed reading build info: your go binary is not built in module mode"
 		logger.Error(msg)
-		return nil, fmt.Errorf(msg)
+		return nil, errors.New(msg)
 	}
 
 	versionGauge := prometheus.NewGaugeVec(prometheus.GaugeOpts{

@@ -25,7 +25,7 @@ const (
 )
 
 type Tracer struct {
-	DisableTracing bool          `env:"DISABLE_TRACING"`
+	DisableTracing bool          `env:"DISABLE_TRACING" envDefault:"true"`
 	Exporter       TraceExporter `env:"TRACE_EXPORTER"`
 	ExporterURL    string        `env:"TRACE_EXPORTER_URL"`
 	Timeout        time.Duration `env:"TRACE_EXPORTER_TIMEOUT" envDefault:"5s"`

@@ -5,53 +5,37 @@ metadata:
   name: nats-init
 data:
     init.sh: |
-        {{- .Files.Get "includes/init-nats.sh" | nindent 8 }}
-    orders-stream.json: |
-        {{- $ordersubj := printf "%s.orders.v0.*" .Values.nats.subjectPrefix }}
-        {{- $ordersstream := dict
-            "name" "nalpaca-orders-stream-v0"
-            "description" "Nalpaca order stream. Push an order protobuf on this stream and the consumer will execute the trade"
-            "subjects"  (list $ordersubj)
-            "retention" "workqueue"
-        }}
-        {{ mustMerge $ordersstream .Values.orders.streamConfig .Values.nats.defaultStreamConfig | toJson }}
+        {{- .Files.Get "includes/nats/init.sh" | nindent 8 }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: action-stream-conf
+data:
+    action-stream.json: |
+        {{- $x := .Files.Get "includes/nats/action/stream.json" | fromJson -}}
+        {{ mustMerge .Values.nats.initJob.actionStream $x | toJson | nindent 8 }}
     orders-consumer.json: |
-        {{- $ordersconsumer := dict
-            "durable_name" "nalpaca-orders-consumer-v0"
-            "description" "Nalpaca order stream consumer. Nalpaca will consume messages on this stream and send them."
-            "filter_subject"  $ordersubj
-        }}
-        {{ mustMerge $ordersconsumer .Values.orders.consumerConfig .Values.nats.defaultConsumerConfig | toJson }}
-    cancel-stream.json: |
-        {{- $cancelsubj := printf "%s.cancel.v0.*" .Values.nats.subjectPrefix }}
-        {{- $cancelstream := dict
-            "name" "nalpaca-cancel-stream-v0"
-            "description" "Nalpaca cancel stream. Push on this subject to cancel orders"
-            "subjects"  (list $cancelsubj)
-            "retention" "workqueue"
-        }}
-        {{ mustMerge $cancelstream .Values.cancel.streamConfig .Values.nats.defaultStreamConfig | toJson }}
+        {{- $x := .Files.Get "includes/nats/action/order-consumer.json" | fromJson -}}
+        {{ mustMerge .Values.orders.consumerConfig $x | toJson | nindent 8 }}
     cancel-consumer.json: |
-        {{- $cancelconsumer := dict
-            "durable_name" "nalpaca-cancel-consumer-v0"
-            "description" "Nalpaca cancel consumer. Listens to the cancel stream and cancels orders as they come in"
-            "filter_subject"  $cancelsubj
-        }}
-        {{ mustMerge $cancelconsumer .Values.cancel.consumerConfig .Values.nats.defaultConsumerConfig | toJson }}
-    tradeupdater-stream.json: |
-        {{- $tradesubj := printf "%s.tradeupdater.v0.*" .Values.nats.subjectPrefix }}
-        {{- $tradestream := dict
-            "name" "nalpaca-tradeupdater-stream-v0"
-            "description" "Nalpaca trade update stream. When a trade update is seen for the portfolio, nalpaca will push the update on the stream"
-            "subjects"  (list $tradesubj)
-            "retention" "workqueue"
-        }}
-        {{ mustMerge $tradestream .Values.tradeupdater.streamConfig .Values.nats.defaultStreamConfig | toJson }}
-    tradeupdater-consumer.json: |
-        {{- $tradeconsumer := dict
-            "durable_name" "nalpaca-tradeupdater-consumer-v0"
-            "description" "Nalpaca trade update consumer. Connect to this consumer to receive trade updates"
-            "filter_subject"  $tradesubj
-        }}
-        {{ mustMerge $tradeconsumer .Values.tradeupdater.consumerConfig .Values.nats.defaultConsumerConfig | toJson }}
+        {{- $x := .Files.Get "includes/nats/action/cancel-consumer.json" | fromJson -}}
+        {{ mustMerge .Values.cancel.consumerConfig $x | toJson | nindent 8 }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-stream-conf
+data:
+    data-stream.json: |
+        {{- $x := .Files.Get "includes/nats/data/stream.json" | fromJson -}}
+        {{ mustMerge .Values.nats.initJob.dataStream $x | toJson | nindent 8 }}
+    stock-consumer.json: |
+        {{- $x := .Files.Get "includes/nats/data/stock-consumer.json" | fromJson -}}
+        {{ mustMerge .Values.stockstream.consumerConfig $x | toJson | nindent 8 }}
+    trade-update-consumer.json: |
+        {{- $x := .Files.Get "includes/nats/data/trade-update-consumer.json" | fromJson -}}
+        {{ mustMerge .Values.tradeupdater.consumerConfig $x | toJson | nindent 8 }}
 {{ end }}
