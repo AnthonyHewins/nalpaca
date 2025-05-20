@@ -35,9 +35,9 @@ services:
       DISABLE_HEALTH: true
       DISABLE_TRACING: true
 
-      ENABLE_TRADE_UPDATER: true
-      ENABLE_CANCELER: true
-      ENABLE_ORDERS: true
+      # ENABLE_TRADE_UPDATER: true
+      # ENABLE_CANCELER: true
+      # ENABLE_ORDERS: true
 
       ENABLE_STOCK_STREAM: true
       STOCK_STREAM_SYMBOLS: AAPL
