@@ -8,7 +8,7 @@ import (
 
 type NATS struct {
 	User     string `env:"NATS_USER"`
-	Password string `env:"NATS_PASSOWRD"`
+	Password string `env:"NATS_PASSWORD"`
 
 	URL string `env:"NATS_URL" envDefault:"localhost:4222"`
 
