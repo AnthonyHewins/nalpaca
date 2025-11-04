@@ -137,10 +137,10 @@ type News struct {
 	Headline      string                 `protobuf:"bytes,3,opt,name=headline,proto3" json:"headline,omitempty"`
 	Author        string                 `protobuf:"bytes,4,opt,name=author,proto3" json:"author,omitempty"`
 	Summary       string                 `protobuf:"bytes,5,opt,name=summary,proto3" json:"summary,omitempty"`
-	Content       string                 `protobuf:"bytes,6,opt,name=Content,proto3" json:"Content,omitempty"`
+	Content       string                 `protobuf:"bytes,6,opt,name=content,proto3" json:"content,omitempty"`
 	Url           string                 `protobuf:"bytes,7,opt,name=url,proto3" json:"url,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=CreatedAt,proto3" json:"CreatedAt,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=UpdatedAt,proto3" json:"UpdatedAt,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -253,17 +253,19 @@ const file_stream_v0_stream_proto_rawDesc = "" +
 	"\ttimestamp\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x1f\n" +
 	"\vtrade_count\x18\b \x01(\x04R\n" +
 	"tradeCount\x12\x12\n" +
-	"\x04vwap\x18\t \x01(\x01R\x04vwap\"\x9e\x02\n" +
+	"\x04vwap\x18\t \x01(\x01R\x04vwap\"\xa0\x02\n" +
 	"\x04News\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x18\n" +
 	"\asymbols\x18\x02 \x03(\tR\asymbols\x12\x1a\n" +
 	"\bheadline\x18\x03 \x01(\tR\bheadline\x12\x16\n" +
 	"\x06author\x18\x04 \x01(\tR\x06author\x12\x18\n" +
 	"\asummary\x18\x05 \x01(\tR\asummary\x12\x18\n" +
-	"\aContent\x18\x06 \x01(\tR\aContent\x12\x10\n" +
-	"\x03url\x18\a \x01(\tR\x03url\x128\n" +
-	"\tCreatedAt\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tCreatedAt\x128\n" +
-	"\tUpdatedAt\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tUpdatedAtB:Z8github.com/AnthonyHewins/nalpaca/gen/go/stream/v0;streamb\x06proto3"
+	"\acontent\x18\x06 \x01(\tR\acontent\x12\x10\n" +
+	"\x03url\x18\a \x01(\tR\x03url\x129\n" +
+	"\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB:Z8github.com/AnthonyHewins/nalpaca/gen/go/stream/v0;streamb\x06proto3"
 
 var (
 	file_stream_v0_stream_proto_rawDescOnce sync.Once
@@ -285,8 +287,8 @@ var file_stream_v0_stream_proto_goTypes = []any{
 }
 var file_stream_v0_stream_proto_depIdxs = []int32{
 	2, // 0: stream.v0.Bar.timestamp:type_name -> google.protobuf.Timestamp
-	2, // 1: stream.v0.News.CreatedAt:type_name -> google.protobuf.Timestamp
-	2, // 2: stream.v0.News.UpdatedAt:type_name -> google.protobuf.Timestamp
+	2, // 1: stream.v0.News.created_at:type_name -> google.protobuf.Timestamp
+	2, // 2: stream.v0.News.updated_at:type_name -> google.protobuf.Timestamp
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
