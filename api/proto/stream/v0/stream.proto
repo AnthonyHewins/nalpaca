@@ -17,3 +17,15 @@ message Bar {
 	uint64 trade_count = 8;
 	double vwap = 9;
 }
+
+message News {
+	uint64 id = 1;
+	repeated string symbols = 2;
+	string headline = 3;
+	string author = 4;
+	string summary = 5;
+	string content = 6;
+	string url = 7;
+	google.protobuf.Timestamp created_at = 8;
+	google.protobuf.Timestamp updated_at = 9;
+}

@@ -78,3 +78,19 @@ func (a *app) initStockStream(js jetstream.JetStream, c *config) (*streaming.Sto
 		&c.Alpaca.StockStream,
 	)
 }
+
+func (a *app) initNewsStream(js jetstream.JetStream, c *config) (*streaming.News, error) {
+	if !c.EnableNewsStream {
+		return nil, nil
+	}
+
+	return streaming.NewNews(
+		a.Logger,
+		streaming.NewMetrics(appName),
+		js,
+		fmt.Sprintf("%s.data.v0.news", c.Prefix),
+		c.Alpaca.APIKey,
+		c.Alpaca.APISecret,
+		&c.Alpaca.NewsStream,
+	)
+}

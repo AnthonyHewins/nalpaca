@@ -37,6 +37,8 @@ type config struct {
 
 	EnableStockStream bool `env:"ENABLE_STOCK_STREAM" envDefault:"false"`
 
+	EnableNewsStream bool `env:"ENABLE_NEWS_STREAM" envDefault:"false"`
+
 	Bucket string `env:"NATS_KV_BUCKET" envDefault:"nalpaca"`
 
 	ProcessingTimeout time.Duration `env:"PROCESSING_TIMEOUT" envDefault:"3s"`
@@ -129,6 +131,13 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 		g.Go(func() error {
 			a.Logger.InfoContext(ctx, "starting stock streaming")
 			return a.stockStream.Stream(ctx)
+		})
+	}
+
+	if a.newsStream != nil {
+		g.Go(func() error {
+			a.Logger.InfoContext(ctx, "starting news streaming")
+			return a.newsStream.Stream(ctx)
 		})
 	}
 
