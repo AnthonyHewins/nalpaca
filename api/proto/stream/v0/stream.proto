@@ -24,8 +24,8 @@ message News {
 	string headline = 3;
 	string author = 4;
 	string summary = 5;
-	string Content = 6;
+	string content = 6;
 	string url = 7;
-	google.protobuf.Timestamp CreatedAt = 8;
-	google.protobuf.Timestamp UpdatedAt = 9;
+	google.protobuf.Timestamp created_at = 8;
+	google.protobuf.Timestamp updated_at = 9;
 }
