@@ -44,6 +44,7 @@ type app struct {
 	trader      *trader.Controller
 	updater     *portfolio.Controller
 	stockStream *streaming.Stocks
+	newsStream  *streaming.News
 	// quotes   *optionquotes.Controller
 
 	order  consumer
@@ -99,6 +100,10 @@ func newApp(ctx context.Context) (*app, error) {
 	}
 
 	if a.stockStream, err = a.initStockStream(js, &c); err != nil {
+		return nil, err
+	}
+
+	if a.newsStream, err = a.initNewsStream(js, &c); err != nil {
 		return nil, err
 	}
 

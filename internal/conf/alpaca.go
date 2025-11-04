@@ -14,6 +14,7 @@ type Alpaca struct {
 	// OptionsStream       streaming.Stream `envPrefix:"OPTIONS_STREAM"`
 
 	StockStream streaming.Stream `envPrefix:"STOCK_STREAM_"`
+	NewsStream  streaming.Stream `envPrefix:"NEWS_STREAM_"`
 
 	BaseURL   string `env:"ALPACA_URL" envDefault:"https://paper-api.alpaca.markets"`
 	APIKey    string `env:"ALPACA_API_KEY,required"`
