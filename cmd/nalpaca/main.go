@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/AnthonyHewins/nalpaca/internal/conf"
+	"github.com/nats-io/nats.go/jetstream"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -21,6 +23,9 @@ var version string
 
 type config struct {
 	conf.BootstrapConf
+
+	GrpcPort   uint16 `env:"GRPC_PORT" envDefault:"9200"`
+	EnableGrpc bool   `env:"ENABLE_GRPC" envDefault:"false"`
 
 	Prefix string `env:"PREFIX" envDefault:"nalpaca"`
 
@@ -50,7 +55,7 @@ func main() {
 
 	a, err := newApp(ctx)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
@@ -92,6 +97,18 @@ func main() {
 }
 
 func (a *app) start(ctx context.Context, g *errgroup.Group) {
+	if a.server != nil {
+		g.Go(func() error {
+			c := net.ListenConfig{KeepAlive: time.Minute * 5}
+			ln, err := c.Listen(ctx, "tcp", fmt.Sprintf(":%d", a.grpcPort))
+			if err != nil {
+				return err
+			}
+
+			return a.server.Serve(ln)
+		})
+	}
+
 	if a.order.ingestor != nil {
 		g.Go(func() error {
 			var err error
@@ -154,4 +171,31 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 			return a.Health.Start(ctx)
 		})
 	}
+}
+
+func (a *app) shutdown() {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+
+	a.server.GracefulStop()
+
+	type consumers struct {
+		name     string
+		consumer jetstream.ConsumeContext
+	}
+
+	for _, v := range [...]consumers{
+		{name: "order consumer", consumer: a.order.ctx},
+		{name: "cancel consumer", consumer: a.cancel.ctx},
+	} {
+		if v.consumer == nil {
+			continue
+		}
+
+		a.Logger.InfoContext(ctx, "draining "+v.name)
+		v.consumer.Drain()
+		a.Logger.InfoContext(ctx, "shut down "+v.name)
+	}
+
+	a.Server.Shutdown(ctx)
 }

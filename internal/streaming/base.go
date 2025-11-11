@@ -3,10 +3,55 @@ package streaming
 import (
 	"fmt"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
 )
+
+type symbolList struct {
+	mu      sync.RWMutex
+	symbols map[string]struct{}
+}
+
+func newSymbolList(x ...string) *symbolList {
+	m := make(map[string]struct{}, len(x))
+	for _, v := range x {
+		m[v] = struct{}{}
+	}
+	return &symbolList{symbols: m}
+}
+
+func (s *symbolList) add(x ...string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for _, v := range x {
+		s.symbols[v] = struct{}{}
+	}
+}
+
+func (s *symbolList) del(x ...string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for _, v := range x {
+		delete(s.symbols, v)
+	}
+}
+
+func (s *symbolList) list() []string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	x := make([]string, len(s.symbols))
+	i := 0
+	for v := range s.symbols {
+		x[i] = v
+		i++
+	}
+	return x
+}
 
 type Stream struct {
 	Feed           string        `env:"FEED_TYPE" envDefault:"sip"`

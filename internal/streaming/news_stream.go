@@ -14,6 +14,7 @@ import (
 )
 
 type News struct {
+	list    *symbolList
 	logger  *slog.Logger
 	n       *stream.NewsClient
 	metrics Metrics
@@ -27,6 +28,7 @@ func NewNews(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, prefi
 	}
 
 	s := &News{
+		list:    newSymbolList(d.Symbols...),
 		logger:  logger,
 		metrics: metrics,
 		js:      js,
@@ -93,4 +95,26 @@ func (c *News) Stream(ctx context.Context) error {
 
 	c.logger.Warn("connection terminated gracefully")
 	return nil
+}
+
+func (c *News) AddSubscriptions(x ...string) error {
+	c.list.add(x...)
+	err := c.n.SubscribeToNews(c.news, c.list.list()...)
+	if err != nil {
+		c.logger.Error("failed adding new subscriptions to news stream", "err", err, "wanted", x)
+	}
+	return err
+}
+
+func (c *News) ListSubscriptions() []string {
+	return c.list.list()
+}
+
+func (c *News) DeleteSubscriptions(x ...string) error {
+	c.list.del(x...)
+	err := c.n.SubscribeToNews(c.news, c.list.list()...)
+	if err != nil {
+		c.logger.Error("failed adding new subscriptions to news stream", "err", err, "wanted", x)
+	}
+	return err
 }

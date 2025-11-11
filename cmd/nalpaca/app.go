@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"time"
 
+	"github.com/AnthonyHewins/nalpaca/gen/go/stream/v0"
 	"github.com/AnthonyHewins/nalpaca/internal/canceler"
 	"github.com/AnthonyHewins/nalpaca/internal/conf"
 	"github.com/AnthonyHewins/nalpaca/internal/portfolio"
@@ -12,6 +12,7 @@ import (
 	"github.com/caarlos0/env/v11"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/prometheus/client_golang/prometheus"
+	"google.golang.org/grpc"
 )
 
 func newCounter(system, name, desc string) prometheus.Counter {
@@ -40,6 +41,9 @@ var (
 type app struct {
 	*conf.Server
 
+	server   *grpc.Server
+	grpcPort uint16
+
 	canceler    *canceler.Canceler
 	trader      *trader.Controller
 	updater     *portfolio.Controller
@@ -67,7 +71,7 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	a := app{Server: (*conf.Server)(b)}
+	a := &app{Server: (*conf.Server)(b)}
 	defer func() {
 		if err != nil {
 			a.shutdown()
@@ -107,7 +111,12 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	return &a, nil
+	if c.EnableGrpc {
+		a.server, a.grpcPort = grpc.NewServer(), c.GrpcPort
+		stream.RegisterStreamServiceServer(a.server, a)
+	}
+
+	return a, nil
 }
 
 func (a *app) consumer(ctx context.Context, js jetstream.JetStream, stream, consumer string) (jetstream.Consumer, error) {
@@ -122,30 +131,4 @@ func (a *app) consumer(ctx context.Context, js jetstream.JetStream, stream, cons
 	}
 
 	return x, err
-}
-
-func (a *app) shutdown() {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-	defer cancel()
-
-	type consumers struct {
-		name     string
-		consumer jetstream.ConsumeContext
-	}
-
-	for _, v := range []consumers{
-		{name: "order consumer", consumer: a.order.ctx},
-		{name: "cancel consumer", consumer: a.cancel.ctx},
-	} {
-		if v.consumer == nil {
-			continue
-		}
-
-		a.Logger.InfoContext(ctx, "shutting down "+v.name)
-		v.consumer.Drain()
-		v.consumer.Stop()
-		a.Logger.InfoContext(ctx, "shut down "+v.name)
-	}
-
-	a.Server.Shutdown(ctx)
 }
