@@ -40,7 +40,7 @@ var (
 
 type app struct {
 	*conf.Server
-	grpc      *conf.GrpcServer
+	grpc      conf.GrpcServer
 	grpcProxy *http.Server
 
 	canceler    *canceler.Canceler
@@ -110,7 +110,10 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	a.grpc = b.GRPC(ctx, &c.GrpcServerConf)
+	if a.grpc = b.GRPC(ctx, &c.GrpcServerConf); a.grpc.Server != nil {
+		stream.RegisterStreamServiceServer(a.grpc.Server, a)
+	}
+
 	a.grpcProxy, err = b.GrpcProxy(ctx, &c.GrpcServerConfWithProxy,
 		conf.GRPCGatewayHandler{
 			Name:    "streamsvc",

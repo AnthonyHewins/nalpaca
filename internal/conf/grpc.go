@@ -45,10 +45,10 @@ type GRPCGatewayHandler struct {
 	Handler func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) error // Handler generated from protobuf file EX: foosvc.RegisterFooServiceHandlerFromEndpoint.
 }
 
-func (b *Bootstrapper) GRPC(ctx context.Context, g *GrpcServerConf, extraOpts ...grpc.ServerOption) *GrpcServer {
+func (b *Bootstrapper) GRPC(ctx context.Context, g *GrpcServerConf, extraOpts ...grpc.ServerOption) GrpcServer {
 	if !g.EnableGrpc {
 		b.Logger.InfoContext(ctx, "grpc proxy disabled, skipping")
-		return nil
+		return GrpcServer{}
 	}
 
 	l := b.Logger.With("config", g)
@@ -61,7 +61,7 @@ func (b *Bootstrapper) GRPC(ctx context.Context, g *GrpcServerConf, extraOpts ..
 	}))
 
 	l.Debug("creating grpc server")
-	return &GrpcServer{grpc.NewServer(extraOpts...), g.GrpcPort}
+	return GrpcServer{grpc.NewServer(extraOpts...), g.GrpcPort}
 }
 
 func (b *Bootstrapper) GrpcProxy(ctx context.Context, g *GrpcServerConfWithProxy, handlers ...GRPCGatewayHandler) (*http.Server, error) {
