@@ -16,13 +16,13 @@ service StreamService {
 
 	rpc AddBarSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
 		option (google.api.http) = {
-			put: "/v1/subscriptions/bars/{symbols}"
+			patch: "/v1/subscriptions/bars"
 		};
 	}
 
 	rpc RemoveBarSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
 		option (google.api.http) = {
-			delete: "/v1/subscriptions/bars/{symbols}"
+			delete: "/v1/subscriptions/bars"
 		};
 	}
 
@@ -34,13 +34,13 @@ service StreamService {
 
 	rpc AddNewsSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
 		option (google.api.http) = {
-			put: "/v1/subscriptions/news/{symbols}"
+			patch: "/v1/subscriptions/news"
 		};
 	}
 
 	rpc RemoveNewsSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
 		option (google.api.http) = {
-			delete: "/v1/subscriptions/news/{symbols}"
+			delete: "/v1/subscriptions/news"
 		};
 	}
 }

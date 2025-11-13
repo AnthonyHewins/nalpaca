@@ -8,7 +8,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var errNotEnabled = status.Error(codes.FailedPrecondition, "this particular entity is not enabled. Enable via env vars, and then the endpoint will function")
+var errNotEnabled = status.Error(codes.FailedPrecondition, "this particular entity is not enabled. This means that you are missing an ENABLE_* environment variable. Enable that env var"+
+	" and the service will be capable of responding correctly")
 
 func (a *app) ListBarSubscriptions(ctx context.Context, req *stream.ListSubscriptionsRequest) (*stream.ListSubscriptionsResponse, error) {
 	if a.stockStream == nil {

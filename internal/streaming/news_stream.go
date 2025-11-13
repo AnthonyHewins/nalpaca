@@ -98,12 +98,19 @@ func (c *News) Stream(ctx context.Context) error {
 }
 
 func (c *News) AddSubscriptions(x ...string) error {
-	c.list.add(x...)
-	err := c.n.SubscribeToNews(c.news, c.list.list()...)
-	if err != nil {
-		c.logger.Error("failed adding new subscriptions to news stream", "err", err, "wanted", x)
+	if len(x) == 0 {
+		return nil
 	}
-	return err
+
+	c.list.add(x...)
+	l := c.list.list()
+	if err := c.n.SubscribeToNews(c.news, c.list.list()...); err != nil {
+		c.logger.Error("failed adding new subscriptions from news stream", "err", err, "wanted", x)
+		return err
+	}
+
+	c.logger.Info("added news subscription", "delta", x, "final", l)
+	return nil
 }
 
 func (c *News) ListSubscriptions() []string {
@@ -111,10 +118,17 @@ func (c *News) ListSubscriptions() []string {
 }
 
 func (c *News) DeleteSubscriptions(x ...string) error {
-	c.list.del(x...)
-	err := c.n.SubscribeToNews(c.news, c.list.list()...)
-	if err != nil {
-		c.logger.Error("failed adding new subscriptions to news stream", "err", err, "wanted", x)
+	if len(x) == 0 {
+		return nil
 	}
-	return err
+
+	c.list.del(x...)
+	l := c.list.list()
+	if err := c.n.SubscribeToNews(c.news, c.list.list()...); err != nil {
+		c.logger.Error("failed deleting new subscriptions to news stream", "err", err, "wanted", x)
+		return err
+	}
+
+	c.logger.Info("removed news subscription", "delta", x, "final", l)
+	return nil
 }

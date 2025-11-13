@@ -524,14 +524,14 @@ const file_stream_v0_stream_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xd8\x06\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xae\x06\n" +
 	"\rStreamService\x12\x81\x01\n" +
-	"\x14ListBarSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/subscriptions/bars\x12\x88\x01\n" +
-	"\x13AddBarSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"\x1a /v1/subscriptions/bars/{symbols}\x12\x91\x01\n" +
-	"\x16RemoveBarSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"* /v1/subscriptions/bars/{symbols}\x12\x82\x01\n" +
-	"\x15ListNewsSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/subscriptions/news\x12\x89\x01\n" +
-	"\x14AddNewsSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"\x1a /v1/subscriptions/news/{symbols}\x12\x92\x01\n" +
-	"\x17RemoveNewsSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"* /v1/subscriptions/news/{symbols}B:Z8github.com/AnthonyHewins/nalpaca/gen/go/stream/v0;streamb\x06proto3"
+	"\x14ListBarSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/subscriptions/bars\x12~\n" +
+	"\x13AddBarSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x182\x16/v1/subscriptions/bars\x12\x87\x01\n" +
+	"\x16RemoveBarSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18*\x16/v1/subscriptions/bars\x12\x82\x01\n" +
+	"\x15ListNewsSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/subscriptions/news\x12\x7f\n" +
+	"\x14AddNewsSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x182\x16/v1/subscriptions/news\x12\x88\x01\n" +
+	"\x17RemoveNewsSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18*\x16/v1/subscriptions/newsB:Z8github.com/AnthonyHewins/nalpaca/gen/go/stream/v0;streamb\x06proto3"
 
 var (
 	file_stream_v0_stream_proto_rawDescOnce sync.Once

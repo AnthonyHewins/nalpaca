@@ -113,12 +113,20 @@ func (c *Stocks) bars(b stream.Bar) {
 }
 
 func (c *Stocks) AddSubscriptions(x ...string) error {
+	if len(x) == 0 {
+		return nil
+	}
+
 	c.list.add(x...)
-	err := c.s.SubscribeToBars(c.bars, c.list.list()...)
+	l := c.list.list()
+	err := c.s.SubscribeToBars(c.bars, l...)
 	if err != nil {
 		c.logger.Error("failed adding new subscriptions to stocks stream", "err", err, "wanted", x)
+		return err
 	}
-	return err
+
+	c.logger.Info("added new bar subscriptions", "delta", x, "final", l)
+	return nil
 }
 
 func (c *Stocks) ListSubscriptions() []string {
@@ -126,12 +134,19 @@ func (c *Stocks) ListSubscriptions() []string {
 }
 
 func (c *Stocks) DeleteSubscriptions(x ...string) error {
-	c.list.del(x...)
-	err := c.s.SubscribeToBars(c.bars, c.list.list()...)
-	if err != nil {
-		c.logger.Error("failed adding new subscriptions to stocks stream", "err", err, "wanted", x)
+	if len(x) == 0 {
+		return nil
 	}
-	return err
+
+	c.list.del(x...)
+	l := c.list.list()
+	if err := c.s.SubscribeToBars(c.bars, l...); err != nil {
+		c.logger.Error("failed deleting new subscriptions from stocks stream", "err", err, "wanted", x)
+		return err
+	}
+
+	c.logger.Info("removed subscriptions from bars", "delta", x, "final", l)
+	return nil
 }
 
 // Begin consuming data. Cancel context to initiate a shutdown?
