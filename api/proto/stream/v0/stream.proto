@@ -2,9 +2,75 @@ syntax = "proto3";
 
 package stream.v0;
 
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/AnthonyHewins/nalpaca/gen/go/stream/v0;stream";
+
+service StreamService {
+	rpc ListBarSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
+		option (google.api.http) = {
+			get: "/v1/subscriptions/bars"
+		};
+	}
+
+	rpc AddBarSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
+		option (google.api.http) = {
+			patch: "/v1/subscriptions/bars"
+		};
+	}
+
+	rpc RemoveBarSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
+		option (google.api.http) = {
+			delete: "/v1/subscriptions/bars"
+		};
+	}
+
+	rpc ListNewsSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
+		option (google.api.http) = {
+			get: "/v1/subscriptions/news"
+		};
+	}
+
+	rpc AddNewsSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
+		option (google.api.http) = {
+			patch: "/v1/subscriptions/news"
+		};
+	}
+
+	rpc RemoveNewsSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
+		option (google.api.http) = {
+			delete: "/v1/subscriptions/news"
+		};
+	}
+}
+
+//====================================
+// List subscriptions
+//====================================
+message ListSubscriptionsRequest {}
+
+message ListSubscriptionsResponse {
+	repeated string subscriptions = 1;
+}
+
+//====================================
+// Add subscription
+//====================================
+message AddSubscriptionsRequest {
+	repeated string symbols = 1;
+}
+
+message AddSubscriptionsResponse {}
+
+//====================================
+// Remove subscription
+//====================================
+message RemoveSubscriptionsRequest {
+	repeated string symbols = 1;
+}
+
+message RemoveSubscriptionsResponse {}
 
 message Bar {
 	string symbol = 1;

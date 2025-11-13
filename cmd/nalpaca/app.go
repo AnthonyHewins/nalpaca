@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"time"
+	"net/http"
 
+	"github.com/AnthonyHewins/nalpaca/gen/go/stream/v0"
 	"github.com/AnthonyHewins/nalpaca/internal/canceler"
 	"github.com/AnthonyHewins/nalpaca/internal/conf"
 	"github.com/AnthonyHewins/nalpaca/internal/portfolio"
@@ -39,6 +40,8 @@ var (
 
 type app struct {
 	*conf.Server
+	grpc      conf.GrpcServer
+	grpcProxy *http.Server
 
 	canceler    *canceler.Canceler
 	trader      *trader.Controller
@@ -67,7 +70,7 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	a := app{Server: (*conf.Server)(b)}
+	a := &app{Server: (*conf.Server)(b)}
 	defer func() {
 		if err != nil {
 			a.shutdown()
@@ -107,7 +110,17 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	return &a, nil
+	if a.grpc = b.GRPC(ctx, &c.GrpcServerConf); a.grpc.Server != nil {
+		stream.RegisterStreamServiceServer(a.grpc.Server, a)
+	}
+
+	a.grpcProxy, err = b.GrpcProxy(ctx, &c.GrpcServerConfWithProxy,
+		conf.GRPCGatewayHandler{
+			Name:    "streamsvc",
+			Handler: stream.RegisterStreamServiceHandlerFromEndpoint,
+		},
+	)
+	return a, err
 }
 
 func (a *app) consumer(ctx context.Context, js jetstream.JetStream, stream, consumer string) (jetstream.Consumer, error) {
@@ -122,30 +135,4 @@ func (a *app) consumer(ctx context.Context, js jetstream.JetStream, stream, cons
 	}
 
 	return x, err
-}
-
-func (a *app) shutdown() {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-	defer cancel()
-
-	type consumers struct {
-		name     string
-		consumer jetstream.ConsumeContext
-	}
-
-	for _, v := range []consumers{
-		{name: "order consumer", consumer: a.order.ctx},
-		{name: "cancel consumer", consumer: a.cancel.ctx},
-	} {
-		if v.consumer == nil {
-			continue
-		}
-
-		a.Logger.InfoContext(ctx, "shutting down "+v.name)
-		v.consumer.Drain()
-		v.consumer.Stop()
-		a.Logger.InfoContext(ctx, "shut down "+v.name)
-	}
-
-	a.Server.Shutdown(ctx)
 }

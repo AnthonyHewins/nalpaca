@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"sync"
 	"time"
 
 	protoStream "github.com/AnthonyHewins/nalpaca/gen/go/stream/v0"
@@ -36,11 +37,13 @@ func NewMetrics(appName string) Metrics {
 }
 
 type Stocks struct {
-	logger  *slog.Logger
-	s       *stream.StocksClient
-	metrics Metrics
-	js      jetstream.JetStream
-	prefix  string
+	list          *symbolList
+	subbedSymbols sync.Map
+	logger        *slog.Logger
+	s             *stream.StocksClient
+	metrics       Metrics
+	js            jetstream.JetStream
+	prefix        string
 }
 
 func NewStocks(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, prefix, key, secret string, d *Stream) (*Stocks, error) {
@@ -56,10 +59,12 @@ func NewStocks(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, pre
 	}
 
 	s := &Stocks{
-		logger:  logger,
-		metrics: metrics,
-		js:      js,
-		prefix:  prefix,
+		list:          newSymbolList(d.Symbols...),
+		logger:        logger,
+		metrics:       metrics,
+		js:            js,
+		prefix:        prefix,
+		subbedSymbols: sync.Map{},
 	}
 
 	so := []stream.StockOption{}
@@ -105,6 +110,43 @@ func (c *Stocks) bars(b stream.Bar) {
 		c.logger.ErrorContext(ctx, "failed publishing", "err", err, "raw", b)
 		c.metrics.PubErr.Inc()
 	}
+}
+
+func (c *Stocks) AddSubscriptions(x ...string) error {
+	if len(x) == 0 {
+		return nil
+	}
+
+	c.list.add(x...)
+	l := c.list.list()
+	err := c.s.SubscribeToBars(c.bars, l...)
+	if err != nil {
+		c.logger.Error("failed adding new subscriptions to stocks stream", "err", err, "wanted", x)
+		return err
+	}
+
+	c.logger.Info("added new bar subscriptions", "delta", x, "final", l)
+	return nil
+}
+
+func (c *Stocks) ListSubscriptions() []string {
+	return c.list.list()
+}
+
+func (c *Stocks) DeleteSubscriptions(x ...string) error {
+	if len(x) == 0 {
+		return nil
+	}
+
+	c.list.del(x...)
+	l := c.list.list()
+	if err := c.s.SubscribeToBars(c.bars, l...); err != nil {
+		c.logger.Error("failed deleting new subscriptions from stocks stream", "err", err, "wanted", x)
+		return err
+	}
+
+	c.logger.Info("removed subscriptions from bars", "delta", x, "final", l)
+	return nil
 }
 
 // Begin consuming data. Cancel context to initiate a shutdown?

@@ -7,6 +7,7 @@
     - [Trades](#trades)
     - [Cancels (in progress)](#cancels-in-progress)
     - [Trade updates](#trade-updates)
+    - [Streaming bars](#streaming-bars)
       - [Option 1: receive as consumer](#option-1-receive-as-consumer)
       - [Option 2: KV store](#option-2-kv-store)
   - [Deploying](#deploying)
@@ -44,6 +45,12 @@ To create trades, create a protobuf message of type [`tradesvc.v0.Trade`](./api/
 To execute a cancel, you just publish an empty message on `<prefix>.action.v0.cancel.<order ID or special keyword "ALL">`. Using special keyword `ALL` will initiate a cancel of all orders
 
 ### Trade updates
+
+TODO docs
+
+### Streaming bars
+
+Stream bar data. Possibly the most useful feature, allows you to broadcast messages across your architecture for lots of listeners
 
 #### Option 1: receive as consumer
 

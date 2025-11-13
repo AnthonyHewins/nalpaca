@@ -29,11 +29,14 @@ services:
       args:
         target: nalpaca
     command: "/root/nalpaca"
+    ports: [9200:9200, 8080:8080]
     env_file: ../.env
     environment:
       DISABLE_METRICS: true
       DISABLE_HEALTH: true
       DISABLE_TRACING: true
+      ENABLE_GRPC: true
+      ENABLE_GRPC_PROXY: true
 
       # ENABLE_TRADE_UPDATER: true
       # ENABLE_CANCELER: true

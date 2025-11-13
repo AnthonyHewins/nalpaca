@@ -14,6 +14,7 @@ import (
 )
 
 type News struct {
+	list    *symbolList
 	logger  *slog.Logger
 	n       *stream.NewsClient
 	metrics Metrics
@@ -27,6 +28,7 @@ func NewNews(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, prefi
 	}
 
 	s := &News{
+		list:    newSymbolList(d.Symbols...),
 		logger:  logger,
 		metrics: metrics,
 		js:      js,
@@ -92,5 +94,41 @@ func (c *News) Stream(ctx context.Context) error {
 	}
 
 	c.logger.Warn("connection terminated gracefully")
+	return nil
+}
+
+func (c *News) AddSubscriptions(x ...string) error {
+	if len(x) == 0 {
+		return nil
+	}
+
+	c.list.add(x...)
+	l := c.list.list()
+	if err := c.n.SubscribeToNews(c.news, c.list.list()...); err != nil {
+		c.logger.Error("failed adding new subscriptions from news stream", "err", err, "wanted", x)
+		return err
+	}
+
+	c.logger.Info("added news subscription", "delta", x, "final", l)
+	return nil
+}
+
+func (c *News) ListSubscriptions() []string {
+	return c.list.list()
+}
+
+func (c *News) DeleteSubscriptions(x ...string) error {
+	if len(x) == 0 {
+		return nil
+	}
+
+	c.list.del(x...)
+	l := c.list.list()
+	if err := c.n.SubscribeToNews(c.news, c.list.list()...); err != nil {
+		c.logger.Error("failed deleting new subscriptions to news stream", "err", err, "wanted", x)
+		return err
+	}
+
+	c.logger.Info("removed news subscription", "delta", x, "final", l)
 	return nil
 }
