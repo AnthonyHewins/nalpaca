@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/AnthonyHewins/nalpaca/gen/go/stream/v0"
 	"github.com/AnthonyHewins/nalpaca/internal/canceler"
@@ -12,7 +13,6 @@ import (
 	"github.com/caarlos0/env/v11"
 	"github.com/nats-io/nats.go/jetstream"
 	"github.com/prometheus/client_golang/prometheus"
-	"google.golang.org/grpc"
 )
 
 func newCounter(system, name, desc string) prometheus.Counter {
@@ -40,9 +40,8 @@ var (
 
 type app struct {
 	*conf.Server
-
-	server   *grpc.Server
-	grpcPort uint16
+	grpc      *conf.GrpcServer
+	grpcProxy *http.Server
 
 	canceler    *canceler.Canceler
 	trader      *trader.Controller
@@ -111,12 +110,14 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	if c.EnableGrpc {
-		a.server, a.grpcPort = grpc.NewServer(), c.GrpcPort
-		stream.RegisterStreamServiceServer(a.server, a)
-	}
-
-	return a, nil
+	a.grpc = b.GRPC(ctx, &c.GrpcServerConf)
+	a.grpcProxy, err = b.GrpcProxy(ctx, &c.GrpcServerConfWithProxy,
+		conf.GRPCGatewayHandler{
+			Name:    "streamsvc",
+			Handler: stream.RegisterStreamServiceHandlerFromEndpoint,
+		},
+	)
+	return a, err
 }
 
 func (a *app) consumer(ctx context.Context, js jetstream.JetStream, stream, consumer string) (jetstream.Consumer, error) {

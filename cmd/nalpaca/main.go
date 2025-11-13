@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -23,9 +24,7 @@ var version string
 
 type config struct {
 	conf.BootstrapConf
-
-	GrpcPort   uint16 `env:"GRPC_PORT" envDefault:"9200"`
-	EnableGrpc bool   `env:"ENABLE_GRPC" envDefault:"false"`
+	conf.GrpcServerConfWithProxy
 
 	Prefix string `env:"PREFIX" envDefault:"nalpaca"`
 
@@ -93,27 +92,41 @@ func main() {
 	}
 
 	a.Logger.ErrorContext(ctx, "server goroutines stopped with error", "error", err)
-	os.Exit(1)
+	switch {
+	case errors.Is(err, context.Canceled):
+		os.Exit(130)
+	case errors.Is(err, io.EOF):
+		os.Exit(2)
+	case errors.Is(err, context.DeadlineExceeded):
+		os.Exit(124)
+	default:
+		os.Exit(1)
+	}
 }
 
 func (a *app) start(ctx context.Context, g *errgroup.Group) {
-	if a.server != nil {
+	if a.grpc.Server != nil {
 		g.Go(func() error {
 			c := net.ListenConfig{KeepAlive: time.Minute * 5}
-			ln, err := c.Listen(ctx, "tcp", fmt.Sprintf(":%d", a.grpcPort))
+			ln, err := c.Listen(ctx, "tcp", fmt.Sprintf(":%d", a.grpc.Port))
 			if err != nil {
 				return err
 			}
 
-			return a.server.Serve(ln)
+			a.Logger.InfoContext(ctx, "starting grpc server", "port", a.grpc.Port)
+			return a.grpc.Server.Serve(ln)
 		})
 	}
 
+	if a.grpcProxy != nil {
+		a.Logger.InfoContext(ctx, "starting grpc proxy")
+		g.Go(a.grpcProxy.ListenAndServe)
+	}
+
 	if a.order.ingestor != nil {
-		g.Go(func() error {
-			var err error
-			a.order.ctx, err = a.order.ingestor.Consume(a.trader.Consume)
-			if err != nil {
+		g.Go(func() (err error) {
+			a.Logger.InfoContext(ctx, "starting order consumer")
+			if a.order.ctx, err = a.order.ingestor.Consume(a.trader.Consume); err != nil {
 				a.Logger.ErrorContext(ctx, "failed starting order consumer", "err", err)
 			}
 
@@ -122,10 +135,9 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 	}
 
 	if a.cancel.ingestor != nil {
-		g.Go(func() error {
-			var err error
-			a.cancel.ctx, err = a.cancel.ingestor.Consume(a.canceler.EventLoop)
-			if err != nil {
+		g.Go(func() (err error) {
+			a.Logger.InfoContext(ctx, "starting cancel consumer")
+			if a.cancel.ctx, err = a.cancel.ingestor.Consume(a.canceler.EventLoop); err != nil {
 				a.Logger.ErrorContext(ctx, "failed starting order cancel consumer", "err", err)
 			}
 
@@ -174,10 +186,10 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 }
 
 func (a *app) shutdown() {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	ctx, cancel := context.WithTimeout(context.Background(), a.ShutdownTimeout)
 	defer cancel()
 
-	a.server.GracefulStop()
+	a.grpc.Server.GracefulStop()
 
 	type consumers struct {
 		name     string

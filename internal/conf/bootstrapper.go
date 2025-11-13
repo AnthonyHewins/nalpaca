@@ -25,13 +25,14 @@ type BootstrapConf struct {
 }
 
 type Server struct {
-	Logger  *slog.Logger
-	NC      *nats.Conn
-	Health  *HealthServer
-	Metrics *http.Server
-	TP      *trace.TracerProvider
-	Nalpaca bridge.AlpacaInterface
-	Stocks  *stream.StocksClient
+	ShutdownTimeout time.Duration `env:"SHUTDOWN_TIMEOUT" envDefault:"30s"`
+	Logger          *slog.Logger
+	NC              *nats.Conn
+	Health          *HealthServer
+	Metrics         *http.Server
+	TP              *trace.TracerProvider
+	Nalpaca         bridge.AlpacaInterface
+	Stocks          *stream.StocksClient
 }
 
 type Bootstrapper Server

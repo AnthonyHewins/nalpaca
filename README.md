@@ -50,7 +50,7 @@ TODO docs
 
 ### Streaming bars
 
-You can stream bars
+Stream bar data. Possibly the most useful feature, allows you to broadcast messages across your architecture for lots of listeners
 
 #### Option 1: receive as consumer
 
