@@ -47,7 +47,7 @@ type GRPCGatewayHandler struct {
 
 func (b *Bootstrapper) GRPC(ctx context.Context, g *GrpcServerConf, extraOpts ...grpc.ServerOption) GrpcServer {
 	if !g.EnableGrpc {
-		b.Logger.InfoContext(ctx, "grpc proxy disabled, skipping")
+		b.Logger.InfoContext(ctx, "grpc disabled, skipping creating server")
 		return GrpcServer{}
 	}
 
