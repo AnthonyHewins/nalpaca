@@ -1,4 +1,4 @@
-FROM docker.io/library/golang:1.24-bullseye AS build
+FROM docker.io/library/golang:1.25-bookworm AS build
 
 ARG target
 
