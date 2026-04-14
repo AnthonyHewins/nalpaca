@@ -33,7 +33,7 @@ docker: ## build docker image
 	$(docker_bin) build -t $(IMAGE) --build-arg target=nalpaca -f docker/Dockerfile .
 	$(docker_bin) push $(IMAGE)
 
-composer := docker-compose -f ./docker/compose.yaml 
+composer := docker compose -f ./docker/compose.yaml 
 compose: ## build docker compose
 	$(composer) build
 

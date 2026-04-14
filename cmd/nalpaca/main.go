@@ -189,7 +189,9 @@ func (a *app) shutdown() {
 	ctx, cancel := context.WithTimeout(context.Background(), a.ShutdownTimeout)
 	defer cancel()
 
-	a.grpc.Server.GracefulStop()
+	if a.grpc.Server != nil {
+		a.grpc.Server.GracefulStop()
+	}
 
 	type consumers struct {
 		name     string
