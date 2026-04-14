@@ -49,18 +49,14 @@ type config struct {
 }
 
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, os.Interrupt)
+	defer stop()
 
 	a, err := newApp(ctx)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
-	defer signal.Stop(interrupt)
 
 	if info, ok := debug.ReadBuildInfo(); ok {
 		a.Logger.InfoContext(ctx,
@@ -75,23 +71,15 @@ func main() {
 	g, ctx := errgroup.WithContext(ctx)
 	a.start(ctx, g)
 
-	select { // watch for signal interruptions or context completion
-	case sig := <-interrupt:
-		a.Logger.Warn("kill signal received", "sig", sig.String())
-		cancel()
-		break
-	case <-ctx.Done():
-		a.Logger.Warn("context canceled", "err", ctx.Err())
-		break
-	}
-
+	<-ctx.Done()
+	a.Logger.Warn("context canceled", "err", ctx.Err())
 	a.shutdown()
 
 	if err = g.Wait(); err == nil || errors.Is(err, http.ErrServerClosed) {
 		return
 	}
 
-	a.Logger.ErrorContext(ctx, "server goroutines stopped with error", "error", err)
+	a.Logger.ErrorContext(ctx, "server goroutines stopped with error", "err", err)
 	switch {
 	case errors.Is(err, context.Canceled):
 		os.Exit(130)
