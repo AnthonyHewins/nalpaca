@@ -28,16 +28,16 @@ type config struct {
 
 	Prefix string `env:"PREFIX" envDefault:"nalpaca"`
 
-	ActionStream string `env:"ACTION_STREAM" envDefault:"nalpaca-action-stream-v0"`
-	DataStream   string `env:"DATA_STREAM" envDefault:"nalpaca-data-stream-v0"`
+	ActionStream string `env:"ACTION_STREAM" envDefault:"nalpaca-action-stream"`
+	DataStream   string `env:"DATA_STREAM" envDefault:"nalpaca-data-stream"`
 
 	EnableCancel   bool   `env:"ENABLE_CANCELER" envDefault:"false"`
-	CancelConsumer string `env:"CANCEL_CONSUMER" envDefault:"nalpaca-cancel-consumer-v0"`
+	CancelConsumer string `env:"CANCEL_CONSUMER" envDefault:"nalpaca-cancel-consumer"`
 
 	EnableTradeUpdater bool `env:"ENABLE_TRADE_UPDATER" envDefault:"false"`
 
 	EnableOrders      bool   `env:"ENABLE_ORDERS" envDefault:"false"`
-	OrderConsumerName string `env:"ORDER_CONSUMER" envDefault:"nalpaca-orders-consumer-v0"`
+	OrderConsumerName string `env:"ORDER_CONSUMER" envDefault:"nalpaca-orders-consumer"`
 
 	EnableStockStream bool `env:"ENABLE_STOCK_STREAM" envDefault:"false"`
 

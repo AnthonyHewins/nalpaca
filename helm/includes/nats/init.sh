@@ -39,7 +39,7 @@ if [[ "$ctx" != "" ]]; then
 fi
 
 for i in $(find $dir -mindepth 1 -type d); do
-  stream=nalpaca-$(basename $i)-stream-v0 
+  stream=nalpaca-$(basename $i)-stream 
   $n stream add $stream --config $i/stream.json # has to be ran first
   find $i -iname "*-consumer.json" -exec $n consumer add $stream  --config {} \;
 done

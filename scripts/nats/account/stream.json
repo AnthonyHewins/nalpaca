@@ -1,7 +1,7 @@
 {
-  "name": "nalpaca-data-stream",
+  "name": "nalpaca-account-stream",
   "subjects": [
-    "nalpaca.data.>"
+    "nalpaca.account.>"
   ],
   "retention": "interest",
   "max_consumers": -1,
@@ -20,5 +20,6 @@
   "allow_rollup_hdrs": false,
   "allow_direct": true,
   "mirror_direct": false,
-  "consumer_limits": {}
+  "consumer_limits": {},
+  "description": "Nalpaca account stream. Events about your own account, such as fills on orders you placed. Distinct from the data stream, which carries public market data."
 }
