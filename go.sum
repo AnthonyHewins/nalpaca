@@ -1,7 +1,7 @@
 cloud.google.com/go v0.123.0 h1:2NAUJwPR47q+E35uaJeYoNhuNEM9kM8SjgRgdeOJUSE=
 cloud.google.com/go v0.123.0/go.mod h1:xBoMV08QcqUGuPW65Qfm1o9Y4zKZBpGS+7bImXLTAZU=
-github.com/alpacahq/alpaca-trade-api-go/v3 v3.9.1 h1:G2v0C5kTcTQLyih731SJSaRrsItkf0TDoNZsSJliNKs=
-github.com/alpacahq/alpaca-trade-api-go/v3 v3.9.1/go.mod h1:15o3CsYACxBoRu5IKh7OnCkTrf1jWj+eGYsZc44zvIU=
+github.com/alpacahq/alpaca-trade-api-go/v3 v3.11.0 h1:/0vS711toT6OZPEXi3LoXG6QBhfPTph9lnBvAloFKRk=
+github.com/alpacahq/alpaca-trade-api-go/v3 v3.11.0/go.mod h1:15o3CsYACxBoRu5IKh7OnCkTrf1jWj+eGYsZc44zvIU=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/caarlos0/env/v11 v11.4.0 h1:Kcb6t5kIIr4XkoQC9AF2j+8E1Jsrl3Wz/hhm1LtoGAc=

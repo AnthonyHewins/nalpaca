@@ -3,7 +3,7 @@ module github.com/AnthonyHewins/nalpaca
 go 1.25.0
 
 require (
-	github.com/alpacahq/alpaca-trade-api-go/v3 v3.9.1
+	github.com/alpacahq/alpaca-trade-api-go/v3 v3.11.0
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.28.0
 	github.com/nats-io/nats.go v1.50.0
