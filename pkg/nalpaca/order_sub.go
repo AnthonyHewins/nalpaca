@@ -6,9 +6,12 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 )
 
+// These must match what scripts/nats provisions. Account events live on their
+// own stream, separate from the data stream: trade updates are things that
+// happened to your orders, not public market data.
 const (
-	TradeUpdaterStream   = "nalpaca-tradeupdater-stream-v0"
-	TradeUpdaterConsumer = "nalpaca-tradeupdater-consumer-v0"
+	TradeUpdaterStream   = "nalpaca-account-stream"
+	TradeUpdaterConsumer = "nalpaca-tradeupdate-consumer"
 )
 
 // Simple wrapper creating the tradeupdater consumer.

@@ -29,20 +29,21 @@ Here are some example things it can do:
 
 ## Components
 
-Nalpaca is based on NATS resources, there are 2 primary streams to look at that it creates and a myriad of consumers, and a single KV store
+Nalpaca is based on NATS resources, there are 3 primary streams to look at that it creates and a myriad of consumers, and a single KV store
 
-1. **Action stream**: this stream is the stream that you will write to if you want to have nalpaca perform some actions on your behalf like executing trades. View the docs for the component you wish to use to see what subjects to publish to in order to use it
+1. **Action stream** (`nalpaca-action-stream`, subjects `nalpaca.action.>`): this stream is the stream that you will write to if you want to have nalpaca perform some actions on your behalf like executing trades. View the docs for the component you wish to use to see what subjects to publish to in order to use it
   1. The action consumer is also created, which is configured as a `workqueue` and is reserved only for nalpaca to use
-3. **Data stream**: this stream is the stream that nalpaca writes to in order to publish information about live updates, which include updates on trades, stock bars, and more in future updates. Nalpaca will write to this stream, and any number of consumers it offers will be what you subscribe to in order to get info on it. See the component you want to use to get information on it. This stream is configured as an `interest` consumer
+1. **Data stream** (`nalpaca-data-stream`, subjects `nalpaca.data.>`): this stream is the stream that nalpaca writes to in order to publish information about live updates, which include updates on trades, stock bars, and more in future updates. Nalpaca will write to this stream, and any number of consumers it offers will be what you subscribe to in order to get info on it. See the component you want to use to get information on it. This stream is configured as an `interest` consumer
+1. **Account stream** (`nalpaca-account-stream`, subjects `nalpaca.account.>`): events about *your* account rather than the market, such as fills on orders you placed. Kept separate from the data stream so that market data subscribers don't receive your private account activity
 1. **KV store**: this KV store is a global store for the app, where it will write useful things like your current position list, which you can subscribe to via keywatcher, or just access on the fly if needed. See the docs for the component you want to use for more
 
 ### Trades
 
-To create trades, create a protobuf message of type [`tradesvc.v0.Trade`](./api/proto/tradesvc/v0/tradesvc.proto). Then create an idempotency ID and send it on the topic `nalpaca.action.v0.orders.<string client order id (<=128 chars)>`
+To create trades, create a protobuf message of type [`tradesvc.v0.Trade`](./api/proto/tradesvc/v0/tradesvc.proto). Then create an idempotency ID and send it on the topic `nalpaca.action.orders.<string client order id (<=128 chars)>`
 
 ### Cancels (in progress)
 
-To execute a cancel, you just publish an empty message on `<prefix>.action.v0.cancel.<order ID or special keyword "ALL">`. Using special keyword `ALL` will initiate a cancel of all orders
+To execute a cancel, you just publish an empty message on `<prefix>.action.cancel.<order ID or special keyword "ALL">`. Using special keyword `ALL` will initiate a cancel of all orders
 
 ### Trade updates
 
@@ -54,7 +55,7 @@ Stream bar data. Possibly the most useful feature, allows you to broadcast messa
 
 #### Option 1: receive as consumer
 
-Updates on trades can be received as a consumer. Connect to `nalpaca-tradeupdater-consumer-v0`. Once connected, the consumer will receive updates on subject `<prefix>.data.v0.tradeupdates.<TICKER>` with message type [`tradesvc.v0.TradeUpdate`](./api/proto/tradesvc/v0/tradesvc.proto)
+Updates on trades can be received as a consumer. Connect to `nalpaca-tradeupdate-consumer`. Once connected, the consumer will receive updates on subject `<prefix>.account.tradeupdates.<TICKER>` with message type [`tradesvc.v0.TradeUpdate`](./api/proto/tradesvc/v0/tradesvc.proto)
 
 #### Option 2: KV store
 

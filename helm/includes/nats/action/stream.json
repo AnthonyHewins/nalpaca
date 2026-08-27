@@ -1,8 +1,8 @@
 {
-  "name": "nalpaca-action-stream-v0",
+  "name": "nalpaca-action-stream",
   "description": "Nalpaca action stream. This stream contains all the things nalpaca will be MITM for, like trades and canceling orders",
   "subjects": [
-    "nalpaca.action.v0.>"
+    "nalpaca.action.>"
   ],
   "retention": "workqueue",
   "max_consumers": -1,
