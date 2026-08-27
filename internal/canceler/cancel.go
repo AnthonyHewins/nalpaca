@@ -23,6 +23,11 @@ type Counters struct {
 	CancelAllCount, CancelAllFail prometheus.Counter
 }
 
+// Collectors returns the counters for registration with a prometheus registry.
+func (c Counters) Collectors() []prometheus.Collector {
+	return []prometheus.Collector{c.CancelCount, c.CancelFail, c.CancelAllCount, c.CancelAllFail}
+}
+
 func New(logger *slog.Logger, client bridge.AlpacaInterface, counters Counters, timeout time.Duration) *Canceler {
 	return &Canceler{
 		counters: counters,

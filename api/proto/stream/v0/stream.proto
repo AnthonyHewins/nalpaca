@@ -26,6 +26,42 @@ service StreamService {
 		};
 	}
 
+	rpc ListStockQuoteSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
+		option (google.api.http) = {
+			get: "/v1/subscriptions/stocks/quotes"
+		};
+	}
+
+	rpc AddStockQuoteSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
+		option (google.api.http) = {
+			patch: "/v1/subscriptions/stocks/quotes"
+		};
+	}
+
+	rpc RemoveStockQuoteSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
+		option (google.api.http) = {
+			delete: "/v1/subscriptions/stocks/quotes"
+		};
+	}
+
+	rpc ListStockTradeSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
+		option (google.api.http) = {
+			get: "/v1/subscriptions/stocks/trades"
+		};
+	}
+
+	rpc AddStockTradeSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
+		option (google.api.http) = {
+			patch: "/v1/subscriptions/stocks/trades"
+		};
+	}
+
+	rpc RemoveStockTradeSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
+		option (google.api.http) = {
+			delete: "/v1/subscriptions/stocks/trades"
+		};
+	}
+
 	rpc ListNewsSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
 		option (google.api.http) = {
 			get: "/v1/subscriptions/news"
@@ -82,6 +118,32 @@ message Bar {
 	google.protobuf.Timestamp timestamp = 7;
 	uint64 trade_count = 8;
 	double vwap = 9;
+}
+
+// Trade is a stock trade.
+message Trade {
+	int64 id = 1;
+	string symbol = 2;
+	string exchange = 3;
+	double price = 4;
+	uint32 size = 5;
+	google.protobuf.Timestamp timestamp = 6;
+	repeated string conditions = 7;
+	string tape = 8;
+}
+
+// Quote is a stock quote.
+message Quote {
+	string symbol = 1;
+	string bid_exchange = 2;
+	double bid_price = 3;
+	uint32 bid_size = 4;
+	string ask_exchange = 5;
+	double ask_price = 6;
+	uint32 ask_size = 7;
+	google.protobuf.Timestamp timestamp = 8;
+	repeated string conditions = 9;
+	string tape = 10;
 }
 
 message News {

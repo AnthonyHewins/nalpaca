@@ -48,7 +48,6 @@ type app struct {
 	updater     *portfolio.Controller
 	stockStream *streaming.Stocks
 	newsStream  *streaming.News
-	// quotes   *optionquotes.Controller
 
 	order  consumer
 	cancel consumer
@@ -65,7 +64,11 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	b, err := c.BootstrapConf.New(ctx, appName)
+	// Counters have to exist before New: it stands up the prometheus registry,
+	// and anything registered afterwards would never reach /metrics.
+	sm := newStreamMetrics(&c)
+
+	b, err := c.BootstrapConf.New(ctx, appName, sm.collectors...)
 	if err != nil {
 		return nil, err
 	}
@@ -102,11 +105,11 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	if a.stockStream, err = a.initStockStream(js, &c); err != nil {
+	if a.stockStream, err = a.initStockStream(js, &c, sm.stocks); err != nil {
 		return nil, err
 	}
 
-	if a.newsStream, err = a.initNewsStream(js, &c); err != nil {
+	if a.newsStream, err = a.initNewsStream(js, &c, sm.news); err != nil {
 		return nil, err
 	}
 

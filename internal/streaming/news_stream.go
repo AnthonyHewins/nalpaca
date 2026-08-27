@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"time"
 
 	protoStream "github.com/AnthonyHewins/nalpaca/gen/go/stream/v0"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
 	"github.com/nats-io/nats.go/jetstream"
-	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -18,7 +16,7 @@ type News struct {
 	logger  *slog.Logger
 	n       *stream.NewsClient
 	metrics Metrics
-	js      jetstream.JetStream
+	js      publisher
 	prefix  string
 }
 
@@ -26,6 +24,8 @@ func NewNews(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, prefi
 	if d == nil {
 		return nil, fmt.Errorf("missing stream opts")
 	}
+
+	url := d.baseURL(newsURL)
 
 	s := &News{
 		list:    newSymbolList(d.Symbols...),
@@ -36,28 +36,24 @@ func NewNews(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, prefi
 	}
 
 	so := []stream.NewsOption{}
-	for _, v := range streamOpts(key, secret, logger, d) {
+	for _, v := range streamOpts(key, secret, url, logger, d) {
 		so = append(so, v)
 	}
 
-	symbols := d.Symbols
-	logger.Info("creating stocks stream client", "conf", d, "key", key, "len(secret)>0", len(secret) > 0, "prefix", prefix)
-	s.n = stream.NewNewsClient(append(so, stream.WithNews(s.news, symbols...))...)
+	logger.Info("creating news stream client",
+		"conf", d,
+		"key", key,
+		"len(secret)>0", len(secret) > 0,
+		"prefix", prefix,
+		"url", url,
+	)
+
+	s.n = stream.NewNewsClient(append(so, stream.WithNews(s.news, s.list.list()...))...)
 	return s, nil
 }
 
 func (c *News) news(n stream.News) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	var err error
-	defer func() {
-		if err != nil {
-			c.metrics.TotalErr.Inc()
-		}
-	}()
-
-	buf, err := proto.Marshal(&protoStream.News{
+	publish(c.logger, c.metrics, c.js, fmt.Sprintf("%s.%d", c.prefix, n.ID), n, &protoStream.News{
 		Id:        uint64(n.ID),
 		Symbols:   n.Symbols,
 		Headline:  n.Headline,
@@ -68,48 +64,22 @@ func (c *News) news(n stream.News) {
 		CreatedAt: timestamppb.New(n.CreatedAt),
 		UpdatedAt: timestamppb.New(n.UpdatedAt),
 	})
-	if err != nil {
-		c.logger.ErrorContext(ctx, "failed marshal", "err", err, "raw", n)
-		c.metrics.MarshalErr.Inc()
-		return
-	}
-
-	if _, err = c.js.Publish(ctx, fmt.Sprintf("%s.%d", c.prefix, n.ID), buf); err != nil {
-		c.logger.ErrorContext(ctx, "failed publishing", "err", err, "raw", n)
-		c.metrics.PubErr.Inc()
-	}
 }
 
 // Begin consuming data. Cancel context to initiate a shutdown?
 // Unsure the underlying implementation, doesnt say in the alpaca docs
 func (c *News) Stream(ctx context.Context) error {
 	if err := c.n.Connect(ctx); err != nil {
-		c.logger.ErrorContext(ctx, "failed establishing stocks connection", "err", err)
+		c.logger.ErrorContext(ctx, "failed establishing news connection", "err", err)
 		return err
 	}
 
 	if err := <-c.n.Terminated(); err != nil {
-		c.logger.Error("connection terminated with error", "err", err)
+		c.logger.Error("news connection terminated with error", "err", err)
 		return err
 	}
 
-	c.logger.Warn("connection terminated gracefully")
-	return nil
-}
-
-func (c *News) AddSubscriptions(x ...string) error {
-	if len(x) == 0 {
-		return nil
-	}
-
-	c.list.add(x...)
-	l := c.list.list()
-	if err := c.n.SubscribeToNews(c.news, c.list.list()...); err != nil {
-		c.logger.Error("failed adding new subscriptions from news stream", "err", err, "wanted", x)
-		return err
-	}
-
-	c.logger.Info("added news subscription", "delta", x, "final", l)
+	c.logger.Warn("news connection terminated gracefully")
 	return nil
 }
 
@@ -117,18 +87,10 @@ func (c *News) ListSubscriptions() []string {
 	return c.list.list()
 }
 
+func (c *News) AddSubscriptions(x ...string) error {
+	return resubscribe(c.logger, "news", c.list, c.n.SubscribeToNews, c.news, add, x)
+}
+
 func (c *News) DeleteSubscriptions(x ...string) error {
-	if len(x) == 0 {
-		return nil
-	}
-
-	c.list.del(x...)
-	l := c.list.list()
-	if err := c.n.SubscribeToNews(c.news, c.list.list()...); err != nil {
-		c.logger.Error("failed deleting new subscriptions to news stream", "err", err, "wanted", x)
-		return err
-	}
-
-	c.logger.Info("removed news subscription", "delta", x, "final", l)
-	return nil
+	return resubscribe(c.logger, "news", c.list, c.n.SubscribeToNews, c.news, del, x)
 }
