@@ -380,7 +380,8 @@ func (x *Bar) GetVwap() float64 {
 	return 0
 }
 
-// Trade is a stock trade.
+// Trade is a stock trade. Note the differences from OptionTrade below: stock
+// trades carry an id, a tape, and multiple condition codes.
 type Trade struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -598,6 +599,201 @@ func (x *Quote) GetTape() string {
 	return ""
 }
 
+// OptionTrade is an option contract trade. Unlike the stock Trade it has a
+// single condition and carries no id or tape.
+type OptionTrade struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Exchange      string                 `protobuf:"bytes,2,opt,name=exchange,proto3" json:"exchange,omitempty"`
+	Price         float64                `protobuf:"fixed64,3,opt,name=price,proto3" json:"price,omitempty"`
+	Size          uint32                 `protobuf:"varint,4,opt,name=size,proto3" json:"size,omitempty"`
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Condition     string                 `protobuf:"bytes,6,opt,name=condition,proto3" json:"condition,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OptionTrade) Reset() {
+	*x = OptionTrade{}
+	mi := &file_stream_v0_stream_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OptionTrade) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OptionTrade) ProtoMessage() {}
+
+func (x *OptionTrade) ProtoReflect() protoreflect.Message {
+	mi := &file_stream_v0_stream_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OptionTrade.ProtoReflect.Descriptor instead.
+func (*OptionTrade) Descriptor() ([]byte, []int) {
+	return file_stream_v0_stream_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *OptionTrade) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+func (x *OptionTrade) GetExchange() string {
+	if x != nil {
+		return x.Exchange
+	}
+	return ""
+}
+
+func (x *OptionTrade) GetPrice() float64 {
+	if x != nil {
+		return x.Price
+	}
+	return 0
+}
+
+func (x *OptionTrade) GetSize() uint32 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
+func (x *OptionTrade) GetTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Timestamp
+	}
+	return nil
+}
+
+func (x *OptionTrade) GetCondition() string {
+	if x != nil {
+		return x.Condition
+	}
+	return ""
+}
+
+// OptionQuote is an option contract quote.
+type OptionQuote struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	BidExchange   string                 `protobuf:"bytes,2,opt,name=bid_exchange,json=bidExchange,proto3" json:"bid_exchange,omitempty"`
+	BidPrice      float64                `protobuf:"fixed64,3,opt,name=bid_price,json=bidPrice,proto3" json:"bid_price,omitempty"`
+	BidSize       uint32                 `protobuf:"varint,4,opt,name=bid_size,json=bidSize,proto3" json:"bid_size,omitempty"`
+	AskExchange   string                 `protobuf:"bytes,5,opt,name=ask_exchange,json=askExchange,proto3" json:"ask_exchange,omitempty"`
+	AskPrice      float64                `protobuf:"fixed64,6,opt,name=ask_price,json=askPrice,proto3" json:"ask_price,omitempty"`
+	AskSize       uint32                 `protobuf:"varint,7,opt,name=ask_size,json=askSize,proto3" json:"ask_size,omitempty"`
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Condition     string                 `protobuf:"bytes,9,opt,name=condition,proto3" json:"condition,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OptionQuote) Reset() {
+	*x = OptionQuote{}
+	mi := &file_stream_v0_stream_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OptionQuote) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OptionQuote) ProtoMessage() {}
+
+func (x *OptionQuote) ProtoReflect() protoreflect.Message {
+	mi := &file_stream_v0_stream_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OptionQuote.ProtoReflect.Descriptor instead.
+func (*OptionQuote) Descriptor() ([]byte, []int) {
+	return file_stream_v0_stream_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *OptionQuote) GetSymbol() string {
+	if x != nil {
+		return x.Symbol
+	}
+	return ""
+}
+
+func (x *OptionQuote) GetBidExchange() string {
+	if x != nil {
+		return x.BidExchange
+	}
+	return ""
+}
+
+func (x *OptionQuote) GetBidPrice() float64 {
+	if x != nil {
+		return x.BidPrice
+	}
+	return 0
+}
+
+func (x *OptionQuote) GetBidSize() uint32 {
+	if x != nil {
+		return x.BidSize
+	}
+	return 0
+}
+
+func (x *OptionQuote) GetAskExchange() string {
+	if x != nil {
+		return x.AskExchange
+	}
+	return ""
+}
+
+func (x *OptionQuote) GetAskPrice() float64 {
+	if x != nil {
+		return x.AskPrice
+	}
+	return 0
+}
+
+func (x *OptionQuote) GetAskSize() uint32 {
+	if x != nil {
+		return x.AskSize
+	}
+	return 0
+}
+
+func (x *OptionQuote) GetTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Timestamp
+	}
+	return nil
+}
+
+func (x *OptionQuote) GetCondition() string {
+	if x != nil {
+		return x.Condition
+	}
+	return ""
+}
+
 type News struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -615,7 +811,7 @@ type News struct {
 
 func (x *News) Reset() {
 	*x = News{}
-	mi := &file_stream_v0_stream_proto_msgTypes[9]
+	mi := &file_stream_v0_stream_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -627,7 +823,7 @@ func (x *News) String() string {
 func (*News) ProtoMessage() {}
 
 func (x *News) ProtoReflect() protoreflect.Message {
-	mi := &file_stream_v0_stream_proto_msgTypes[9]
+	mi := &file_stream_v0_stream_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -640,7 +836,7 @@ func (x *News) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use News.ProtoReflect.Descriptor instead.
 func (*News) Descriptor() ([]byte, []int) {
-	return file_stream_v0_stream_proto_rawDescGZIP(), []int{9}
+	return file_stream_v0_stream_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *News) GetId() uint64 {
@@ -755,7 +951,24 @@ const file_stream_v0_stream_proto_rawDesc = "" +
 	"conditions\x18\t \x03(\tR\n" +
 	"conditions\x12\x12\n" +
 	"\x04tape\x18\n" +
-	" \x01(\tR\x04tape\"\xa0\x02\n" +
+	" \x01(\tR\x04tape\"\xc3\x01\n" +
+	"\vOptionTrade\x12\x16\n" +
+	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12\x1a\n" +
+	"\bexchange\x18\x02 \x01(\tR\bexchange\x12\x14\n" +
+	"\x05price\x18\x03 \x01(\x01R\x05price\x12\x12\n" +
+	"\x04size\x18\x04 \x01(\rR\x04size\x128\n" +
+	"\ttimestamp\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x1c\n" +
+	"\tcondition\x18\x06 \x01(\tR\tcondition\"\xb3\x02\n" +
+	"\vOptionQuote\x12\x16\n" +
+	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12!\n" +
+	"\fbid_exchange\x18\x02 \x01(\tR\vbidExchange\x12\x1b\n" +
+	"\tbid_price\x18\x03 \x01(\x01R\bbidPrice\x12\x19\n" +
+	"\bbid_size\x18\x04 \x01(\rR\abidSize\x12!\n" +
+	"\fask_exchange\x18\x05 \x01(\tR\vaskExchange\x12\x1b\n" +
+	"\task_price\x18\x06 \x01(\x01R\baskPrice\x12\x19\n" +
+	"\bask_size\x18\a \x01(\rR\aaskSize\x128\n" +
+	"\ttimestamp\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x1c\n" +
+	"\tcondition\x18\t \x01(\tR\tcondition\"\xa0\x02\n" +
 	"\x04News\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x18\n" +
 	"\asymbols\x18\x02 \x03(\tR\asymbols\x12\x1a\n" +
@@ -767,7 +980,7 @@ const file_stream_v0_stream_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xac\r\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xb6\x14\n" +
 	"\rStreamService\x12\x81\x01\n" +
 	"\x14ListBarSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/subscriptions/bars\x12~\n" +
 	"\x13AddBarSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x182\x16/v1/subscriptions/bars\x12\x87\x01\n" +
@@ -777,7 +990,13 @@ const file_stream_v0_stream_proto_rawDesc = "" +
 	"\x1dRemoveStockQuoteSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"'\x82\xd3\xe4\x93\x02!*\x1f/v1/subscriptions/stocks/quotes\x12\x91\x01\n" +
 	"\x1bListStockTradeSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/v1/subscriptions/stocks/trades\x12\x8e\x01\n" +
 	"\x1aAddStockTradeSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"'\x82\xd3\xe4\x93\x02!2\x1f/v1/subscriptions/stocks/trades\x12\x97\x01\n" +
-	"\x1dRemoveStockTradeSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"'\x82\xd3\xe4\x93\x02!*\x1f/v1/subscriptions/stocks/trades\x12\x82\x01\n" +
+	"\x1dRemoveStockTradeSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"'\x82\xd3\xe4\x93\x02!*\x1f/v1/subscriptions/stocks/trades\x12\x93\x01\n" +
+	"\x1cListOptionQuoteSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /v1/subscriptions/options/quotes\x12\x90\x01\n" +
+	"\x1bAddOptionQuoteSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"2 /v1/subscriptions/options/quotes\x12\x99\x01\n" +
+	"\x1eRemoveOptionQuoteSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"* /v1/subscriptions/options/quotes\x12\x93\x01\n" +
+	"\x1cListOptionTradeSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /v1/subscriptions/options/trades\x12\x90\x01\n" +
+	"\x1bAddOptionTradeSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"2 /v1/subscriptions/options/trades\x12\x99\x01\n" +
+	"\x1eRemoveOptionTradeSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"* /v1/subscriptions/options/trades\x12\x82\x01\n" +
 	"\x15ListNewsSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/subscriptions/news\x12\x7f\n" +
 	"\x14AddNewsSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x182\x16/v1/subscriptions/news\x12\x88\x01\n" +
 	"\x17RemoveNewsSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18*\x16/v1/subscriptions/newsB:Z8github.com/AnthonyHewins/nalpaca/gen/go/stream/v0;streamb\x06proto3"
@@ -794,7 +1013,7 @@ func file_stream_v0_stream_proto_rawDescGZIP() []byte {
 	return file_stream_v0_stream_proto_rawDescData
 }
 
-var file_stream_v0_stream_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_stream_v0_stream_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_stream_v0_stream_proto_goTypes = []any{
 	(*ListSubscriptionsRequest)(nil),    // 0: stream.v0.ListSubscriptionsRequest
 	(*ListSubscriptionsResponse)(nil),   // 1: stream.v0.ListSubscriptionsResponse
@@ -805,44 +1024,60 @@ var file_stream_v0_stream_proto_goTypes = []any{
 	(*Bar)(nil),                         // 6: stream.v0.Bar
 	(*Trade)(nil),                       // 7: stream.v0.Trade
 	(*Quote)(nil),                       // 8: stream.v0.Quote
-	(*News)(nil),                        // 9: stream.v0.News
-	(*timestamppb.Timestamp)(nil),       // 10: google.protobuf.Timestamp
+	(*OptionTrade)(nil),                 // 9: stream.v0.OptionTrade
+	(*OptionQuote)(nil),                 // 10: stream.v0.OptionQuote
+	(*News)(nil),                        // 11: stream.v0.News
+	(*timestamppb.Timestamp)(nil),       // 12: google.protobuf.Timestamp
 }
 var file_stream_v0_stream_proto_depIdxs = []int32{
-	10, // 0: stream.v0.Bar.timestamp:type_name -> google.protobuf.Timestamp
-	10, // 1: stream.v0.Trade.timestamp:type_name -> google.protobuf.Timestamp
-	10, // 2: stream.v0.Quote.timestamp:type_name -> google.protobuf.Timestamp
-	10, // 3: stream.v0.News.created_at:type_name -> google.protobuf.Timestamp
-	10, // 4: stream.v0.News.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 5: stream.v0.StreamService.ListBarSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
-	2,  // 6: stream.v0.StreamService.AddBarSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
-	4,  // 7: stream.v0.StreamService.RemoveBarSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
-	0,  // 8: stream.v0.StreamService.ListStockQuoteSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
-	2,  // 9: stream.v0.StreamService.AddStockQuoteSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
-	4,  // 10: stream.v0.StreamService.RemoveStockQuoteSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
-	0,  // 11: stream.v0.StreamService.ListStockTradeSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
-	2,  // 12: stream.v0.StreamService.AddStockTradeSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
-	4,  // 13: stream.v0.StreamService.RemoveStockTradeSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
-	0,  // 14: stream.v0.StreamService.ListNewsSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
-	2,  // 15: stream.v0.StreamService.AddNewsSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
-	4,  // 16: stream.v0.StreamService.RemoveNewsSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
-	1,  // 17: stream.v0.StreamService.ListBarSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
-	3,  // 18: stream.v0.StreamService.AddBarSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
-	5,  // 19: stream.v0.StreamService.RemoveBarSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
-	1,  // 20: stream.v0.StreamService.ListStockQuoteSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
-	3,  // 21: stream.v0.StreamService.AddStockQuoteSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
-	5,  // 22: stream.v0.StreamService.RemoveStockQuoteSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
-	1,  // 23: stream.v0.StreamService.ListStockTradeSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
-	3,  // 24: stream.v0.StreamService.AddStockTradeSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
-	5,  // 25: stream.v0.StreamService.RemoveStockTradeSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
-	1,  // 26: stream.v0.StreamService.ListNewsSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
-	3,  // 27: stream.v0.StreamService.AddNewsSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
-	5,  // 28: stream.v0.StreamService.RemoveNewsSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
-	17, // [17:29] is the sub-list for method output_type
-	5,  // [5:17] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	12, // 0: stream.v0.Bar.timestamp:type_name -> google.protobuf.Timestamp
+	12, // 1: stream.v0.Trade.timestamp:type_name -> google.protobuf.Timestamp
+	12, // 2: stream.v0.Quote.timestamp:type_name -> google.protobuf.Timestamp
+	12, // 3: stream.v0.OptionTrade.timestamp:type_name -> google.protobuf.Timestamp
+	12, // 4: stream.v0.OptionQuote.timestamp:type_name -> google.protobuf.Timestamp
+	12, // 5: stream.v0.News.created_at:type_name -> google.protobuf.Timestamp
+	12, // 6: stream.v0.News.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 7: stream.v0.StreamService.ListBarSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
+	2,  // 8: stream.v0.StreamService.AddBarSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
+	4,  // 9: stream.v0.StreamService.RemoveBarSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
+	0,  // 10: stream.v0.StreamService.ListStockQuoteSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
+	2,  // 11: stream.v0.StreamService.AddStockQuoteSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
+	4,  // 12: stream.v0.StreamService.RemoveStockQuoteSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
+	0,  // 13: stream.v0.StreamService.ListStockTradeSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
+	2,  // 14: stream.v0.StreamService.AddStockTradeSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
+	4,  // 15: stream.v0.StreamService.RemoveStockTradeSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
+	0,  // 16: stream.v0.StreamService.ListOptionQuoteSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
+	2,  // 17: stream.v0.StreamService.AddOptionQuoteSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
+	4,  // 18: stream.v0.StreamService.RemoveOptionQuoteSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
+	0,  // 19: stream.v0.StreamService.ListOptionTradeSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
+	2,  // 20: stream.v0.StreamService.AddOptionTradeSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
+	4,  // 21: stream.v0.StreamService.RemoveOptionTradeSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
+	0,  // 22: stream.v0.StreamService.ListNewsSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
+	2,  // 23: stream.v0.StreamService.AddNewsSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
+	4,  // 24: stream.v0.StreamService.RemoveNewsSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
+	1,  // 25: stream.v0.StreamService.ListBarSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
+	3,  // 26: stream.v0.StreamService.AddBarSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
+	5,  // 27: stream.v0.StreamService.RemoveBarSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
+	1,  // 28: stream.v0.StreamService.ListStockQuoteSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
+	3,  // 29: stream.v0.StreamService.AddStockQuoteSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
+	5,  // 30: stream.v0.StreamService.RemoveStockQuoteSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
+	1,  // 31: stream.v0.StreamService.ListStockTradeSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
+	3,  // 32: stream.v0.StreamService.AddStockTradeSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
+	5,  // 33: stream.v0.StreamService.RemoveStockTradeSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
+	1,  // 34: stream.v0.StreamService.ListOptionQuoteSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
+	3,  // 35: stream.v0.StreamService.AddOptionQuoteSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
+	5,  // 36: stream.v0.StreamService.RemoveOptionQuoteSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
+	1,  // 37: stream.v0.StreamService.ListOptionTradeSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
+	3,  // 38: stream.v0.StreamService.AddOptionTradeSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
+	5,  // 39: stream.v0.StreamService.RemoveOptionTradeSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
+	1,  // 40: stream.v0.StreamService.ListNewsSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
+	3,  // 41: stream.v0.StreamService.AddNewsSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
+	5,  // 42: stream.v0.StreamService.RemoveNewsSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
+	25, // [25:43] is the sub-list for method output_type
+	7,  // [7:25] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_stream_v0_stream_proto_init() }
@@ -856,7 +1091,7 @@ func file_stream_v0_stream_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_stream_v0_stream_proto_rawDesc), len(file_stream_v0_stream_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

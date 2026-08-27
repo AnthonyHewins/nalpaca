@@ -43,6 +43,8 @@ type config struct {
 
 	EnableNewsStream bool `env:"ENABLE_NEWS_STREAM" envDefault:"false"`
 
+	EnableOptionStream bool `env:"ENABLE_OPTION_STREAM" envDefault:"false"`
+
 	Bucket string `env:"NATS_KV_BUCKET" envDefault:"nalpaca"`
 
 	ProcessingTimeout time.Duration `env:"PROCESSING_TIMEOUT" envDefault:"3s"`
@@ -167,6 +169,7 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 
 	a.superviseStream(ctx, g, "stocks", a.stockStream != nil, a.stockStream.Stream)
 	a.superviseStream(ctx, g, "news", a.newsStream != nil, a.newsStream.Stream)
+	a.superviseStream(ctx, g, "options", a.optionStream != nil, a.optionStream.Stream)
 
 	if a.Metrics != nil {
 		g.Go(func() error {

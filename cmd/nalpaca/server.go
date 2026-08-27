@@ -12,8 +12,8 @@ var errNotEnabled = status.Error(codes.FailedPrecondition, "this particular enti
 	" and the service will be capable of responding correctly")
 
 // The three helpers below collapse what would otherwise be the same handful of
-// lines repeated across every RPC: verify the backing stream is running, then
-// delegate to it.
+// lines repeated across eighteen RPCs: verify the backing stream is running,
+// then delegate to it.
 //
 // Callers pass a method value from a possibly-nil stream (e.g.
 // a.stockStream.ListBarSubscriptions). Binding a method value to a nil pointer
@@ -86,6 +86,38 @@ func (a *app) AddStockTradeSubscriptions(ctx context.Context, req *stream.AddSub
 
 func (a *app) RemoveStockTradeSubscriptions(ctx context.Context, req *stream.RemoveSubscriptionsRequest) (*stream.RemoveSubscriptionsResponse, error) {
 	return removeSubs(a.stockStream != nil, a.stockStream.DeleteTradeSubscriptions, req.Symbols)
+}
+
+//====================================
+// Option quotes
+//====================================
+
+func (a *app) ListOptionQuoteSubscriptions(ctx context.Context, req *stream.ListSubscriptionsRequest) (*stream.ListSubscriptionsResponse, error) {
+	return listSubs(a.optionStream != nil, a.optionStream.ListQuoteSubscriptions)
+}
+
+func (a *app) AddOptionQuoteSubscriptions(ctx context.Context, req *stream.AddSubscriptionsRequest) (*stream.AddSubscriptionsResponse, error) {
+	return addSubs(a.optionStream != nil, a.optionStream.AddQuoteSubscriptions, req.Symbols)
+}
+
+func (a *app) RemoveOptionQuoteSubscriptions(ctx context.Context, req *stream.RemoveSubscriptionsRequest) (*stream.RemoveSubscriptionsResponse, error) {
+	return removeSubs(a.optionStream != nil, a.optionStream.DeleteQuoteSubscriptions, req.Symbols)
+}
+
+//====================================
+// Option trades
+//====================================
+
+func (a *app) ListOptionTradeSubscriptions(ctx context.Context, req *stream.ListSubscriptionsRequest) (*stream.ListSubscriptionsResponse, error) {
+	return listSubs(a.optionStream != nil, a.optionStream.ListTradeSubscriptions)
+}
+
+func (a *app) AddOptionTradeSubscriptions(ctx context.Context, req *stream.AddSubscriptionsRequest) (*stream.AddSubscriptionsResponse, error) {
+	return addSubs(a.optionStream != nil, a.optionStream.AddTradeSubscriptions, req.Symbols)
+}
+
+func (a *app) RemoveOptionTradeSubscriptions(ctx context.Context, req *stream.RemoveSubscriptionsRequest) (*stream.RemoveSubscriptionsResponse, error) {
+	return removeSubs(a.optionStream != nil, a.optionStream.DeleteTradeSubscriptions, req.Symbols)
 }
 
 //====================================

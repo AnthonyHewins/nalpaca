@@ -62,6 +62,42 @@ service StreamService {
 		};
 	}
 
+	rpc ListOptionQuoteSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
+		option (google.api.http) = {
+			get: "/v1/subscriptions/options/quotes"
+		};
+	}
+
+	rpc AddOptionQuoteSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
+		option (google.api.http) = {
+			patch: "/v1/subscriptions/options/quotes"
+		};
+	}
+
+	rpc RemoveOptionQuoteSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
+		option (google.api.http) = {
+			delete: "/v1/subscriptions/options/quotes"
+		};
+	}
+
+	rpc ListOptionTradeSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
+		option (google.api.http) = {
+			get: "/v1/subscriptions/options/trades"
+		};
+	}
+
+	rpc AddOptionTradeSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
+		option (google.api.http) = {
+			patch: "/v1/subscriptions/options/trades"
+		};
+	}
+
+	rpc RemoveOptionTradeSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
+		option (google.api.http) = {
+			delete: "/v1/subscriptions/options/trades"
+		};
+	}
+
 	rpc ListNewsSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
 		option (google.api.http) = {
 			get: "/v1/subscriptions/news"
@@ -120,7 +156,8 @@ message Bar {
 	double vwap = 9;
 }
 
-// Trade is a stock trade.
+// Trade is a stock trade. Note the differences from OptionTrade below: stock
+// trades carry an id, a tape, and multiple condition codes.
 message Trade {
 	int64 id = 1;
 	string symbol = 2;
@@ -144,6 +181,30 @@ message Quote {
 	google.protobuf.Timestamp timestamp = 8;
 	repeated string conditions = 9;
 	string tape = 10;
+}
+
+// OptionTrade is an option contract trade. Unlike the stock Trade it has a
+// single condition and carries no id or tape.
+message OptionTrade {
+	string symbol = 1;
+	string exchange = 2;
+	double price = 3;
+	uint32 size = 4;
+	google.protobuf.Timestamp timestamp = 5;
+	string condition = 6;
+}
+
+// OptionQuote is an option contract quote.
+message OptionQuote {
+	string symbol = 1;
+	string bid_exchange = 2;
+	double bid_price = 3;
+	uint32 bid_size = 4;
+	string ask_exchange = 5;
+	double ask_price = 6;
+	uint32 ask_size = 7;
+	google.protobuf.Timestamp timestamp = 8;
+	string condition = 9;
 }
 
 message News {
