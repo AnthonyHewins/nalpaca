@@ -121,8 +121,6 @@ func (b *Bootstrapper) PrometheusHTTP(m *Metrics, collectors ...prometheus.Colle
 	logger.Info("created metrics server", "conf", m)
 	return &http.Server{
 		Addr: listenAddr,
-		// Without this the server falls back to http.DefaultServeMux and /metrics
-		// 404s, because the mux holding it is this one.
 		Handler:           h,
 		ReadTimeout:       m.HTTPMetricsTimeout,
 		ReadHeaderTimeout: m.HTTPMetricsTimeout,
