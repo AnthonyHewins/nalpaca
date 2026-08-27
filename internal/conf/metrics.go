@@ -101,10 +101,6 @@ func (b *Bootstrapper) PrometheusHTTP(m *Metrics, collectors ...prometheus.Colle
 		Help:      "App version",
 	}, []string{"version"})
 
-	// These go on the same mux as /metrics. Registering them on the package-level
-	// http.DefaultServeMux instead would put them on a different mux than the one
-	// this server serves, and would leak them into any other server in the process
-	// that uses the default mux.
 	h.HandleFunc("/version", func(w http.ResponseWriter, request *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		b, _ := json.MarshalIndent(info, "", " ")
