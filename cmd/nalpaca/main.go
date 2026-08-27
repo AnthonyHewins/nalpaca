@@ -92,6 +92,34 @@ func main() {
 	}
 }
 
+// superviseStream runs one market data stream in its own goroutine, logging and
+// absorbing any failure instead of propagating it into the errgroup.
+//
+// The stream stays down once it fails: the alpaca SDK already reconnects
+// internally up to its configured retry budget, so reaching here means that
+// budget is spent and an immediate restart would just hammer the endpoint. The
+// stream_down log line and the stream's error counters are the signal to act on.
+func (a *app) superviseStream(ctx context.Context, g *errgroup.Group, name string, enabled bool, run func(context.Context) error) {
+	if !enabled {
+		return
+	}
+
+	g.Go(func() error {
+		a.Logger.InfoContext(ctx, "starting stream", "stream", name)
+
+		if err := run(ctx); err != nil {
+			a.Logger.ErrorContext(ctx, "stream_down: stream failed and will not be retried",
+				"stream", name,
+				"err", err,
+			)
+			return nil
+		}
+
+		a.Logger.WarnContext(ctx, "stream_down: stream terminated gracefully", "stream", name)
+		return nil
+	})
+}
+
 func (a *app) start(ctx context.Context, g *errgroup.Group) {
 	if a.grpc.Server != nil {
 		g.Go(func() error {
@@ -144,19 +172,14 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 		})
 	}
 
-	if a.stockStream != nil {
-		g.Go(func() error {
-			a.Logger.InfoContext(ctx, "starting stock streaming")
-			return a.stockStream.Stream(ctx)
-		})
-	}
-
-	if a.newsStream != nil {
-		g.Go(func() error {
-			a.Logger.InfoContext(ctx, "starting news streaming")
-			return a.newsStream.Stream(ctx)
-		})
-	}
+	// Market data streams are supervised individually rather than through the
+	// errgroup. They share one process but not one fate: a revoked entitlement on
+	// one feed, or alpaca's per-account connection limit rejecting whichever
+	// stream happens to connect second, must not take down the streams that are
+	// working. Returning the error into the errgroup would cancel the shared
+	// context and stop all of them.
+	a.superviseStream(ctx, g, "stocks", a.stockStream != nil, a.stockStream.Stream)
+	a.superviseStream(ctx, g, "news", a.newsStream != nil, a.newsStream.Stream)
 
 	if a.Metrics != nil {
 		g.Go(func() error {
