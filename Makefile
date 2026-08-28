@@ -6,6 +6,8 @@ test := CONFIG_ENV=test go test ./...
 
 targets := nalpaca
 
+MODULE := github.com/AnthonyHewins/nalpaca
+
 VERSION ?= v?.?.?
 COMMIT ?= $(shell git rev-list -1 HEAD)
 IMAGE := docker.io/ahewins/nalpaca
@@ -19,8 +21,18 @@ endif
 #======================================
 # Builds
 #======================================
+systeminfo := $(MODULE)/internal/system
 $(targets): ## Build a target server binary
-	go build $(BUILD_FLAGS) -ldflags "-X main.version=$(COMMIT)" -o bin/$@ ./cmd/$@
+	go build $(BUILD_FLAGS) -ldflags " \
+	    -X '$(systeminfo).Version=$(VERSION)' \
+	    -X '$(systeminfo).Commit=$(COMMIT)' \
+	    -X '$(systeminfo).BuildTime=$(date -I)'" \
+		-o bin/$@ ./cmd/$@
+
+$(SERVICES):
+        CGO_ENABLED=1 go build -ldflags " \
+                $(BUILD_FLAGS) -o ./bin/$@ ./cmd/$@
+
 
 all: $(targets) ## Build all targets
 

@@ -128,7 +128,7 @@ func NewProm(logger *slog.Logger, m *PromConfig, initialCollectors ...prometheus
 		},
 		{
 			"build time",
-			system.BuildTime.Format(time.RFC3339),
+			system.BuildTime,
 			GaugeVec("system", "build_time", "When the binary was built", []string{"time"}),
 		},
 	} {
