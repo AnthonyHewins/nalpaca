@@ -1,0 +1,11 @@
+{
+  "description": "Nalpaca options consumer. Receives live option quotes and trades.",
+  "ack_policy": "none",
+  "deliver_policy": "all",
+  "durable_name": "nalpaca-data-options-consumer",
+  "filter_subject": "nalpaca.data.options.>",
+  "max_deliver": -1,
+  "replay_policy": "instant",
+  "num_replicas": 0,
+  "pause_until": "0001-01-01T00:00:00Z"
+}

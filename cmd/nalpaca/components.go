@@ -72,8 +72,8 @@ func (a *app) initTradeUpdater(js jetstream.JetStream, kv jetstream.KeyValue, c 
 // fully-qualified name, so reusing one subsystem across streams makes the whole
 // app fail to start the moment metrics are enabled.
 type streamMetrics struct {
-	stocks, news streaming.Metrics
-	collectors   []prometheus.Collector
+	stocks, news, options streaming.Metrics
+	collectors            []prometheus.Collector
 }
 
 func newStreamMetrics(c *config) streamMetrics {
@@ -88,6 +88,10 @@ func newStreamMetrics(c *config) streamMetrics {
 	if c.EnableNewsStream {
 		s.news = streaming.NewMetrics(appName, "news_stream")
 		s.collectors = append(s.collectors, s.news.Collectors()...)
+	}
+	if c.EnableOptionStream {
+		s.options = streaming.NewMetrics(appName, "options_stream")
+		s.collectors = append(s.collectors, s.options.Collectors()...)
 	}
 
 	if c.EnableCancel {
@@ -129,5 +133,21 @@ func (a *app) initNewsStream(js jetstream.JetStream, c *config, m streaming.Metr
 		c.Alpaca.APIKey,
 		c.Alpaca.APISecret,
 		&c.Alpaca.NewsStream,
+	)
+}
+
+func (a *app) initOptionStream(js jetstream.JetStream, c *config, m streaming.Metrics) (*streaming.Options, error) {
+	if !c.EnableOptionStream {
+		return nil, nil
+	}
+
+	return streaming.NewOptions(
+		a.Logger,
+		m,
+		js,
+		fmt.Sprintf("%s.data.options", c.Prefix),
+		c.Alpaca.APIKey,
+		c.Alpaca.APISecret,
+		&c.Alpaca.OptionStream,
 	)
 }

@@ -19,18 +19,24 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	StreamService_ListBarSubscriptions_FullMethodName          = "/stream.v0.StreamService/ListBarSubscriptions"
-	StreamService_AddBarSubscriptions_FullMethodName           = "/stream.v0.StreamService/AddBarSubscriptions"
-	StreamService_RemoveBarSubscriptions_FullMethodName        = "/stream.v0.StreamService/RemoveBarSubscriptions"
-	StreamService_ListStockQuoteSubscriptions_FullMethodName   = "/stream.v0.StreamService/ListStockQuoteSubscriptions"
-	StreamService_AddStockQuoteSubscriptions_FullMethodName    = "/stream.v0.StreamService/AddStockQuoteSubscriptions"
-	StreamService_RemoveStockQuoteSubscriptions_FullMethodName = "/stream.v0.StreamService/RemoveStockQuoteSubscriptions"
-	StreamService_ListStockTradeSubscriptions_FullMethodName   = "/stream.v0.StreamService/ListStockTradeSubscriptions"
-	StreamService_AddStockTradeSubscriptions_FullMethodName    = "/stream.v0.StreamService/AddStockTradeSubscriptions"
-	StreamService_RemoveStockTradeSubscriptions_FullMethodName = "/stream.v0.StreamService/RemoveStockTradeSubscriptions"
-	StreamService_ListNewsSubscriptions_FullMethodName         = "/stream.v0.StreamService/ListNewsSubscriptions"
-	StreamService_AddNewsSubscriptions_FullMethodName          = "/stream.v0.StreamService/AddNewsSubscriptions"
-	StreamService_RemoveNewsSubscriptions_FullMethodName       = "/stream.v0.StreamService/RemoveNewsSubscriptions"
+	StreamService_ListBarSubscriptions_FullMethodName           = "/stream.v0.StreamService/ListBarSubscriptions"
+	StreamService_AddBarSubscriptions_FullMethodName            = "/stream.v0.StreamService/AddBarSubscriptions"
+	StreamService_RemoveBarSubscriptions_FullMethodName         = "/stream.v0.StreamService/RemoveBarSubscriptions"
+	StreamService_ListStockQuoteSubscriptions_FullMethodName    = "/stream.v0.StreamService/ListStockQuoteSubscriptions"
+	StreamService_AddStockQuoteSubscriptions_FullMethodName     = "/stream.v0.StreamService/AddStockQuoteSubscriptions"
+	StreamService_RemoveStockQuoteSubscriptions_FullMethodName  = "/stream.v0.StreamService/RemoveStockQuoteSubscriptions"
+	StreamService_ListStockTradeSubscriptions_FullMethodName    = "/stream.v0.StreamService/ListStockTradeSubscriptions"
+	StreamService_AddStockTradeSubscriptions_FullMethodName     = "/stream.v0.StreamService/AddStockTradeSubscriptions"
+	StreamService_RemoveStockTradeSubscriptions_FullMethodName  = "/stream.v0.StreamService/RemoveStockTradeSubscriptions"
+	StreamService_ListOptionQuoteSubscriptions_FullMethodName   = "/stream.v0.StreamService/ListOptionQuoteSubscriptions"
+	StreamService_AddOptionQuoteSubscriptions_FullMethodName    = "/stream.v0.StreamService/AddOptionQuoteSubscriptions"
+	StreamService_RemoveOptionQuoteSubscriptions_FullMethodName = "/stream.v0.StreamService/RemoveOptionQuoteSubscriptions"
+	StreamService_ListOptionTradeSubscriptions_FullMethodName   = "/stream.v0.StreamService/ListOptionTradeSubscriptions"
+	StreamService_AddOptionTradeSubscriptions_FullMethodName    = "/stream.v0.StreamService/AddOptionTradeSubscriptions"
+	StreamService_RemoveOptionTradeSubscriptions_FullMethodName = "/stream.v0.StreamService/RemoveOptionTradeSubscriptions"
+	StreamService_ListNewsSubscriptions_FullMethodName          = "/stream.v0.StreamService/ListNewsSubscriptions"
+	StreamService_AddNewsSubscriptions_FullMethodName           = "/stream.v0.StreamService/AddNewsSubscriptions"
+	StreamService_RemoveNewsSubscriptions_FullMethodName        = "/stream.v0.StreamService/RemoveNewsSubscriptions"
 )
 
 // StreamServiceClient is the client API for StreamService service.
@@ -46,6 +52,12 @@ type StreamServiceClient interface {
 	ListStockTradeSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error)
 	AddStockTradeSubscriptions(ctx context.Context, in *AddSubscriptionsRequest, opts ...grpc.CallOption) (*AddSubscriptionsResponse, error)
 	RemoveStockTradeSubscriptions(ctx context.Context, in *RemoveSubscriptionsRequest, opts ...grpc.CallOption) (*RemoveSubscriptionsResponse, error)
+	ListOptionQuoteSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error)
+	AddOptionQuoteSubscriptions(ctx context.Context, in *AddSubscriptionsRequest, opts ...grpc.CallOption) (*AddSubscriptionsResponse, error)
+	RemoveOptionQuoteSubscriptions(ctx context.Context, in *RemoveSubscriptionsRequest, opts ...grpc.CallOption) (*RemoveSubscriptionsResponse, error)
+	ListOptionTradeSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error)
+	AddOptionTradeSubscriptions(ctx context.Context, in *AddSubscriptionsRequest, opts ...grpc.CallOption) (*AddSubscriptionsResponse, error)
+	RemoveOptionTradeSubscriptions(ctx context.Context, in *RemoveSubscriptionsRequest, opts ...grpc.CallOption) (*RemoveSubscriptionsResponse, error)
 	ListNewsSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error)
 	AddNewsSubscriptions(ctx context.Context, in *AddSubscriptionsRequest, opts ...grpc.CallOption) (*AddSubscriptionsResponse, error)
 	RemoveNewsSubscriptions(ctx context.Context, in *RemoveSubscriptionsRequest, opts ...grpc.CallOption) (*RemoveSubscriptionsResponse, error)
@@ -149,6 +161,66 @@ func (c *streamServiceClient) RemoveStockTradeSubscriptions(ctx context.Context,
 	return out, nil
 }
 
+func (c *streamServiceClient) ListOptionQuoteSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListSubscriptionsResponse)
+	err := c.cc.Invoke(ctx, StreamService_ListOptionQuoteSubscriptions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *streamServiceClient) AddOptionQuoteSubscriptions(ctx context.Context, in *AddSubscriptionsRequest, opts ...grpc.CallOption) (*AddSubscriptionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddSubscriptionsResponse)
+	err := c.cc.Invoke(ctx, StreamService_AddOptionQuoteSubscriptions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *streamServiceClient) RemoveOptionQuoteSubscriptions(ctx context.Context, in *RemoveSubscriptionsRequest, opts ...grpc.CallOption) (*RemoveSubscriptionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveSubscriptionsResponse)
+	err := c.cc.Invoke(ctx, StreamService_RemoveOptionQuoteSubscriptions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *streamServiceClient) ListOptionTradeSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListSubscriptionsResponse)
+	err := c.cc.Invoke(ctx, StreamService_ListOptionTradeSubscriptions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *streamServiceClient) AddOptionTradeSubscriptions(ctx context.Context, in *AddSubscriptionsRequest, opts ...grpc.CallOption) (*AddSubscriptionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddSubscriptionsResponse)
+	err := c.cc.Invoke(ctx, StreamService_AddOptionTradeSubscriptions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *streamServiceClient) RemoveOptionTradeSubscriptions(ctx context.Context, in *RemoveSubscriptionsRequest, opts ...grpc.CallOption) (*RemoveSubscriptionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveSubscriptionsResponse)
+	err := c.cc.Invoke(ctx, StreamService_RemoveOptionTradeSubscriptions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *streamServiceClient) ListNewsSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListSubscriptionsResponse)
@@ -192,6 +264,12 @@ type StreamServiceServer interface {
 	ListStockTradeSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error)
 	AddStockTradeSubscriptions(context.Context, *AddSubscriptionsRequest) (*AddSubscriptionsResponse, error)
 	RemoveStockTradeSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error)
+	ListOptionQuoteSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error)
+	AddOptionQuoteSubscriptions(context.Context, *AddSubscriptionsRequest) (*AddSubscriptionsResponse, error)
+	RemoveOptionQuoteSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error)
+	ListOptionTradeSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error)
+	AddOptionTradeSubscriptions(context.Context, *AddSubscriptionsRequest) (*AddSubscriptionsResponse, error)
+	RemoveOptionTradeSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error)
 	ListNewsSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error)
 	AddNewsSubscriptions(context.Context, *AddSubscriptionsRequest) (*AddSubscriptionsResponse, error)
 	RemoveNewsSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error)
@@ -230,6 +308,24 @@ func (UnimplementedStreamServiceServer) AddStockTradeSubscriptions(context.Conte
 }
 func (UnimplementedStreamServiceServer) RemoveStockTradeSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RemoveStockTradeSubscriptions not implemented")
+}
+func (UnimplementedStreamServiceServer) ListOptionQuoteSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListOptionQuoteSubscriptions not implemented")
+}
+func (UnimplementedStreamServiceServer) AddOptionQuoteSubscriptions(context.Context, *AddSubscriptionsRequest) (*AddSubscriptionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddOptionQuoteSubscriptions not implemented")
+}
+func (UnimplementedStreamServiceServer) RemoveOptionQuoteSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveOptionQuoteSubscriptions not implemented")
+}
+func (UnimplementedStreamServiceServer) ListOptionTradeSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListOptionTradeSubscriptions not implemented")
+}
+func (UnimplementedStreamServiceServer) AddOptionTradeSubscriptions(context.Context, *AddSubscriptionsRequest) (*AddSubscriptionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddOptionTradeSubscriptions not implemented")
+}
+func (UnimplementedStreamServiceServer) RemoveOptionTradeSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveOptionTradeSubscriptions not implemented")
 }
 func (UnimplementedStreamServiceServer) ListNewsSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListNewsSubscriptions not implemented")
@@ -422,6 +518,114 @@ func _StreamService_RemoveStockTradeSubscriptions_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StreamService_ListOptionQuoteSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSubscriptionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreamServiceServer).ListOptionQuoteSubscriptions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StreamService_ListOptionQuoteSubscriptions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreamServiceServer).ListOptionQuoteSubscriptions(ctx, req.(*ListSubscriptionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StreamService_AddOptionQuoteSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddSubscriptionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreamServiceServer).AddOptionQuoteSubscriptions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StreamService_AddOptionQuoteSubscriptions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreamServiceServer).AddOptionQuoteSubscriptions(ctx, req.(*AddSubscriptionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StreamService_RemoveOptionQuoteSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveSubscriptionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreamServiceServer).RemoveOptionQuoteSubscriptions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StreamService_RemoveOptionQuoteSubscriptions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreamServiceServer).RemoveOptionQuoteSubscriptions(ctx, req.(*RemoveSubscriptionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StreamService_ListOptionTradeSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSubscriptionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreamServiceServer).ListOptionTradeSubscriptions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StreamService_ListOptionTradeSubscriptions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreamServiceServer).ListOptionTradeSubscriptions(ctx, req.(*ListSubscriptionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StreamService_AddOptionTradeSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddSubscriptionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreamServiceServer).AddOptionTradeSubscriptions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StreamService_AddOptionTradeSubscriptions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreamServiceServer).AddOptionTradeSubscriptions(ctx, req.(*AddSubscriptionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StreamService_RemoveOptionTradeSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveSubscriptionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreamServiceServer).RemoveOptionTradeSubscriptions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StreamService_RemoveOptionTradeSubscriptions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreamServiceServer).RemoveOptionTradeSubscriptions(ctx, req.(*RemoveSubscriptionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _StreamService_ListNewsSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListSubscriptionsRequest)
 	if err := dec(in); err != nil {
@@ -518,6 +722,30 @@ var StreamService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveStockTradeSubscriptions",
 			Handler:    _StreamService_RemoveStockTradeSubscriptions_Handler,
+		},
+		{
+			MethodName: "ListOptionQuoteSubscriptions",
+			Handler:    _StreamService_ListOptionQuoteSubscriptions_Handler,
+		},
+		{
+			MethodName: "AddOptionQuoteSubscriptions",
+			Handler:    _StreamService_AddOptionQuoteSubscriptions_Handler,
+		},
+		{
+			MethodName: "RemoveOptionQuoteSubscriptions",
+			Handler:    _StreamService_RemoveOptionQuoteSubscriptions_Handler,
+		},
+		{
+			MethodName: "ListOptionTradeSubscriptions",
+			Handler:    _StreamService_ListOptionTradeSubscriptions_Handler,
+		},
+		{
+			MethodName: "AddOptionTradeSubscriptions",
+			Handler:    _StreamService_AddOptionTradeSubscriptions_Handler,
+		},
+		{
+			MethodName: "RemoveOptionTradeSubscriptions",
+			Handler:    _StreamService_RemoveOptionTradeSubscriptions_Handler,
 		},
 		{
 			MethodName: "ListNewsSubscriptions",
