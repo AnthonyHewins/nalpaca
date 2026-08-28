@@ -62,7 +62,7 @@ type consumer struct {
 }
 
 func newApp(ctx context.Context) (*app, error) {
-	var c Config
+	var c config
 	if err := env.Parse(&c); err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func newApp(ctx context.Context) (*app, error) {
 		a.TP.Tracer("streaming"),
 	)
 
-	for _, fn := range []func(context.Context, jetstream.JetStream, *Config) error{
+	for _, fn := range []func(context.Context, jetstream.JetStream, *config) error{
 		a.initCanceler,
 		a.initOrders,
 	} {

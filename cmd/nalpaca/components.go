@@ -10,7 +10,7 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 )
 
-func (a *app) initCanceler(ctx context.Context, js jetstream.JetStream, c *Config) error {
+func (a *app) initCanceler(ctx context.Context, js jetstream.JetStream, c *config) error {
 	if !c.EnableCancel {
 		return nil
 	}
@@ -25,7 +25,7 @@ func (a *app) initCanceler(ctx context.Context, js jetstream.JetStream, c *Confi
 	return nil
 }
 
-func (a *app) initOrders(ctx context.Context, js jetstream.JetStream, c *Config) error {
+func (a *app) initOrders(ctx context.Context, js jetstream.JetStream, c *config) error {
 	if !c.EnableOrders {
 		return nil
 	}
@@ -47,7 +47,7 @@ func (a *app) initOrders(ctx context.Context, js jetstream.JetStream, c *Config)
 	return nil
 }
 
-func (a *app) initTradeUpdater(js jetstream.JetStream, kv jetstream.KeyValue, c *Config) (*portfolio.Controller, error) {
+func (a *app) initTradeUpdater(js jetstream.JetStream, kv jetstream.KeyValue, c *config) (*portfolio.Controller, error) {
 	if !c.EnableTradeUpdater {
 		return nil, nil
 	}
@@ -62,7 +62,7 @@ func (a *app) initTradeUpdater(js jetstream.JetStream, kv jetstream.KeyValue, c 
 	), nil
 }
 
-func (a *app) initStockStream(js jetstream.JetStream, c *Config) error {
+func (a *app) initStockStream(js jetstream.JetStream, c *config) error {
 	if !c.EnableStockStream {
 		return nil
 	}
@@ -88,7 +88,7 @@ func (a *app) initStockStream(js jetstream.JetStream, c *Config) error {
 	return a.Metrics.Register(a.stockStream.Metrics()...)
 }
 
-func (a *app) initNewsStream(js jetstream.JetStream, c *Config) error {
+func (a *app) initNewsStream(js jetstream.JetStream, c *config) error {
 	if !c.EnableNewsStream {
 		return nil
 	}

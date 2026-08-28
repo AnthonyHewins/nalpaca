@@ -23,7 +23,7 @@ const appName = "nalpaca"
 
 var version string
 
-type Config struct {
+type config struct {
 	conf.BootstrapConf
 	conf.GrpcServerConfWithProxy
 
