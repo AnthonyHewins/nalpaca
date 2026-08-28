@@ -92,6 +92,27 @@ func main() {
 	}
 }
 
+func (a *app) superviseStream(ctx context.Context, g *errgroup.Group, name string, enabled bool, run func(context.Context) error) {
+	if !enabled {
+		return
+	}
+
+	g.Go(func() error {
+		a.Logger.InfoContext(ctx, "starting stream", "stream", name)
+
+		if err := run(ctx); err != nil {
+			a.Logger.ErrorContext(ctx, "stream_down: stream failed and will not be retried",
+				"stream", name,
+				"err", err,
+			)
+			return nil
+		}
+
+		a.Logger.WarnContext(ctx, "stream_down: stream terminated gracefully", "stream", name)
+		return nil
+	})
+}
+
 func (a *app) start(ctx context.Context, g *errgroup.Group) {
 	if a.grpc.Server != nil {
 		g.Go(func() error {
@@ -144,19 +165,8 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 		})
 	}
 
-	if a.stockStream != nil {
-		g.Go(func() error {
-			a.Logger.InfoContext(ctx, "starting stock streaming")
-			return a.stockStream.Stream(ctx)
-		})
-	}
-
-	if a.newsStream != nil {
-		g.Go(func() error {
-			a.Logger.InfoContext(ctx, "starting news streaming")
-			return a.newsStream.Stream(ctx)
-		})
-	}
+	a.superviseStream(ctx, g, "stocks", a.stockStream != nil, a.stockStream.Stream)
+	a.superviseStream(ctx, g, "news", a.newsStream != nil, a.newsStream.Stream)
 
 	if a.Metrics != nil {
 		g.Go(func() error {

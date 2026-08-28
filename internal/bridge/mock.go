@@ -36,5 +36,5 @@ func (m Mock) GetAccount() (*alpaca.Account, error) {
 }
 
 func (m Mock) GetPositions() ([]alpaca.Position, error) {
-	return m.GetPositions()
+	return m.PositionsFn()
 }

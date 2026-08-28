@@ -101,13 +101,13 @@ func (b *Bootstrapper) PrometheusHTTP(m *Metrics, collectors ...prometheus.Colle
 		Help:      "App version",
 	}, []string{"version"})
 
-	http.HandleFunc("/version", func(w http.ResponseWriter, request *http.Request) {
+	h.HandleFunc("/version", func(w http.ResponseWriter, request *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		b, _ := json.MarshalIndent(info, "", " ")
 		w.Write(b)
 	})
 
-	http.HandleFunc("/healthz", func(w http.ResponseWriter, request *http.Request) {
+	h.HandleFunc("/healthz", func(w http.ResponseWriter, request *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"ok"}`))
 	})
@@ -120,7 +120,10 @@ func (b *Bootstrapper) PrometheusHTTP(m *Metrics, collectors ...prometheus.Colle
 
 	logger.Info("created metrics server", "conf", m)
 	return &http.Server{
-		Addr:              listenAddr,
+		Addr: listenAddr,
+		// Without this the server falls back to http.DefaultServeMux and /metrics
+		// 404s, because the mux holding it is this one.
+		Handler:           h,
 		ReadTimeout:       m.HTTPMetricsTimeout,
 		ReadHeaderTimeout: m.HTTPMetricsTimeout,
 		WriteTimeout:      m.HTTPMetricsTimeout,
