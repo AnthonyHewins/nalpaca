@@ -32,13 +32,13 @@ func TestSupervisedStreamFailureDoesNotKillOthers(t *testing.T) {
 
 	// Fails immediately, the way a stream with a revoked entitlement or a
 	// rejected connection would.
-	a.superviseStream(ctx, g, "doomed", true, func(context.Context) error {
+	a.superviseStream(ctx, g, "doomed", func(context.Context) error {
 		return errors.New("connection limit exceeded")
 	})
 
 	// Healthy stream: blocks until its context is cancelled.
 	healthy := make(chan struct{})
-	a.superviseStream(ctx, g, "healthy", true, func(c context.Context) error {
+	a.superviseStream(ctx, g, "healthy", func(c context.Context) error {
 		close(healthy)
 		// Outlive the failing stream by enough to observe a cancellation if the
 		// two are still coupled; the failure lands essentially instantly.
@@ -65,31 +65,12 @@ func TestSupervisedStreamFailureDoesNotKillOthers(t *testing.T) {
 	}
 }
 
-// A disabled stream should not start a goroutine at all.
-func TestSupervisedStreamSkipsWhenDisabled(t *testing.T) {
-	a := testApp()
-	g, ctx := errgroup.WithContext(context.Background())
-
-	var ran atomic.Bool
-	a.superviseStream(ctx, g, "disabled", false, func(context.Context) error {
-		ran.Store(true)
-		return nil
-	})
-
-	if err := g.Wait(); err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if ran.Load() {
-		t.Error("a disabled stream should never run")
-	}
-}
-
 // A stream that ends cleanly is also not an error for the group.
 func TestSupervisedStreamGracefulExit(t *testing.T) {
 	a := testApp()
 	g, ctx := errgroup.WithContext(context.Background())
 
-	a.superviseStream(ctx, g, "graceful", true, func(context.Context) error { return nil })
+	a.superviseStream(ctx, g, "graceful", func(context.Context) error { return nil })
 
 	if err := g.Wait(); err != nil {
 		t.Fatalf("unexpected error: %v", err)

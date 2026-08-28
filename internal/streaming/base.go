@@ -3,10 +3,9 @@ package streaming
 import (
 	"fmt"
 	"log/slog"
+	"strings"
 	"sync"
 	"time"
-
-	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
 )
 
 type symbolList struct {
@@ -14,20 +13,22 @@ type symbolList struct {
 	symbols map[string]struct{}
 }
 
-func newSymbolList(x ...string) *symbolList {
+func newSymbolList(x ...string) symbolList {
 	m := make(map[string]struct{}, len(x))
 	for _, v := range x {
-		m[v] = struct{}{}
+		m[strings.ToUpper(strings.TrimSpace(v))] = struct{}{}
 	}
-	return &symbolList{symbols: m}
+	return symbolList{symbols: m}
 }
+
+func (s *symbolList) clean(x string) string { return strings.ToUpper(strings.TrimSpace(x)) }
 
 func (s *symbolList) add(x ...string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	for _, v := range x {
-		s.symbols[v] = struct{}{}
+		s.symbols[s.clean(v)] = struct{}{}
 	}
 }
 
@@ -53,30 +54,26 @@ func (s *symbolList) list() []string {
 	return x
 }
 
+// Stream is the configuration used for particular clients, e.g. if you have a client for stocks or news,
+// this config is available for you to use
 type Stream struct {
-	Feed           string        `env:"FEED_TYPE" envDefault:"sip"`
-	Symbols        []string      `env:"SYMBOLS"` // use ',' as delimiter
-	BaseURL        string        `env:"BASE_URL" envDefault:"https://stream.data.sandbox.alpaca.markets/v2"`
-	Processors     uint16        `env:"PROCESSORS" envDefault:"1"`
-	Buffer         uint32        `env:"BUFFER_SIZE" envDefault:"100000"`    // default in lib
-	ReconnectLimit uint16        `env:"RECONNECT_LIMIT" envDefault:"20"`    // default in lib
-	ReconnectDelay time.Duration `env:"RECONNECT_DELAY" envDefault:"150ms"` // default in lib
-}
+	Version string `env:"VERSION"`
 
-func streamOpts(key, secret string, logger *slog.Logger, s *Stream) []stream.Option {
-	return []stream.Option{
-		stream.WithCredentials(key, secret),
-		stream.WithProcessors(int(s.Processors)),
-		stream.WithBaseURL(s.BaseURL),
-		stream.WithBufferSize(int(s.Buffer)), // default value
-		stream.WithReconnectSettings(int(s.ReconnectLimit), s.ReconnectDelay),
-		stream.WithBufferFillCallback(func(msg []byte) {
-			logger.Info("buffer has been filled, processing interrupted", "len(bufferWaiting)", len(msg))
-		}),
-		stream.WithDisconnectCallback(func() { logger.Warn("stream was disconnected", "url", s.BaseURL) }),
-		stream.WithConnectCallback(func() { logger.Info("stream connected", "url", s.BaseURL) }),
-		stream.WithLogger(streamLogger{logger.With("alpaca", true)}),
-	}
+	Feed       string   `env:"FEED_TYPE"`
+	Symbols    []string `env:"SYMBOLS"` // use ',' as delimiter
+	Processors uint16   `env:"PROCESSORS" envDefault:"1"`
+
+	// Below are options directly on the alpaca socket. These options are passed directly on to the
+	// SDK
+	SocketBufSize  uint32        `env:"SOCKET_BUFFER_SIZE" envDefault:"100000"` // default in lib
+	ReconnectLimit uint16        `env:"RECONNECT_LIMIT" envDefault:"20"`        // default in lib
+	ReconnectDelay time.Duration `env:"RECONNECT_DELAY" envDefault:"150ms"`     // default in lib
+
+	// Timeout for nalpaca to send the message
+	Timeout time.Duration `env:"TIMEOUT" envDefault:"1s"`
+	// This is a separate buffer pool than the socket. This is nalpaca's configured buffer size for when
+	// proto messages are serialized, and hence it is smaller and more optimized per message type
+	BufSize uint32 `env:"BUFFER_SIZE"`
 }
 
 type streamLogger struct {

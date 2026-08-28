@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/AnthonyHewins/nalpaca/internal/conf"
+	"github.com/AnthonyHewins/nalpaca/internal/system"
 	"github.com/nats-io/nats.go/jetstream"
 	"golang.org/x/sync/errgroup"
 )
@@ -22,7 +23,7 @@ const appName = "nalpaca"
 
 var version string
 
-type config struct {
+type Config struct {
 	conf.BootstrapConf
 	conf.GrpcServerConfWithProxy
 
@@ -64,7 +65,9 @@ func main() {
 			"version", info.Main.Version,
 			"path", info.Main.Path,
 			"checksum", info.Main.Sum,
-			"codeVersion", version,
+			"codeVersion", system.Version,
+			"commit", system.Commit,
+			"buildTime", system.BuildTime,
 		)
 	}
 
@@ -92,11 +95,7 @@ func main() {
 	}
 }
 
-func (a *app) superviseStream(ctx context.Context, g *errgroup.Group, name string, enabled bool, run func(context.Context) error) {
-	if !enabled {
-		return
-	}
-
+func (a *app) superviseStream(ctx context.Context, g *errgroup.Group, name string, run func(context.Context) error) {
 	g.Go(func() error {
 		a.Logger.InfoContext(ctx, "starting stream", "stream", name)
 
@@ -105,7 +104,7 @@ func (a *app) superviseStream(ctx context.Context, g *errgroup.Group, name strin
 				"stream", name,
 				"err", err,
 			)
-			return nil
+			return err
 		}
 
 		a.Logger.WarnContext(ctx, "stream_down: stream terminated gracefully", "stream", name)
@@ -165,13 +164,18 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 		})
 	}
 
-	a.superviseStream(ctx, g, "stocks", a.stockStream != nil, a.stockStream.Stream)
-	a.superviseStream(ctx, g, "news", a.newsStream != nil, a.newsStream.Stream)
+	if a.stockStream != nil {
+		a.superviseStream(ctx, g, "stocks", a.stockStream.Stream)
+	}
 
-	if a.Metrics != nil {
+	if a.newsStream != nil {
+		a.superviseStream(ctx, g, "news", a.newsStream.Stream)
+	}
+
+	if a.Metrics.Server != nil {
 		g.Go(func() error {
 			a.Logger.InfoContext(ctx, "starting metrics server")
-			return a.Metrics.ListenAndServe()
+			return a.Metrics.Server.ListenAndServe()
 		})
 	}
 

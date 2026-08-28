@@ -43,8 +43,8 @@ services:
       # ENABLE_ORDERS: true
 
       ENABLE_STOCK_STREAM: true
+      STOCK_STREAM_FEED_TYPE: iex
       STOCK_STREAM_SYMBOLS: AAPL
-      STOCK_STREAM_BASE_URL: https://stream.data.alpaca.markets/v2
 
       NATS_URL: nats://nats:4222
       LOG_LEVEL: debug
