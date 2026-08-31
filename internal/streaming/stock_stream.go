@@ -3,93 +3,40 @@ package streaming
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"sync"
 	"time"
 
 	protoStream "github.com/AnthonyHewins/nalpaca/gen/go/stream/v0"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
-	"github.com/nats-io/nats.go/jetstream"
-	"github.com/prometheus/client_golang/prometheus"
-	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func newMetric(appName, name, help string) prometheus.Counter {
-	return prometheus.NewCounter(prometheus.CounterOpts{
-		Namespace: appName,
-		Subsystem: "stocks_stream",
-		Name:      name,
-		Help:      help,
-	})
-}
+const stocksComponent = "stocks"
 
-type Metrics struct {
-	TotalErr, MarshalErr, PubErr prometheus.Counter
-}
-
-func NewMetrics(appName string) Metrics {
-	return Metrics{
-		TotalErr:   newMetric(appName, "total_err", "total error count"),
-		MarshalErr: newMetric(appName, "marshal_err", "marshal error count"),
-		PubErr:     newMetric(appName, "pub_err", "nats pub err count"),
-	}
-}
+var (
+	_ transmitter[stream.Bar, *protoStream.Bar] = (*Stocks)(nil)
+)
 
 type Stocks struct {
-	list          *symbolList
-	subbedSymbols sync.Map
-	logger        *slog.Logger
-	s             *stream.StocksClient
-	metrics       Metrics
-	js            jetstream.JetStream
-	prefix        string
+	client *Client
+	metrics
+	sync.Pool
+	symbolList
+
+	t time.Duration
+
+	s *stream.StocksClient
 }
 
-func NewStocks(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, prefix, key, secret string, d *Stream) (*Stocks, error) {
-	if d == nil {
-		return nil, fmt.Errorf("missing stream opts")
-	}
-
-	switch d.Feed {
-	case "sip", "iex", "otc", "delayed_sip":
-	default:
-		logger.Error("invalid feed", "feed", d.Feed)
-		return nil, fmt.Errorf("invalid feed %s", d.Feed)
-	}
-
-	s := &Stocks{
-		list:          newSymbolList(d.Symbols...),
-		logger:        logger,
-		metrics:       metrics,
-		js:            js,
-		prefix:        prefix,
-		subbedSymbols: sync.Map{},
-	}
-
-	so := []stream.StockOption{}
-	for _, v := range streamOpts(key, secret, logger, d) {
-		so = append(so, v)
-	}
-
-	symbols := d.Symbols
-	logger.Info("creating stocks stream client", "conf", d, "key", key, "len(secret)>0", len(secret) > 0, "prefix", prefix)
-	s.s = stream.NewStocksClient(d.Feed, append(so, stream.WithBars(s.bars, symbols...))...)
-	return s, nil
+func (s *Stocks) bytePool() *sync.Pool       { return &s.Pool }
+func (s *Stocks) component() string          { return stocksComponent }
+func (s *Stocks) componentMetrics() *metrics { return &s.metrics }
+func (s *Stocks) timeout() time.Duration     { return s.t }
+func (s *Stocks) subject(w *protoStream.Bar) string {
+	return stocksComponent + fmt.Sprintf(".%s", w.Symbol)
 }
-
-func (c *Stocks) bars(b stream.Bar) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	var err error
-	defer func() {
-		if err != nil {
-			c.metrics.TotalErr.Inc()
-		}
-	}()
-
-	buf, err := proto.Marshal(&protoStream.Bar{
+func (s *Stocks) toWire(b stream.Bar) (*protoStream.Bar, error) {
+	return &protoStream.Bar{
 		Symbol:     b.Symbol,
 		Open:       b.Open,
 		High:       b.High,
@@ -99,53 +46,73 @@ func (c *Stocks) bars(b stream.Bar) {
 		Timestamp:  timestamppb.New(b.Timestamp),
 		TradeCount: b.TradeCount,
 		Vwap:       b.VWAP,
-	})
-	if err != nil {
-		c.logger.ErrorContext(ctx, "failed marshal", "err", err, "raw", b)
-		c.metrics.MarshalErr.Inc()
-		return
+	}, nil
+}
+
+func (c *Client) Stocks(d *Stream) (*Stocks, error) {
+	if d == nil {
+		return nil, fmt.Errorf("missing stream opts")
 	}
 
-	if _, err = c.js.Publish(ctx, fmt.Sprintf("%s.%s", c.prefix, b.Symbol), buf); err != nil {
-		c.logger.ErrorContext(ctx, "failed publishing", "err", err, "raw", b)
-		c.metrics.PubErr.Inc()
+	switch d.Feed {
+	case "sip", "iex", "otc", "delayed_sip":
+	default:
+		c.l.Error("invalid feed", "feed", d.Feed)
+		return nil, fmt.Errorf("invalid feed %s", d.Feed)
 	}
+
+	s := &Stocks{
+		client:     c,
+		metrics:    newMetrics("stocks"),
+		symbolList: newSymbolList(d.Symbols...),
+		t:          d.Timeout,
+		Pool:       sync.Pool{New: func() any { return make([]byte, 0, d.BufSize) }},
+	}
+
+	so := []stream.StockOption{}
+	for _, v := range c.streamOpts(d) {
+		so = append(so, v)
+	}
+
+	symbols := s.symbolList.list()
+	c.l.Info("creating stocks stream client", "conf", d)
+	s.s = stream.NewStocksClient(d.Feed, append(so, stream.WithBars(s.handler, symbols...))...)
+	return s, nil
 }
+
+func (s *Stocks) handler(b stream.Bar) { wrap(s.client, s, b) }
 
 func (c *Stocks) AddSubscriptions(x ...string) error {
 	if len(x) == 0 {
 		return nil
 	}
 
-	c.list.add(x...)
-	l := c.list.list()
-	err := c.s.SubscribeToBars(c.bars, l...)
-	if err != nil {
-		c.logger.Error("failed adding new subscriptions to stocks stream", "err", err, "wanted", x)
+	c.add(x...)
+	l := c.list()
+	if err := c.s.SubscribeToBars(c.handler, l...); err != nil {
+		c.client.l.Error("failed adding symbol", "want", x, "have", l, "err", err)
 		return err
 	}
 
-	c.logger.Info("added new bar subscriptions", "delta", x, "final", l)
+	c.client.l.Info("added to subscription", "added", x, "had", l)
 	return nil
 }
 
-func (c *Stocks) ListSubscriptions() []string {
-	return c.list.list()
-}
+func (c *Stocks) ListSubscriptions() []string { return c.list() }
 
 func (c *Stocks) DeleteSubscriptions(x ...string) error {
 	if len(x) == 0 {
 		return nil
 	}
 
-	c.list.del(x...)
-	l := c.list.list()
-	if err := c.s.SubscribeToBars(c.bars, l...); err != nil {
-		c.logger.Error("failed deleting new subscriptions from stocks stream", "err", err, "wanted", x)
+	c.del(x...)
+	l := c.list()
+	if err := c.s.SubscribeToBars(c.handler, l...); err != nil {
+		c.client.l.Error("failed deleting new subscriptions from stocks stream", "err", err, "wanted", x)
 		return err
 	}
 
-	c.logger.Info("removed subscriptions from bars", "delta", x, "final", l)
+	c.client.l.Info("removed subscriptions from bars", "delta", x, "final", l)
 	return nil
 }
 
@@ -153,15 +120,15 @@ func (c *Stocks) DeleteSubscriptions(x ...string) error {
 // Unsure the underlying implementation, doesnt say in the alpaca docs
 func (c *Stocks) Stream(ctx context.Context) error {
 	if err := c.s.Connect(ctx); err != nil {
-		c.logger.ErrorContext(ctx, "failed establishing stocks connection", "err", err)
+		c.client.l.ErrorContext(ctx, "failed establishing stocks connection", "err", err)
 		return err
 	}
 
 	if err := <-c.s.Terminated(); err != nil {
-		c.logger.Error("connection terminated with error", "err", err)
+		c.client.l.Error("connection terminated with error", "err", err)
 		return err
 	}
 
-	c.logger.Warn("connection terminated gracefully")
+	c.client.l.Warn("connection terminated gracefully")
 	return nil
 }

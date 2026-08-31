@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/AnthonyHewins/nalpaca/internal/bridge"
+	"github.com/AnthonyHewins/nalpaca/internal/metrics"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
 	"github.com/nats-io/nats.go"
 	"github.com/prometheus/client_golang/prometheus"
@@ -15,7 +16,7 @@ import (
 
 type BootstrapConf struct {
 	Logger  Logger
-	Metrics Metrics
+	Metrics metrics.PromConfig
 	Health  Health
 	Tracer  Tracer
 	NATS    NATS
@@ -29,7 +30,7 @@ type Server struct {
 	Logger          *slog.Logger
 	NC              *nats.Conn
 	Health          *HealthServer
-	Metrics         *http.Server
+	Metrics         metrics.Prom
 	TP              *trace.TracerProvider
 	Nalpaca         bridge.AlpacaInterface
 	Stocks          *stream.StocksClient
@@ -80,9 +81,9 @@ func (b *BootstrapConf) New(ctx context.Context, appName string, metrics ...prom
 }
 
 func (s *Server) Shutdown(ctx context.Context) {
-	if s.Metrics != nil {
+	if s.Metrics.Server != nil {
 		s.Logger.InfoContext(ctx, "shutting down metrics")
-		if err := s.Metrics.Close(); err != nil {
+		if err := s.Metrics.Server.Close(); err != nil {
 			s.Logger.ErrorContext(ctx, "failed shutting metrics down", "err", err)
 		}
 	}
@@ -97,10 +98,12 @@ func (s *Server) Shutdown(ctx context.Context) {
 	if s.NC != nil {
 		s.Logger.InfoContext(ctx, "closing NATS")
 		s.NC.Close()
+		s.Logger.Info("closed nats conn")
 	}
 
 	if s.Health != nil {
 		s.Logger.InfoContext(ctx, "shutting down health")
 		s.Health.GracefulStop()
+		s.Logger.Info("health server shut down")
 	}
 }

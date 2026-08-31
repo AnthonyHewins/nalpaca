@@ -50,6 +50,8 @@ type app struct {
 	newsStream  *streaming.News
 	// quotes   *optionquotes.Controller
 
+	streamClient streaming.Client
+
 	order  consumer
 	cancel consumer
 }
@@ -89,6 +91,16 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
+	a.streamClient = streaming.New(
+		c.Prefix,
+		c.Alpaca.StreamingBaseURL,
+		c.Alpaca.APIKey,
+		c.Alpaca.APISecret,
+		a.Logger,
+		js,
+		a.TP.Tracer("streaming"),
+	)
+
 	for _, fn := range []func(context.Context, jetstream.JetStream, *config) error{
 		a.initCanceler,
 		a.initOrders,
@@ -102,11 +114,11 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	if a.stockStream, err = a.initStockStream(js, &c); err != nil {
+	if err = a.initStockStream(js, &c); err != nil {
 		return nil, err
 	}
 
-	if a.newsStream, err = a.initNewsStream(js, &c); err != nil {
+	if err = a.initNewsStream(js, &c); err != nil {
 		return nil, err
 	}
 
@@ -120,6 +132,7 @@ func newApp(ctx context.Context) (*app, error) {
 			Handler: stream.RegisterStreamServiceHandlerFromEndpoint,
 		},
 	)
+
 	return a, err
 }
 
