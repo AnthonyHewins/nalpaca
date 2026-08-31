@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/AnthonyHewins/nalpaca/internal/conf"
+	"github.com/AnthonyHewins/nalpaca/internal/system"
 	"github.com/nats-io/nats.go/jetstream"
 	"golang.org/x/sync/errgroup"
 )
@@ -66,7 +67,9 @@ func main() {
 			"version", info.Main.Version,
 			"path", info.Main.Path,
 			"checksum", info.Main.Sum,
-			"codeVersion", version,
+			"codeVersion", system.Version,
+			"commit", system.Commit,
+			"buildTime", system.BuildTime,
 		)
 	}
 
@@ -107,7 +110,7 @@ func (a *app) superviseStream(ctx context.Context, g *errgroup.Group, name strin
 				"stream", name,
 				"err", err,
 			)
-			return nil
+			return err
 		}
 
 		a.Logger.WarnContext(ctx, "stream_down: stream terminated gracefully", "stream", name)
@@ -171,10 +174,10 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 	a.superviseStream(ctx, g, "news", a.newsStream != nil, a.newsStream.Stream)
 	a.superviseStream(ctx, g, "options", a.optionStream != nil, a.optionStream.Stream)
 
-	if a.Metrics != nil {
+	if a.Metrics.Server != nil {
 		g.Go(func() error {
 			a.Logger.InfoContext(ctx, "starting metrics server")
-			return a.Metrics.ListenAndServe()
+			return a.Metrics.Server.ListenAndServe()
 		})
 	}
 

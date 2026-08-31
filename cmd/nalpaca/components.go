@@ -6,10 +6,8 @@ import (
 
 	"github.com/AnthonyHewins/nalpaca/internal/canceler"
 	"github.com/AnthonyHewins/nalpaca/internal/portfolio"
-	"github.com/AnthonyHewins/nalpaca/internal/streaming"
 	"github.com/AnthonyHewins/nalpaca/internal/trader"
 	"github.com/nats-io/nats.go/jetstream"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 func (a *app) initCanceler(ctx context.Context, js jetstream.JetStream, c *config) error {
@@ -64,76 +62,52 @@ func (a *app) initTradeUpdater(js jetstream.JetStream, kv jetstream.KeyValue, c 
 	), nil
 }
 
-// streamMetrics holds the per-stream counters. They're built before
-// BootstrapConf.New because that's what stands up the prometheus registry, and a
-// collector registered after the fact would never be exported.
-//
-// Each stream gets its own subsystem: prometheus rejects two collectors sharing a
-// fully-qualified name, so reusing one subsystem across streams makes the whole
-// app fail to start the moment metrics are enabled.
-type streamMetrics struct {
-	stocks, news, options streaming.Metrics
-	collectors            []prometheus.Collector
-}
-
-func newStreamMetrics(c *config) streamMetrics {
-	var s streamMetrics
-
-	// Only build counters for streams that are actually on, so /metrics doesn't
-	// advertise streams that aren't running.
-	if c.EnableStockStream {
-		s.stocks = streaming.NewMetrics(appName, "stocks_stream")
-		s.collectors = append(s.collectors, s.stocks.Collectors()...)
-	}
-	if c.EnableNewsStream {
-		s.news = streaming.NewMetrics(appName, "news_stream")
-		s.collectors = append(s.collectors, s.news.Collectors()...)
-	}
-	if c.EnableOptionStream {
-		s.options = streaming.NewMetrics(appName, "options_stream")
-		s.collectors = append(s.collectors, s.options.Collectors()...)
-	}
-
-	if c.EnableCancel {
-		s.collectors = append(s.collectors, cancelCounters.Collectors()...)
-	}
-	if c.EnableOrders {
-		s.collectors = append(s.collectors, orderCounters.Collectors()...)
-	}
-
-	return s
-}
-
-func (a *app) initStockStream(js jetstream.JetStream, c *config, m streaming.Metrics) (*streaming.Stocks, error) {
+func (a *app) initStockStream(js jetstream.JetStream, c *config) error {
 	if !c.EnableStockStream {
-		return nil, nil
+		return nil
 	}
 
-	return streaming.NewStocks(
-		a.Logger,
-		m,
-		js,
-		fmt.Sprintf("%s.data.stocks", c.Prefix),
-		c.Alpaca.APIKey,
-		c.Alpaca.APISecret,
-		&c.Alpaca.StockStream,
-	)
+	s := &c.Alpaca.StockStream
+	if s.BufSize == 0 {
+		s.BufSize = 80 // proto message for bars should always be 80b or below
+	}
+
+	if s.Feed == "" {
+		s.Feed = "sip"
+	}
+
+	if s.Version == "" {
+		s.Version = "v2"
+	}
+
+	var err error
+	if a.stockStream, err = a.streamClient.Stocks(&c.Alpaca.StockStream); err != nil {
+		return err
+	}
+
+	return a.Metrics.Register(a.stockStream.Metrics()...)
 }
 
-func (a *app) initNewsStream(js jetstream.JetStream, c *config, m streaming.Metrics) (*streaming.News, error) {
+func (a *app) initNewsStream(js jetstream.JetStream, c *config) error {
 	if !c.EnableNewsStream {
-		return nil, nil
+		return nil
 	}
 
-	return streaming.NewNews(
-		a.Logger,
-		m,
-		js,
-		fmt.Sprintf("%s.data.news", c.Prefix),
-		c.Alpaca.APIKey,
-		c.Alpaca.APISecret,
-		&c.Alpaca.NewsStream,
-	)
+	n := &c.Alpaca.NewsStream
+	if n.BufSize == 0 {
+		n.BufSize = 100000
+	}
+
+	if n.Version == "" {
+		n.Version = "v1beta1"
+	}
+
+	var err error
+	if a.newsStream, err = a.streamClient.News(n); err != nil {
+		return err
+	}
+
+	return a.Metrics.Register(a.newsStream.Metrics()...)
 }
 
 func (a *app) initOptionStream(js jetstream.JetStream, c *config, m streaming.Metrics) (*streaming.Options, error) {

@@ -28,6 +28,7 @@ const (
 // ====================================
 type ListSubscriptionsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Subscription  string                 `protobuf:"bytes,1,opt,name=subscription,proto3" json:"subscription,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -60,6 +61,13 @@ func (x *ListSubscriptionsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListSubscriptionsRequest.ProtoReflect.Descriptor instead.
 func (*ListSubscriptionsRequest) Descriptor() ([]byte, []int) {
 	return file_stream_v0_stream_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ListSubscriptionsRequest) GetSubscription() string {
+	if x != nil {
+		return x.Subscription
+	}
+	return ""
 }
 
 type ListSubscriptionsResponse struct {
@@ -112,6 +120,7 @@ func (x *ListSubscriptionsResponse) GetSubscriptions() []string {
 type AddSubscriptionsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Symbols       []string               `protobuf:"bytes,1,rep,name=symbols,proto3" json:"symbols,omitempty"`
+	Subscription  string                 `protobuf:"bytes,2,opt,name=subscription,proto3" json:"subscription,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -151,6 +160,13 @@ func (x *AddSubscriptionsRequest) GetSymbols() []string {
 		return x.Symbols
 	}
 	return nil
+}
+
+func (x *AddSubscriptionsRequest) GetSubscription() string {
+	if x != nil {
+		return x.Subscription
+	}
+	return ""
 }
 
 type AddSubscriptionsResponse struct {
@@ -195,6 +211,7 @@ func (*AddSubscriptionsResponse) Descriptor() ([]byte, []int) {
 type RemoveSubscriptionsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Symbols       []string               `protobuf:"bytes,1,rep,name=symbols,proto3" json:"symbols,omitempty"`
+	Subscription  string                 `protobuf:"bytes,2,opt,name=subscription,proto3" json:"subscription,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -236,6 +253,13 @@ func (x *RemoveSubscriptionsRequest) GetSymbols() []string {
 	return nil
 }
 
+func (x *RemoveSubscriptionsRequest) GetSubscription() string {
+	if x != nil {
+		return x.Subscription
+	}
+	return ""
+}
+
 type RemoveSubscriptionsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -272,6 +296,9 @@ func (*RemoveSubscriptionsResponse) Descriptor() ([]byte, []int) {
 	return file_stream_v0_stream_proto_rawDescGZIP(), []int{5}
 }
 
+// ====================================
+// Messages
+// ====================================
 type Bar struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
@@ -906,15 +933,18 @@ var File_stream_v0_stream_proto protoreflect.FileDescriptor
 
 const file_stream_v0_stream_proto_rawDesc = "" +
 	"\n" +
-	"\x16stream/v0/stream.proto\x12\tstream.v0\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x1a\n" +
-	"\x18ListSubscriptionsRequest\"A\n" +
+	"\x16stream/v0/stream.proto\x12\tstream.v0\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\">\n" +
+	"\x18ListSubscriptionsRequest\x12\"\n" +
+	"\fsubscription\x18\x01 \x01(\tR\fsubscription\"A\n" +
 	"\x19ListSubscriptionsResponse\x12$\n" +
-	"\rsubscriptions\x18\x01 \x03(\tR\rsubscriptions\"3\n" +
+	"\rsubscriptions\x18\x01 \x03(\tR\rsubscriptions\"W\n" +
 	"\x17AddSubscriptionsRequest\x12\x18\n" +
-	"\asymbols\x18\x01 \x03(\tR\asymbols\"\x1a\n" +
-	"\x18AddSubscriptionsResponse\"6\n" +
+	"\asymbols\x18\x01 \x03(\tR\asymbols\x12\"\n" +
+	"\fsubscription\x18\x02 \x01(\tR\fsubscription\"\x1a\n" +
+	"\x18AddSubscriptionsResponse\"Z\n" +
 	"\x1aRemoveSubscriptionsRequest\x12\x18\n" +
-	"\asymbols\x18\x01 \x03(\tR\asymbols\"\x1d\n" +
+	"\asymbols\x18\x01 \x03(\tR\asymbols\x12\"\n" +
+	"\fsubscription\x18\x02 \x01(\tR\fsubscription\"\x1d\n" +
 	"\x1bRemoveSubscriptionsResponse\"\xf4\x01\n" +
 	"\x03Bar\x12\x16\n" +
 	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12\x12\n" +
@@ -980,26 +1010,11 @@ const file_stream_v0_stream_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xb6\x14\n" +
-	"\rStreamService\x12\x81\x01\n" +
-	"\x14ListBarSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/subscriptions/bars\x12~\n" +
-	"\x13AddBarSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x182\x16/v1/subscriptions/bars\x12\x87\x01\n" +
-	"\x16RemoveBarSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18*\x16/v1/subscriptions/bars\x12\x91\x01\n" +
-	"\x1bListStockQuoteSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/v1/subscriptions/stocks/quotes\x12\x8e\x01\n" +
-	"\x1aAddStockQuoteSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"'\x82\xd3\xe4\x93\x02!2\x1f/v1/subscriptions/stocks/quotes\x12\x97\x01\n" +
-	"\x1dRemoveStockQuoteSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"'\x82\xd3\xe4\x93\x02!*\x1f/v1/subscriptions/stocks/quotes\x12\x91\x01\n" +
-	"\x1bListStockTradeSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/v1/subscriptions/stocks/trades\x12\x8e\x01\n" +
-	"\x1aAddStockTradeSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"'\x82\xd3\xe4\x93\x02!2\x1f/v1/subscriptions/stocks/trades\x12\x97\x01\n" +
-	"\x1dRemoveStockTradeSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"'\x82\xd3\xe4\x93\x02!*\x1f/v1/subscriptions/stocks/trades\x12\x93\x01\n" +
-	"\x1cListOptionQuoteSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /v1/subscriptions/options/quotes\x12\x90\x01\n" +
-	"\x1bAddOptionQuoteSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"2 /v1/subscriptions/options/quotes\x12\x99\x01\n" +
-	"\x1eRemoveOptionQuoteSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"* /v1/subscriptions/options/quotes\x12\x93\x01\n" +
-	"\x1cListOptionTradeSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /v1/subscriptions/options/trades\x12\x90\x01\n" +
-	"\x1bAddOptionTradeSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"2 /v1/subscriptions/options/trades\x12\x99\x01\n" +
-	"\x1eRemoveOptionTradeSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"* /v1/subscriptions/options/trades\x12\x82\x01\n" +
-	"\x15ListNewsSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/subscriptions/news\x12\x7f\n" +
-	"\x14AddNewsSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x182\x16/v1/subscriptions/news\x12\x88\x01\n" +
-	"\x17RemoveNewsSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"\x1e\x82\xd3\xe4\x93\x02\x18*\x16/v1/subscriptions/newsB:Z8github.com/AnthonyHewins/nalpaca/gen/go/stream/v0;streamb\x06proto3"
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xb9\x03\n" +
+	"\rStreamService\x12\x88\x01\n" +
+	"\x11ListSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /v1/subscriptions/{subscription}\x12\x88\x01\n" +
+	"\x13AddBarSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"2 /v1/subscriptions/{subscription}\x12\x91\x01\n" +
+	"\x16RemoveBarSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"* /v1/subscriptions/{subscription}B:Z8github.com/AnthonyHewins/nalpaca/gen/go/stream/v0;streamb\x06proto3"
 
 var (
 	file_stream_v0_stream_proto_rawDescOnce sync.Once
@@ -1037,44 +1052,14 @@ var file_stream_v0_stream_proto_depIdxs = []int32{
 	12, // 4: stream.v0.OptionQuote.timestamp:type_name -> google.protobuf.Timestamp
 	12, // 5: stream.v0.News.created_at:type_name -> google.protobuf.Timestamp
 	12, // 6: stream.v0.News.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 7: stream.v0.StreamService.ListBarSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
+	0,  // 7: stream.v0.StreamService.ListSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
 	2,  // 8: stream.v0.StreamService.AddBarSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
 	4,  // 9: stream.v0.StreamService.RemoveBarSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
-	0,  // 10: stream.v0.StreamService.ListStockQuoteSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
-	2,  // 11: stream.v0.StreamService.AddStockQuoteSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
-	4,  // 12: stream.v0.StreamService.RemoveStockQuoteSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
-	0,  // 13: stream.v0.StreamService.ListStockTradeSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
-	2,  // 14: stream.v0.StreamService.AddStockTradeSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
-	4,  // 15: stream.v0.StreamService.RemoveStockTradeSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
-	0,  // 16: stream.v0.StreamService.ListOptionQuoteSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
-	2,  // 17: stream.v0.StreamService.AddOptionQuoteSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
-	4,  // 18: stream.v0.StreamService.RemoveOptionQuoteSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
-	0,  // 19: stream.v0.StreamService.ListOptionTradeSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
-	2,  // 20: stream.v0.StreamService.AddOptionTradeSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
-	4,  // 21: stream.v0.StreamService.RemoveOptionTradeSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
-	0,  // 22: stream.v0.StreamService.ListNewsSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
-	2,  // 23: stream.v0.StreamService.AddNewsSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
-	4,  // 24: stream.v0.StreamService.RemoveNewsSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
-	1,  // 25: stream.v0.StreamService.ListBarSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
-	3,  // 26: stream.v0.StreamService.AddBarSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
-	5,  // 27: stream.v0.StreamService.RemoveBarSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
-	1,  // 28: stream.v0.StreamService.ListStockQuoteSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
-	3,  // 29: stream.v0.StreamService.AddStockQuoteSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
-	5,  // 30: stream.v0.StreamService.RemoveStockQuoteSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
-	1,  // 31: stream.v0.StreamService.ListStockTradeSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
-	3,  // 32: stream.v0.StreamService.AddStockTradeSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
-	5,  // 33: stream.v0.StreamService.RemoveStockTradeSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
-	1,  // 34: stream.v0.StreamService.ListOptionQuoteSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
-	3,  // 35: stream.v0.StreamService.AddOptionQuoteSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
-	5,  // 36: stream.v0.StreamService.RemoveOptionQuoteSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
-	1,  // 37: stream.v0.StreamService.ListOptionTradeSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
-	3,  // 38: stream.v0.StreamService.AddOptionTradeSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
-	5,  // 39: stream.v0.StreamService.RemoveOptionTradeSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
-	1,  // 40: stream.v0.StreamService.ListNewsSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
-	3,  // 41: stream.v0.StreamService.AddNewsSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
-	5,  // 42: stream.v0.StreamService.RemoveNewsSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
-	25, // [25:43] is the sub-list for method output_type
-	7,  // [7:25] is the sub-list for method input_type
+	1,  // 10: stream.v0.StreamService.ListSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
+	3,  // 11: stream.v0.StreamService.AddBarSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
+	5,  // 12: stream.v0.StreamService.RemoveBarSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
+	10, // [10:13] is the sub-list for method output_type
+	7,  // [7:10] is the sub-list for method input_type
 	7,  // [7:7] is the sub-list for extension type_name
 	7,  // [7:7] is the sub-list for extension extendee
 	0,  // [0:7] is the sub-list for field type_name

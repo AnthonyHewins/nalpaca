@@ -7,112 +7,30 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/AnthonyHewins/nalpaca/gen/go/stream/v0;stream";
 
+// Valid subscriptions:
+//
+// option-trades
+// option-quotes
+// stock-bars
+// stock-quotes
+// stock-trades
+// news
 service StreamService {
-	rpc ListBarSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
+	rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
 		option (google.api.http) = {
-			get: "/v1/subscriptions/bars"
+			get: "/v1/subscriptions/{subscription}"
 		};
 	}
 
-	rpc AddBarSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
+	rpc AddSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
 		option (google.api.http) = {
-			patch: "/v1/subscriptions/bars"
+			patch: "/v1/subscriptions/{subscription}"
 		};
 	}
 
-	rpc RemoveBarSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
+	rpc RemoveSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
 		option (google.api.http) = {
-			delete: "/v1/subscriptions/bars"
-		};
-	}
-
-	rpc ListStockQuoteSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
-		option (google.api.http) = {
-			get: "/v1/subscriptions/stocks/quotes"
-		};
-	}
-
-	rpc AddStockQuoteSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
-		option (google.api.http) = {
-			patch: "/v1/subscriptions/stocks/quotes"
-		};
-	}
-
-	rpc RemoveStockQuoteSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
-		option (google.api.http) = {
-			delete: "/v1/subscriptions/stocks/quotes"
-		};
-	}
-
-	rpc ListStockTradeSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
-		option (google.api.http) = {
-			get: "/v1/subscriptions/stocks/trades"
-		};
-	}
-
-	rpc AddStockTradeSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
-		option (google.api.http) = {
-			patch: "/v1/subscriptions/stocks/trades"
-		};
-	}
-
-	rpc RemoveStockTradeSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
-		option (google.api.http) = {
-			delete: "/v1/subscriptions/stocks/trades"
-		};
-	}
-
-	rpc ListOptionQuoteSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
-		option (google.api.http) = {
-			get: "/v1/subscriptions/options/quotes"
-		};
-	}
-
-	rpc AddOptionQuoteSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
-		option (google.api.http) = {
-			patch: "/v1/subscriptions/options/quotes"
-		};
-	}
-
-	rpc RemoveOptionQuoteSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
-		option (google.api.http) = {
-			delete: "/v1/subscriptions/options/quotes"
-		};
-	}
-
-	rpc ListOptionTradeSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
-		option (google.api.http) = {
-			get: "/v1/subscriptions/options/trades"
-		};
-	}
-
-	rpc AddOptionTradeSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
-		option (google.api.http) = {
-			patch: "/v1/subscriptions/options/trades"
-		};
-	}
-
-	rpc RemoveOptionTradeSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
-		option (google.api.http) = {
-			delete: "/v1/subscriptions/options/trades"
-		};
-	}
-
-	rpc ListNewsSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
-		option (google.api.http) = {
-			get: "/v1/subscriptions/news"
-		};
-	}
-
-	rpc AddNewsSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
-		option (google.api.http) = {
-			patch: "/v1/subscriptions/news"
-		};
-	}
-
-	rpc RemoveNewsSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
-		option (google.api.http) = {
-			delete: "/v1/subscriptions/news"
+			delete: "/v1/subscriptions/{subscription}"
 		};
 	}
 }
@@ -120,7 +38,9 @@ service StreamService {
 //====================================
 // List subscriptions
 //====================================
-message ListSubscriptionsRequest {}
+message ListSubscriptionsRequest {
+	string subscription = 1;
+}
 
 message ListSubscriptionsResponse {
 	repeated string subscriptions = 1;
@@ -131,6 +51,7 @@ message ListSubscriptionsResponse {
 //====================================
 message AddSubscriptionsRequest {
 	repeated string symbols = 1;
+	string subscription = 2;
 }
 
 message AddSubscriptionsResponse {}
@@ -140,10 +61,14 @@ message AddSubscriptionsResponse {}
 //====================================
 message RemoveSubscriptionsRequest {
 	repeated string symbols = 1;
+	string subscription = 2;
 }
 
 message RemoveSubscriptionsResponse {}
 
+//====================================
+// Messages
+//====================================
 message Bar {
 	string symbol = 1;
 	double open = 2;

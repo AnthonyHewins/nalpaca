@@ -3,7 +3,6 @@ package streaming
 import (
 	"context"
 	"fmt"
-	"io"
 	"log/slog"
 	"sync"
 	"testing"
@@ -58,8 +57,6 @@ func (m *mockPublisher) only(t *testing.T) published {
 	return got[0]
 }
 
-var _ publisher = (*mockPublisher)(nil)
-
 // failingPublisher returns a publisher whose Publish always errors.
 func failingPublisher() *mockPublisher {
 	return &mockPublisher{
@@ -69,13 +66,7 @@ func failingPublisher() *mockPublisher {
 	}
 }
 
-func testLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(io.Discard, nil))
-}
-
-func testMetrics() Metrics {
-	return NewMetrics("test", "test_stream")
-}
+func testLogger() *slog.Logger { return slog.New(slog.DiscardHandler) }
 
 // unmarshal decodes a captured payload into msg.
 func unmarshal(t *testing.T, p published, msg proto.Message) {

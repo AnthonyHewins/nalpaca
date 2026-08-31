@@ -128,7 +128,7 @@ func TestNewOptionsFeedValidation(t *testing.T) {
 		{feed: "", wantErr: true},
 		{feed: "nonsense", wantErr: true},
 	} {
-		_, err := NewOptions(testLogger(), testMetrics(), nil, "p", "k", "s", &Stream{
+		_, err := NewOptions(testLogger(), testMetrics(), nil, "p", "k", "s", &StreamConfig{
 			Feed:   tc.feed,
 			Quotes: true,
 		})
@@ -145,7 +145,7 @@ func TestNewOptionsFeedValidation(t *testing.T) {
 // Alpaca publishes no option bars, so asking for them is a config mistake that
 // should fail loudly rather than leaving someone waiting for data forever.
 func TestNewOptionsRejectsBars(t *testing.T) {
-	_, err := NewOptions(testLogger(), testMetrics(), nil, "p", "k", "s", &Stream{
+	_, err := NewOptions(testLogger(), testMetrics(), nil, "p", "k", "s", &StreamConfig{
 		Feed:   "indicative",
 		Bars:   true,
 		Quotes: true,
@@ -157,7 +157,7 @@ func TestNewOptionsRejectsBars(t *testing.T) {
 }
 
 func TestNewOptionsRequiresAMessageType(t *testing.T) {
-	_, err := NewOptions(testLogger(), testMetrics(), nil, "p", "k", "s", &Stream{Feed: "opra"})
+	_, err := NewOptions(testLogger(), testMetrics(), nil, "p", "k", "s", &StreamConfig{Feed: "opra"})
 	if err == nil {
 		t.Fatal("expected an error when neither quotes nor trades are enabled")
 	}
@@ -170,7 +170,7 @@ func TestNewOptionsNilConf(t *testing.T) {
 }
 
 func TestNewOptionsAppliesDefaultURL(t *testing.T) {
-	d := &Stream{Feed: "opra", Quotes: true}
+	d := &StreamConfig{Feed: "opra", Quotes: true}
 	if got := d.baseURL(optionsURL); got != optionsURL {
 		t.Errorf("want %q, got %q", optionsURL, got)
 	}

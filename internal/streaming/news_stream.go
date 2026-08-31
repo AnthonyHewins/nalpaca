@@ -4,93 +4,155 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"sync"
+	"time"
 
 	protoStream "github.com/AnthonyHewins/nalpaca/gen/go/stream/v0"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
-	"github.com/nats-io/nats.go/jetstream"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type News struct {
-	list    *symbolList
-	logger  *slog.Logger
-	n       *stream.NewsClient
-	metrics Metrics
-	js      publisher
-	prefix  string
+const newsComponent = "news"
+
+var (
+	_ slog.LogValuer                       = (*newsProto)(nil)
+	_ Transmitter[stream.News, *newsProto] = (*News)(nil)
+)
+
+type newsProto struct {
+	protoStream.News
 }
 
-func NewNews(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, prefix, key, secret string, d *Stream) (*News, error) {
+func (n *newsProto) LogValue() slog.Value {
+	attrs := []slog.Attr{
+		slog.Uint64("id", n.Id),
+		slog.String("headline", n.Headline),
+		slog.String("author", n.Author),
+		slog.String("summary", n.Summary),
+		slog.String("url", n.Url),
+		slog.Any("symbols", n.Symbols),
+	}
+
+	if n.CreatedAt != nil {
+		attrs = append(attrs, slog.Time("created", n.CreatedAt.AsTime()))
+	}
+
+	if n.UpdatedAt != nil {
+		attrs = append(attrs, slog.Time("updated", n.UpdatedAt.AsTime()))
+	}
+
+	return slog.GroupValue(attrs...)
+}
+
+type News struct {
+	client *Client
+	metrics
+	sync.Pool
+	symbolList
+
+	prefix string
+	t      time.Duration
+
+	n *stream.NewsClient
+}
+
+func (c *Client) News(d *StreamConfig) (*News, error) {
 	if d == nil {
 		return nil, fmt.Errorf("missing stream opts")
 	}
 
-	url := d.baseURL(newsURL)
-
-	s := &News{
-		list:    newSymbolList(d.Symbols...),
-		logger:  logger,
-		metrics: metrics,
-		js:      js,
-		prefix:  prefix,
+	n := News{
+		client:     c,
+		metrics:    newMetrics(newsComponent),
+		symbolList: newSymbolList(d.Symbols...),
+		prefix:     newsComponent,
+		t:          d.Timeout,
+		Pool:       sync.Pool{New: func() any { return make([]byte, 0, d.BufSize) }},
 	}
 
 	so := []stream.NewsOption{}
-	for _, v := range streamOpts(key, secret, url, logger, d) {
+	for _, v := range c.streamOpts(d) {
 		so = append(so, v)
 	}
 
-	logger.Info("creating news stream client",
-		"conf", d,
-		"key", key,
-		"len(secret)>0", len(secret) > 0,
-		"prefix", prefix,
-		"url", url,
-	)
+	symbols := n.list()
+	if len(symbols) == 0 {
+		return nil, fmt.Errorf("missing symbols for news")
+	}
 
-	s.n = stream.NewNewsClient(append(so, stream.WithNews(s.news, s.list.list()...))...)
-	return s, nil
+	n.n = stream.NewNewsClient(append(so, stream.WithNews(n.handler, symbols...))...)
+	return &n, nil
 }
 
-func (c *News) news(n stream.News) {
-	publish(c.logger, c.metrics, c.js, fmt.Sprintf("%s.%d", c.prefix, n.ID), n, &protoStream.News{
-		Id:        uint64(n.ID),
-		Symbols:   n.Symbols,
-		Headline:  n.Headline,
-		Author:    n.Author,
-		Summary:   n.Summary,
-		Content:   n.Content,
-		Url:       n.URL,
-		CreatedAt: timestamppb.New(n.CreatedAt),
-		UpdatedAt: timestamppb.New(n.UpdatedAt),
-	})
+func (c *News) bytePool() *sync.Pool        { return &c.Pool }
+func (c *News) component() string           { return newsComponent }
+func (c *News) componentMetrics() *metrics  { return &c.metrics }
+func (c *News) subject(w *newsProto) string { return newsComponent }
+func (c *News) timeout() time.Duration      { return c.t }
+func (c *News) toWire(n stream.News) (*newsProto, error) {
+	return &newsProto{
+		News: protoStream.News{
+			Id:        uint64(n.ID),
+			Symbols:   n.Symbols,
+			Headline:  n.Headline,
+			Author:    n.Author,
+			Summary:   n.Summary,
+			Content:   n.Content,
+			Url:       n.URL,
+			CreatedAt: timestamppb.New(n.CreatedAt),
+			UpdatedAt: timestamppb.New(n.UpdatedAt),
+		},
+	}, nil
 }
 
 // Begin consuming data. Cancel context to initiate a shutdown?
 // Unsure the underlying implementation, doesnt say in the alpaca docs
 func (c *News) Stream(ctx context.Context) error {
 	if err := c.n.Connect(ctx); err != nil {
-		c.logger.ErrorContext(ctx, "failed establishing news connection", "err", err)
+		c.client.l.ErrorContext(ctx, "failed establishing news connection", "err", err)
 		return err
 	}
 
 	if err := <-c.n.Terminated(); err != nil {
-		c.logger.Error("news connection terminated with error", "err", err)
+		c.client.l.Error("connection terminated with error", "err", err)
 		return err
 	}
 
-	c.logger.Warn("news connection terminated gracefully")
+	c.client.l.Warn("connection terminated gracefully")
 	return nil
 }
 
-func (c *News) ListSubscriptions() []string {
-	return c.list.list()
-}
+func (c *News) handler(x stream.News) { wrap(c.client, c, x) }
 
 func (c *News) AddSubscriptions(x ...string) error {
-	return resubscribe(c.logger, "news", c.list, c.n.SubscribeToNews, c.news, add, x)
+	if len(x) == 0 {
+		return nil
+	}
+
+	c.add(x...)
+	l := c.list()
+	if err := c.n.SubscribeToNews(c.handler, c.list()...); err != nil {
+		c.client.l.Error("failed adding new subscriptions from news stream", "err", err, "wanted", x)
+		return err
+	}
+
+	c.client.l.Info("added news subscription", "delta", x, "final", l)
+	return nil
 }
 
+func (c *News) ListSubscriptions() []string { return c.list() }
 func (c *News) DeleteSubscriptions(x ...string) error {
-	return resubscribe(c.logger, "news", c.list, c.n.SubscribeToNews, c.news, del, x)
+	if len(x) == 0 {
+		return nil
+	}
+
+	c.del(x...)
+	l := c.list()
+	if err := c.n.SubscribeToNews(c.handler, c.list()...); err != nil {
+		c.client.l.Error("failed deleting new subscriptions to news stream", "err", err, "wanted", x)
+		return err
+	}
+
+	c.client.l.Info("removed news subscription", "delta", x, "final", l)
+	return nil
 }

@@ -22,7 +22,7 @@ type Options struct {
 	prefix  string
 }
 
-func NewOptions(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, prefix, key, secret string, d *Stream) (*Options, error) {
+func NewOptions(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, prefix, key, secret string, d *StreamConfig) (*Options, error) {
 	if d == nil {
 		return nil, fmt.Errorf("missing stream opts")
 	}
