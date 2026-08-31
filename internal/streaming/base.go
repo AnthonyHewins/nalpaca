@@ -37,7 +37,7 @@ func (s *symbolList) del(x ...string) {
 	defer s.mu.Unlock()
 
 	for _, v := range x {
-		delete(s.symbols, v)
+		delete(s.symbols, s.clean(v))
 	}
 }
 

@@ -67,6 +67,22 @@ func TestDelete(t *testing.T) {
 	}
 }
 
+func TestDeleteIsCaseInsensitiveLikeAdd(t *testing.T) {
+	sl := newSymbolList("AAPL", "MSFT")
+
+	// add() normalizes to upper-case/trimmed; del() must normalize the same
+	// way or a lower-case (or padded) delete silently fails to remove
+	// anything.
+	sl.del(" aapl ")
+
+	got := sl.list()
+	sort.Strings(got)
+	expected := []string{"MSFT"}
+	if len(got) != len(expected) || got[0] != expected[0] {
+		t.Fatalf("expected %v after case-insensitive delete, got %v", expected, got)
+	}
+}
+
 func TestDeleteAll(t *testing.T) {
 	sl := newSymbolList("X", "Y")
 	sl.del("X", "Y")

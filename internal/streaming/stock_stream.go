@@ -66,7 +66,7 @@ func (c *Client) Stocks(d *Stream) (*Stocks, error) {
 		metrics:    newMetrics("stocks"),
 		symbolList: newSymbolList(d.Symbols...),
 		t:          d.Timeout,
-		Pool:       sync.Pool{New: func() any { return make([]byte, d.BufSize) }},
+		Pool:       sync.Pool{New: func() any { return make([]byte, 0, d.BufSize) }},
 	}
 
 	so := []stream.StockOption{}

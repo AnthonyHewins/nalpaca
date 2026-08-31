@@ -5,18 +5,19 @@ set -euo pipefail
 dir="$(dirname $0)"
 ctx=""
 
-help() {
-  echo "usage: $(basename $0) [FLAGS]"
-  echo
-  echo "Initializes NATS for nalpaca. You'll need the NATS cli."
-  echo "Editing any of the JSON files this script uses in $dir to fit your"
-  echo "needs is encouraged, as long as you keep the stream names the same and don't"
-  echo "edit retention policies, as that changes behavior"
-  echo 
-  echo "Editing subjects is not supported and will break your installation"
-  echo 
-  echo "  -h    Display help"
-  echo "  -c    Set the NATS context to use"
+help() { cat <<EOF
+usage: $(basename $0) [FLAGS]
+
+Initializes NATS for nalpaca. You'll need the NATS cli.
+Editing any of the JSON files this script uses in $dir to fit your
+needs can be okay if you are editing things that don't bother nalpaca.
+Settings that should not be touched are the stream names and the subjects
+  
+Editing subjects is not supported and will break your installation
+  
+  -h    Display help
+  -c    Set the NATS context to use
+EOF
   exit $1
 }
 
@@ -44,4 +45,4 @@ for i in $(find $dir -mindepth 1 -type d); do
   find $i -iname "*-consumer.json" -exec $n consumer add $stream  --config {} \;
 done
 
-nats kv add nalpaca
+$n kv add nalpaca

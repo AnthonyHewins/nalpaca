@@ -57,13 +57,17 @@ type News struct {
 }
 
 func (c *Client) News(d *Stream) (*News, error) {
+	if d == nil {
+		return nil, fmt.Errorf("missing stream opts")
+	}
+
 	n := News{
 		client:     c,
 		metrics:    newMetrics(newsComponent),
 		symbolList: newSymbolList(d.Symbols...),
 		prefix:     newsComponent,
 		t:          d.Timeout,
-		Pool:       sync.Pool{New: func() any { return make([]byte, d.BufSize) }},
+		Pool:       sync.Pool{New: func() any { return make([]byte, 0, d.BufSize) }},
 	}
 
 	so := []stream.NewsOption{}

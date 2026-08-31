@@ -95,7 +95,7 @@ func wrap[X any, W proto.Message](c *Client, t transmitter[X, W], x X) {
 
 	pool := t.bytePool()
 	buf := pool.Get().([]byte)
-	defer pool.Put(buf[:0])
+	defer func() { pool.Put(buf[:0]) }()
 
 	if buf, err = c.marshalOpts.MarshalAppend(buf, w); err != nil {
 		m.marshalErr.Inc()
