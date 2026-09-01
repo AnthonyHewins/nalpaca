@@ -2,26 +2,28 @@ package streaming
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"log/slog"
-	"sync"
-	"time"
 
 	protoStream "github.com/AnthonyHewins/nalpaca/gen/go/stream/v0"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-const newsComponent = "news"
+const (
+	defaultNewsBufSize = 100000
+)
 
 var (
 	_ slog.LogValuer                       = (*newsProto)(nil)
-	_ Transmitter[stream.News, *newsProto] = (*News)(nil)
+	_ transmitter[stream.News, *newsProto] = (*News)(nil)
+	_ Subscriber                           = (*News)(nil)
 )
 
-type newsProto struct {
-	protoStream.News
-}
+// simple wrapper of the protobuf type because we wanted to override
+// logging behavior. printing out the content of the whole news article
+// would be dumb, which is what it would do by default, so we implement LogValue()
+type newsProto struct{ protoStream.News }
 
 func (n *newsProto) LogValue() slog.Value {
 	attrs := []slog.Attr{
@@ -31,6 +33,7 @@ func (n *newsProto) LogValue() slog.Value {
 		slog.String("summary", n.Summary),
 		slog.String("url", n.Url),
 		slog.Any("symbols", n.Symbols),
+		slog.Int("len(article)", len(n.Content)),
 	}
 
 	if n.CreatedAt != nil {
@@ -44,115 +47,103 @@ func (n *newsProto) LogValue() slog.Value {
 	return slog.GroupValue(attrs...)
 }
 
-type News struct {
-	client *Client
-	metrics
-	sync.Pool
-	symbolList
+var _ config = (*NewsConfig)(nil)
 
-	prefix string
-	t      time.Duration
-
-	n *stream.NewsClient
+type NewsConfig struct {
+	StreamConfig
+	StreamTypeConfig
 }
 
-func (c *Client) News(d *StreamConfig) (*News, error) {
-	if d == nil {
-		return nil, fmt.Errorf("missing stream opts")
+func (n *NewsConfig) validate() (bool, error) {
+	if !n.Enabled {
+		return false, nil
 	}
 
-	n := News{
-		client:     c,
-		metrics:    newMetrics(newsComponent),
-		symbolList: newSymbolList(d.Symbols...),
-		prefix:     newsComponent,
-		t:          d.Timeout,
-		Pool:       sync.Pool{New: func() any { return make([]byte, 0, d.BufSize) }},
+	if len(n.Symbols) == 0 {
+		return false, errors.New("missing symbols for news")
+	}
+
+	return true, nil
+}
+
+func (n *NewsConfig) setDefaults() {
+	if n.BufSize == 0 {
+		n.BufSize = defaultNewsBufSize
+	}
+}
+
+type News struct {
+	baseClient[stream.News]
+	client *stream.NewsClient
+}
+
+func (c *ClientFactory) News(d *NewsConfig) (*News, error) {
+	if !d.Enabled {
+		return nil, nil
+	}
+
+	d.setDefaults()
+
+	n := &News{
+		baseClient: newBaseClient[stream.News](
+			SubscriptionNews,
+			c,
+			d.Symbols,
+			int(d.BufSize),
+			d.Timeout,
+		),
 	}
 
 	so := []stream.NewsOption{}
-	for _, v := range c.streamOpts(d) {
+	for _, v := range c.streamOpts(&d.StreamConfig) {
 		so = append(so, v)
 	}
 
-	symbols := n.list()
-	if len(symbols) == 0 {
-		return nil, fmt.Errorf("missing symbols for news")
-	}
-
-	n.n = stream.NewNewsClient(append(so, stream.WithNews(n.handler, symbols...))...)
-	return &n, nil
+	c.l.Info("creating news stream client", "conf", d)
+	n.client = stream.NewNewsClient(append(so, stream.WithNews(n.handler, n.List()...))...)
+	return n, nil
 }
 
-func (c *News) bytePool() *sync.Pool        { return &c.Pool }
-func (c *News) component() string           { return newsComponent }
-func (c *News) componentMetrics() *metrics  { return &c.metrics }
-func (c *News) subject(w *newsProto) string { return newsComponent }
-func (c *News) timeout() time.Duration      { return c.t }
-func (c *News) toWire(n stream.News) (*newsProto, error) {
+func (n *News) subject(w *newsProto) string { return SubscriptionNews.String() }
+
+func (n *News) toWire(x stream.News) *newsProto {
 	return &newsProto{
 		News: protoStream.News{
-			Id:        uint64(n.ID),
-			Symbols:   n.Symbols,
-			Headline:  n.Headline,
-			Author:    n.Author,
-			Summary:   n.Summary,
-			Content:   n.Content,
-			Url:       n.URL,
-			CreatedAt: timestamppb.New(n.CreatedAt),
-			UpdatedAt: timestamppb.New(n.UpdatedAt),
+			Id:        uint64(x.ID),
+			Symbols:   x.Symbols,
+			Headline:  x.Headline,
+			Author:    x.Author,
+			Summary:   x.Summary,
+			Content:   x.Content,
+			Url:       x.URL,
+			CreatedAt: timestamppb.New(x.CreatedAt),
+			UpdatedAt: timestamppb.New(x.UpdatedAt),
 		},
-	}, nil
+	}
 }
+
+func (n *News) Unsubscribe(x ...string) error {
+	return n.rmSubscription(n.client.UnsubscribeFromNews, x...)
+}
+
+func (n *News) Subscribe(x ...string) error {
+	return n.addSubscription(n.client.SubscribeToNews, n.handler, x...)
+}
+
+func (n *News) handler(x stream.News) { wrap(n.ClientFactory, n, x) }
 
 // Begin consuming data. Cancel context to initiate a shutdown?
 // Unsure the underlying implementation, doesnt say in the alpaca docs
-func (c *News) Stream(ctx context.Context) error {
-	if err := c.n.Connect(ctx); err != nil {
-		c.client.l.ErrorContext(ctx, "failed establishing news connection", "err", err)
-		return err
-	}
-
-	if err := <-c.n.Terminated(); err != nil {
-		c.client.l.Error("connection terminated with error", "err", err)
-		return err
-	}
-
-	c.client.l.Warn("connection terminated gracefully")
-	return nil
-}
-
-func (c *News) handler(x stream.News) { wrap(c.client, c, x) }
-
-func (c *News) AddSubscriptions(x ...string) error {
-	if len(x) == 0 {
+func (n *News) Stream(ctx context.Context) error {
+	if n.client == nil {
 		return nil
 	}
 
-	c.add(x...)
-	l := c.list()
-	if err := c.n.SubscribeToNews(c.handler, c.list()...); err != nil {
-		c.client.l.Error("failed adding new subscriptions from news stream", "err", err, "wanted", x)
+	if err := n.client.Connect(ctx); err != nil {
 		return err
 	}
 
-	c.client.l.Info("added news subscription", "delta", x, "final", l)
-	return nil
+	return <-n.client.Terminated()
 }
 
-func (c *News) ListSubscriptions() []string { return c.list() }
-func (c *News) DeleteSubscriptions(x ...string) error {
-	if len(x) == 0 {
-		return nil
-	}
-
-	c.del(x...)
-	l := c.list()
-	if err := c.n.SubscribeToNews(c.handler, c.list()...); err != nil {
-		c.client.l.Error("failed deleting new subscriptions to news stream", "err", err, "wanted", x)
-		return err
-	}
-
-	c.client.l.Info("removed news subscription", "delta", x, "final", l)
-	return nil
-}
+func (n *News) Terminated() <-chan error { return n.client.Terminated() }

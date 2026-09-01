@@ -2,147 +2,122 @@ package streaming
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"log/slog"
 
-	protoStream "github.com/AnthonyHewins/nalpaca/gen/go/stream/v0"
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata/stream"
-	"github.com/nats-io/nats.go/jetstream"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
-type Options struct {
-	quotes, trades *symbolList
+const (
+	defaultOptionQuoteBufSize = 128
+	defaultOptionTradeBufSize = 128
+)
 
-	logger  *slog.Logger
-	s       *stream.OptionClient
-	metrics Metrics
-	js      publisher
-	prefix  string
+var _ config = (*OptionsConfig)(nil)
+
+type OptionsConfig struct {
+	StreamConfig
+	Feed  string           `env:"FEED" envDefault:"opra"`
+	Quote StreamTypeConfig `envPrefix:"QUOTE_"`
+	Trade StreamTypeConfig `envPrefix:"TRADE_"`
 }
 
-func NewOptions(logger *slog.Logger, metrics Metrics, js jetstream.JetStream, prefix, key, secret string, d *StreamConfig) (*Options, error) {
-	if d == nil {
-		return nil, fmt.Errorf("missing stream opts")
+func (o *OptionsConfig) setDefaults() {}
+func (o *OptionsConfig) validate() (bool, error) {
+	if !o.Quote.Enabled && !o.Trade.Enabled {
+		return false, nil
 	}
 
-	switch d.Feed {
+	if o.Quote.Enabled && len(o.Quote.Symbols) == 0 {
+		return false, errors.New("option quote streaming is enabled, but no symbols were given")
+	}
+
+	if o.Trade.Enabled && len(o.Trade.Symbols) == 0 {
+		return false, errors.New("option trade streaming is enabled, but no symbols were given")
+	}
+
+	switch o.Feed {
 	case "opra", "indicative":
 	default:
-		logger.Error("invalid option feed", "feed", d.Feed)
-		return nil, fmt.Errorf("invalid option feed %s: want opra or indicative", d.Feed)
+		return false, fmt.Errorf("invalid option feed %s", o.Feed)
 	}
 
-	// Alpaca's options websocket publishes trades and quotes only. Silently
-	// ignoring a Bars request would leave someone waiting for data that is never
-	// going to arrive.
-	if d.Bars {
-		logger.Error("bars requested on the options stream, which alpaca does not publish")
-		return nil, fmt.Errorf("options stream does not support bars: alpaca publishes only option trades and quotes")
+	if o.Quote.BufSize == 0 {
+		o.Quote.BufSize = defaultOptionQuoteBufSize
 	}
 
-	if !d.Quotes && !d.Trades {
-		logger.Error("options stream enabled with no message types")
-		return nil, fmt.Errorf("options stream enabled but quotes and trades are both disabled")
+	if o.Trade.BufSize == 0 {
+		o.Trade.BufSize = defaultOptionTradeBufSize
 	}
 
-	url := d.baseURL(optionsURL)
+	return true, nil
+}
 
-	s := &Options{
-		quotes:  newSymbolList(d.quoteSymbols()...),
-		trades:  newSymbolList(d.tradeSymbols()...),
-		logger:  logger,
-		metrics: metrics,
-		js:      js,
-		prefix:  prefix,
+type OptionSubscriptionManagers struct {
+	s      *stream.OptionClient
+	Quotes *optionQuotes
+	Trades *optionTrades
+}
+
+func (o *OptionSubscriptionManagers) Terminated() <-chan error { return o.s.Terminated() }
+
+func (c *ClientFactory) Options(d *OptionsConfig) (OptionSubscriptionManagers, error) {
+	if enabled, err := c.prepare(d); err != nil || !enabled {
+		return OptionSubscriptionManagers{}, nil
 	}
 
-	oo := []stream.OptionOption{}
-	for _, v := range streamOpts(key, secret, url, logger, d) {
-		oo = append(oo, v)
+	so := []stream.OptionOption{}
+	for _, v := range c.streamOpts(&d.StreamConfig) {
+		so = append(so, v)
 	}
 
-	if d.Quotes {
-		oo = append(oo, stream.WithOptionQuotes(s.quoteHandler, s.quotes.list()...))
+	m := OptionSubscriptionManagers{}
+
+	if d.Quote.Enabled {
+		m.Quotes = newOptionQuotes(c, &d.Quote, nil)
+		so = append(so, stream.WithOptionQuotes(m.Quotes.handler, m.Quotes.List()...))
 	}
-	if d.Trades {
-		oo = append(oo, stream.WithOptionTrades(s.tradeHandler, s.trades.list()...))
+
+	if d.Trade.Enabled {
+		m.Trades = newOptionTrades(c, &d.Trade, nil)
+		so = append(so, stream.WithOptionTrades(m.Trades.handler, m.Trades.List()...))
 	}
 
-	logger.Info("creating options stream client",
-		"conf", d,
-		"key", key,
-		"len(secret)>0", len(secret) > 0,
-		"prefix", prefix,
-		"url", url,
-	)
+	c.l.Info("creating options stream client", "conf", d)
+	m.s = stream.NewOptionClient(d.Feed, so...)
 
-	s.s = stream.NewOptionClient(d.Feed, oo...)
-	return s, nil
+	if m.Quotes != nil {
+		m.Quotes.client = m.s
+	}
+	if m.Trades != nil {
+		m.Trades.client = m.s
+	}
+
+	return m, nil
 }
 
-func (c *Options) quoteHandler(q stream.OptionQuote) {
-	c.publish(fmt.Sprintf("%s.quotes.%s", c.prefix, q.Symbol), q, &protoStream.OptionQuote{
-		Symbol:      q.Symbol,
-		BidExchange: q.BidExchange,
-		BidPrice:    q.BidPrice,
-		BidSize:     q.BidSize,
-		AskExchange: q.AskExchange,
-		AskPrice:    q.AskPrice,
-		AskSize:     q.AskSize,
-		Timestamp:   timestamppb.New(q.Timestamp),
-		Condition:   q.Condition,
-	})
-}
+func (m *OptionSubscriptionManagers) Metrics() []prometheus.Collector {
+	if m == nil {
+		return nil
+	}
 
-func (c *Options) tradeHandler(t stream.OptionTrade) {
-	c.publish(fmt.Sprintf("%s.trades.%s", c.prefix, t.Symbol), t, &protoStream.OptionTrade{
-		Symbol:    t.Symbol,
-		Exchange:  t.Exchange,
-		Price:     t.Price,
-		Size:      t.Size,
-		Timestamp: timestamppb.New(t.Timestamp),
-		Condition: t.Condition,
-	})
-}
-
-func (c *Options) publish(subject string, raw any, msg proto.Message) {
-	publish(c.logger, c.metrics, c.js, subject, raw, msg)
-}
-
-func (c *Options) ListQuoteSubscriptions() []string { return c.quotes.list() }
-func (c *Options) ListTradeSubscriptions() []string { return c.trades.list() }
-
-func (c *Options) AddQuoteSubscriptions(x ...string) error {
-	return resubscribe(c.logger, "option quotes", c.quotes, c.s.SubscribeToQuotes, c.quoteHandler, add, x)
-}
-
-func (c *Options) DeleteQuoteSubscriptions(x ...string) error {
-	return resubscribe(c.logger, "option quotes", c.quotes, c.s.SubscribeToQuotes, c.quoteHandler, del, x)
-}
-
-func (c *Options) AddTradeSubscriptions(x ...string) error {
-	return resubscribe(c.logger, "option trades", c.trades, c.s.SubscribeToTrades, c.tradeHandler, add, x)
-}
-
-func (c *Options) DeleteTradeSubscriptions(x ...string) error {
-	return resubscribe(c.logger, "option trades", c.trades, c.s.SubscribeToTrades, c.tradeHandler, del, x)
+	var out []prometheus.Collector
+	if m.Quotes != nil {
+		out = append(out, m.Quotes.Metrics()...)
+	}
+	if m.Trades != nil {
+		out = append(out, m.Trades.Metrics()...)
+	}
+	return out
 }
 
 // Begin consuming data. Cancel context to initiate a shutdown?
 // Unsure the underlying implementation, doesnt say in the alpaca docs
-func (c *Options) Stream(ctx context.Context) error {
-	if err := c.s.Connect(ctx); err != nil {
-		c.logger.ErrorContext(ctx, "failed establishing options connection", "err", err)
+func (m *OptionSubscriptionManagers) Stream(ctx context.Context) error {
+	if err := m.s.Connect(ctx); err != nil {
 		return err
 	}
 
-	if err := <-c.s.Terminated(); err != nil {
-		c.logger.Error("options connection terminated with error", "err", err)
-		return err
-	}
-
-	c.logger.Warn("options connection terminated gracefully")
-	return nil
+	return <-m.s.Terminated()
 }

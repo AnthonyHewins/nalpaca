@@ -8,15 +8,15 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-var _ Transmitter[stream.Quote, *protoStream.Quote] = (*quotes)(nil)
+var _ transmitter[stream.Quote, *protoStream.Quote] = (*Quotes)(nil)
 
-type quotes struct {
+type Quotes struct {
 	baseClient[stream.Quote]
 	client *stream.StocksClient
 }
 
-func newQuotes(client *Client, c *StreamTypeConfig, s *stream.StocksClient) *quotes {
-	return &quotes{
+func newQuotes(client *ClientFactory, c *StreamTypeConfig, s *stream.StocksClient) *Quotes {
+	return &Quotes{
 		baseClient: newBaseClient[stream.Quote](
 			SubscriptionStockQuotes,
 			client,
@@ -28,11 +28,11 @@ func newQuotes(client *Client, c *StreamTypeConfig, s *stream.StocksClient) *quo
 	}
 }
 
-func (q *quotes) subject(w *protoStream.Quote) string {
+func (q *Quotes) subject(w *protoStream.Quote) string {
 	return fmt.Sprintf("%s.%s", SubscriptionStockQuotes, w.Symbol)
 }
 
-func (q *quotes) toWire(x stream.Quote) (*protoStream.Quote, error) {
+func (q *Quotes) toWire(x stream.Quote) *protoStream.Quote {
 	return &protoStream.Quote{
 		Symbol:      x.Symbol,
 		BidExchange: x.BidExchange,
@@ -44,17 +44,15 @@ func (q *quotes) toWire(x stream.Quote) (*protoStream.Quote, error) {
 		Timestamp:   timestamppb.New(x.Timestamp),
 		Conditions:  x.Conditions,
 		Tape:        x.Tape,
-	}, nil
+	}
 }
 
-func (q *quotes) List() []string { return q.baseClient.list() }
-
-func (q *quotes) Unsubscribe(x ...string) error {
+func (q *Quotes) Unsubscribe(x ...string) error {
 	return q.rmSubscription(q.client.UnsubscribeFromQuotes, x...)
 }
 
-func (q *quotes) Subscribe(x ...string) error {
+func (q *Quotes) Subscribe(x ...string) error {
 	return q.addSubscription(q.client.SubscribeToQuotes, q.handler, x...)
 }
 
-func (q *quotes) handler(x stream.Quote) { wrap(q.Client, q, x) }
+func (q *Quotes) handler(x stream.Quote) { wrap(q.ClientFactory, q, x) }

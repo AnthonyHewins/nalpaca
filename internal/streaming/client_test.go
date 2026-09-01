@@ -6,8 +6,8 @@ import (
 	"go.opentelemetry.io/otel/trace/noop"
 )
 
-func newClient() *Client {
-	return &Client{
+func newClient() *ClientFactory {
+	return &ClientFactory{
 		prefix:  "",
 		key:     "",
 		secret:  "",

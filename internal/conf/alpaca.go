@@ -10,9 +10,9 @@ import (
 )
 
 type Alpaca struct {
-	StockStream  streaming.StreamConfig `envPrefix:"STOCK_STREAM_"`
-	NewsStream   streaming.StreamConfig `envPrefix:"NEWS_STREAM_"`
-	OptionStream streaming.StreamConfig `envPrefix:"OPTIONS_STREAM_"`
+	StockStream  streaming.StocksConfig  `envPrefix:"STOCK_STREAM_"`
+	NewsStream   streaming.NewsConfig    `envPrefix:"NEWS_STREAM_"`
+	OptionStream streaming.OptionsConfig `envPrefix:"OPTIONS_STREAM_"`
 
 	APIBaseURL string `env:"ALPACA_API_URL" envDefault:"https://paper-api.alpaca.markets"`
 	// This may appear scary because we default to a prod URL, but that's what works.

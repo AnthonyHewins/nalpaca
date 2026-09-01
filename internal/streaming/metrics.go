@@ -31,6 +31,10 @@ func newMetrics(x Subscription) metrics {
 }
 
 func (m *metrics) Metrics() []prometheus.Collector {
+	if m == nil {
+		return nil
+	}
+
 	return []prometheus.Collector{
 		m.publishCount,
 		m.totalErr,

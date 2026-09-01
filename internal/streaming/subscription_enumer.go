@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-const _SubscriptionName = "option_tradesoption_quotesstock_barsstock_quotesstock_tradesoptions_tradenews"
+const _SubscriptionName = "option_tradesoption_quotesstock_barsstock_quotesstock_tradesnews"
 
-var _SubscriptionIndex = [...]uint8{0, 13, 26, 36, 48, 60, 73, 77}
+var _SubscriptionIndex = [...]uint8{0, 13, 26, 36, 48, 60, 64}
 
-const _SubscriptionLowerName = "option_tradesoption_quotesstock_barsstock_quotesstock_tradesoptions_tradenews"
+const _SubscriptionLowerName = "option_tradesoption_quotesstock_barsstock_quotesstock_tradesnews"
 
 func (i Subscription) String() string {
 	i -= 1
@@ -30,11 +30,10 @@ func _SubscriptionNoOp() {
 	_ = x[SubscriptionStockBars-(3)]
 	_ = x[SubscriptionStockQuotes-(4)]
 	_ = x[SubscriptionStockTrades-(5)]
-	_ = x[SubscriptionOptionsTrade-(6)]
-	_ = x[SubscriptionNews-(7)]
+	_ = x[SubscriptionNews-(6)]
 }
 
-var _SubscriptionValues = []Subscription{SubscriptionOptionTrades, SubscriptionOptionQuotes, SubscriptionStockBars, SubscriptionStockQuotes, SubscriptionStockTrades, SubscriptionOptionsTrade, SubscriptionNews}
+var _SubscriptionValues = []Subscription{SubscriptionOptionTrades, SubscriptionOptionQuotes, SubscriptionStockBars, SubscriptionStockQuotes, SubscriptionStockTrades, SubscriptionNews}
 
 var _SubscriptionNameToValueMap = map[string]Subscription{
 	_SubscriptionName[0:13]:       SubscriptionOptionTrades,
@@ -47,10 +46,8 @@ var _SubscriptionNameToValueMap = map[string]Subscription{
 	_SubscriptionLowerName[36:48]: SubscriptionStockQuotes,
 	_SubscriptionName[48:60]:      SubscriptionStockTrades,
 	_SubscriptionLowerName[48:60]: SubscriptionStockTrades,
-	_SubscriptionName[60:73]:      SubscriptionOptionsTrade,
-	_SubscriptionLowerName[60:73]: SubscriptionOptionsTrade,
-	_SubscriptionName[73:77]:      SubscriptionNews,
-	_SubscriptionLowerName[73:77]: SubscriptionNews,
+	_SubscriptionName[60:64]:      SubscriptionNews,
+	_SubscriptionLowerName[60:64]: SubscriptionNews,
 }
 
 var _SubscriptionNames = []string{
@@ -59,8 +56,7 @@ var _SubscriptionNames = []string{
 	_SubscriptionName[26:36],
 	_SubscriptionName[36:48],
 	_SubscriptionName[48:60],
-	_SubscriptionName[60:73],
-	_SubscriptionName[73:77],
+	_SubscriptionName[60:64],
 }
 
 // SubscriptionString retrieves an enum value from the enum constants string name.

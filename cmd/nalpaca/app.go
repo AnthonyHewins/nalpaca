@@ -43,14 +43,15 @@ type app struct {
 	grpc      conf.GrpcServer
 	grpcProxy *http.Server
 
-	canceler     *canceler.Canceler
-	trader       *trader.Controller
-	updater      *portfolio.Controller
-	stockStream  *streaming.Stocks
-	newsStream   *streaming.News
-	optionStream *streaming.Options
+	canceler *canceler.Canceler
+	trader   *trader.Controller
+	updater  *portfolio.Controller
 
-	streamClient streaming.Client
+	stockStream  streaming.StockSubscriptionManagers
+	optionStream streaming.OptionSubscriptionManagers
+	news         *streaming.News
+
+	streamClient streaming.ClientFactory
 
 	order  consumer
 	cancel consumer
@@ -67,11 +68,7 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
-	// Counters have to exist before New: it stands up the prometheus registry,
-	// and anything registered afterwards would never reach /metrics.
-	sm := newStreamMetrics(&c)
-
-	b, err := c.BootstrapConf.New(ctx, appName, sm.collectors...)
+	b, err := c.BootstrapConf.New(ctx, appName)
 	if err != nil {
 		return nil, err
 	}

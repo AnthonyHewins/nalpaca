@@ -1010,11 +1010,11 @@ const file_stream_v0_stream_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xb9\x03\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xb3\x03\n" +
 	"\rStreamService\x12\x88\x01\n" +
-	"\x11ListSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /v1/subscriptions/{subscription}\x12\x88\x01\n" +
-	"\x13AddBarSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"2 /v1/subscriptions/{subscription}\x12\x91\x01\n" +
-	"\x16RemoveBarSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"* /v1/subscriptions/{subscription}B:Z8github.com/AnthonyHewins/nalpaca/gen/go/stream/v0;streamb\x06proto3"
+	"\x11ListSubscriptions\x12#.stream.v0.ListSubscriptionsRequest\x1a$.stream.v0.ListSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /v1/subscriptions/{subscription}\x12\x85\x01\n" +
+	"\x10AddSubscriptions\x12\".stream.v0.AddSubscriptionsRequest\x1a#.stream.v0.AddSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"2 /v1/subscriptions/{subscription}\x12\x8e\x01\n" +
+	"\x13RemoveSubscriptions\x12%.stream.v0.RemoveSubscriptionsRequest\x1a&.stream.v0.RemoveSubscriptionsResponse\"(\x82\xd3\xe4\x93\x02\"* /v1/subscriptions/{subscription}B:Z8github.com/AnthonyHewins/nalpaca/gen/go/stream/v0;streamb\x06proto3"
 
 var (
 	file_stream_v0_stream_proto_rawDescOnce sync.Once
@@ -1053,11 +1053,11 @@ var file_stream_v0_stream_proto_depIdxs = []int32{
 	12, // 5: stream.v0.News.created_at:type_name -> google.protobuf.Timestamp
 	12, // 6: stream.v0.News.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 7: stream.v0.StreamService.ListSubscriptions:input_type -> stream.v0.ListSubscriptionsRequest
-	2,  // 8: stream.v0.StreamService.AddBarSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
-	4,  // 9: stream.v0.StreamService.RemoveBarSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
+	2,  // 8: stream.v0.StreamService.AddSubscriptions:input_type -> stream.v0.AddSubscriptionsRequest
+	4,  // 9: stream.v0.StreamService.RemoveSubscriptions:input_type -> stream.v0.RemoveSubscriptionsRequest
 	1,  // 10: stream.v0.StreamService.ListSubscriptions:output_type -> stream.v0.ListSubscriptionsResponse
-	3,  // 11: stream.v0.StreamService.AddBarSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
-	5,  // 12: stream.v0.StreamService.RemoveBarSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
+	3,  // 11: stream.v0.StreamService.AddSubscriptions:output_type -> stream.v0.AddSubscriptionsResponse
+	5,  // 12: stream.v0.StreamService.RemoveSubscriptions:output_type -> stream.v0.RemoveSubscriptionsResponse
 	10, // [10:13] is the sub-list for method output_type
 	7,  // [7:10] is the sub-list for method input_type
 	7,  // [7:7] is the sub-list for extension type_name

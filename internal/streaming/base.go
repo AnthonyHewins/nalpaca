@@ -14,38 +14,43 @@ const (
 	SubscriptionStockBars
 	SubscriptionStockQuotes
 	SubscriptionStockTrades
-	SubscriptionOptionsTrade
 	SubscriptionNews
 )
 
+// Configuration for a particular data type in a client. E.g. the stocks client can use bars and quotes, but the symbols for either,
+// you can pick through these config options
 type StreamTypeConfig struct {
 	Enabled bool     `env:"ENABLED"`
 	Symbols []string `env:"SYMBOLS"` // use ',' as delimiter
 	// Timeout for nalpaca to send the message
 	Timeout time.Duration `env:"TIMEOUT" envDefault:"1s"`
 	// This is a separate buffer pool than the socket. This is nalpaca's configured buffer size for when
-	// proto messages are serialized, and hence it is smaller and more optimized per message type
-	BufSize uint32 `env:"BUFFER_SIZE"`
+	// proto messages are serialized, and hence it is smaller and more optimized per message type.
+	// It is not recommended to adjust this because it is already set to be exactly the correct size for most
+	// message types
+	BufSize uint32 `env:"BUFFER_SIZE_BYTES"`
 }
 
-// StreamConfig is the configuration used for particular clients, e.g. if you have a client for stocks or news,
-// this config is available for you to use
+// StreamConfig is the configuration used for the 4 clients in streaming: stocks, options, news, crypto.
+// Since each client can only have 1 connection it's required that there are only ever 4 config structs
+// like this one in your application
 type StreamConfig struct {
-	Version string `env:"VERSION"`
-
-	// Feed       string   `env:"FEED_TYPE"`
-	// Symbols    []string `env:"SYMBOLS"` // use ',' as delimiter
-	Processors uint16 `env:"PROCESSORS" envDefault:"1"`
+	// URL override. You probably dont want this, because there is no sandbox URL
+	URL string `env:"URL"`
+	// Configure SDK processor count, which appears to be a misnomer; the SDK uses this for goroutine counts
+	// from what I can tell
+	Processors uint16 `env:"PROCESSORS"`
 
 	// Below are options directly on the alpaca socket. These options are passed directly on to the
 	// SDK
-	SocketBufSize  uint32        `env:"SOCKET_BUFFER_SIZE" envDefault:"100000"` // default in lib
-	ReconnectLimit uint16        `env:"RECONNECT_LIMIT" envDefault:"20"`        // default in lib
-	ReconnectDelay time.Duration `env:"RECONNECT_DELAY" envDefault:"150ms"`     // default in lib
+	SocketBufSize  uint32        `env:"SOCKET_BUFFER_SIZE"`
+	ReconnectLimit uint16        `env:"RECONNECT_LIMIT" envDefault:"20"`    // default in lib
+	ReconnectDelay time.Duration `env:"RECONNECT_DELAY" envDefault:"150ms"` // default in lib
 }
 
+// baseClient covers most functionality for all message transmitters, and keeps the factory object
 type baseClient[X any] struct {
-	*Client
+	*ClientFactory
 	symbolList
 	metrics
 	pool sync.Pool
@@ -53,20 +58,23 @@ type baseClient[X any] struct {
 	comp Subscription
 }
 
+func newBaseClient[X any](component Subscription, c *ClientFactory, symbols []string, bufSize int, timeout time.Duration) baseClient[X] {
+	return baseClient[X]{
+		ClientFactory: c,
+		symbolList:    newSymbolList(symbols...),
+		metrics:       newMetrics(component),
+		t:             timeout,
+		pool:          sync.Pool{New: func() any { return make([]byte, 0, bufSize) }},
+		comp:          component,
+	}
+}
+
 func (b *baseClient[X]) bytePool() *sync.Pool       { return &b.pool }
 func (b *baseClient[X]) componentMetrics() *metrics { return &b.metrics }
 func (b *baseClient[X]) timeout() time.Duration     { return b.t }
 func (b *baseClient[X]) component() Subscription    { return b.comp }
 
-func newBaseClient[X any](component Subscription, c *Client, symbols []string, bufSize int, timeout time.Duration) baseClient[X] {
-	return baseClient[X]{
-		Client:     c,
-		symbolList: newSymbolList(symbols...),
-		metrics:    newMetrics(component),
-		t:          timeout,
-		pool:       sync.Pool{New: func() any { return make([]byte, 0, bufSize) }},
-	}
-}
+func (b *baseClient[X]) List() []string { return b.symbolList.list() }
 
 func (b *baseClient[X]) addSubscription(addFn func(func(X), ...string) error, handler func(X), s ...string) error {
 	for i, v := range s {
@@ -101,5 +109,3 @@ func (b *baseClient[X]) rmSubscription(fn func(...string) error, s ...string) er
 	l.Debug("removed symbols from subscriptions")
 	return nil
 }
-
-func (b *baseClient[X]) listSubscription() []string { return b.list() }

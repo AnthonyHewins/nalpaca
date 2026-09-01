@@ -40,12 +40,6 @@ type config struct {
 	EnableOrders      bool   `env:"ENABLE_ORDERS" envDefault:"false"`
 	OrderConsumerName string `env:"ORDER_CONSUMER" envDefault:"nalpaca-orders-consumer"`
 
-	EnableStockStream bool `env:"ENABLE_STOCK_STREAM" envDefault:"false"`
-
-	EnableNewsStream bool `env:"ENABLE_NEWS_STREAM" envDefault:"false"`
-
-	EnableOptionStream bool `env:"ENABLE_OPTION_STREAM" envDefault:"false"`
-
 	Bucket string `env:"NATS_KV_BUCKET" envDefault:"nalpaca"`
 
 	ProcessingTimeout time.Duration `env:"PROCESSING_TIMEOUT" envDefault:"3s"`
@@ -97,11 +91,7 @@ func main() {
 	}
 }
 
-func (a *app) superviseStream(ctx context.Context, g *errgroup.Group, name string, enabled bool, run func(context.Context) error) {
-	if !enabled {
-		return
-	}
-
+func (a *app) superviseStream(ctx context.Context, g *errgroup.Group, name string, run func(context.Context) error) {
 	g.Go(func() error {
 		a.Logger.InfoContext(ctx, "starting stream", "stream", name)
 
@@ -170,9 +160,9 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 		})
 	}
 
-	a.superviseStream(ctx, g, "stocks", a.stockStream != nil, a.stockStream.Stream)
-	a.superviseStream(ctx, g, "news", a.newsStream != nil, a.newsStream.Stream)
-	a.superviseStream(ctx, g, "options", a.optionStream != nil, a.optionStream.Stream)
+	a.superviseStream(ctx, g, "stocks", a.stockStream.Stream)
+	a.superviseStream(ctx, g, "news", a.news.Stream)
+	a.superviseStream(ctx, g, "options", a.optionStream.Stream)
 
 	if a.Metrics.Server != nil {
 		g.Go(func() error {

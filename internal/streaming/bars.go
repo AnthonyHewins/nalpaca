@@ -8,15 +8,15 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-var _ Transmitter[stream.Bar, *protoStream.Bar] = (*bars)(nil)
+var _ transmitter[stream.Bar, *protoStream.Bar] = (*Bars)(nil)
 
-type bars struct {
+type Bars struct {
 	baseClient[stream.Bar]
 	client *stream.StocksClient
 }
 
-func newBars(client *Client, c *StreamTypeConfig, s *stream.StocksClient) *bars {
-	return &bars{
+func newBars(client *ClientFactory, c *StreamTypeConfig, s *stream.StocksClient) *Bars {
+	return &Bars{
 		baseClient: newBaseClient[stream.Bar](
 			SubscriptionStockBars,
 			client,
@@ -28,11 +28,11 @@ func newBars(client *Client, c *StreamTypeConfig, s *stream.StocksClient) *bars 
 	}
 }
 
-func (b *bars) subject(w *protoStream.Bar) string {
+func (b *Bars) subject(w *protoStream.Bar) string {
 	return fmt.Sprintf("%s.%s", SubscriptionStockBars, w.Symbol)
 }
 
-func (x *bars) toWire(b stream.Bar) (*protoStream.Bar, error) {
+func (x *Bars) toWire(b stream.Bar) *protoStream.Bar {
 	return &protoStream.Bar{
 		Symbol:     b.Symbol,
 		Open:       b.Open,
@@ -43,17 +43,14 @@ func (x *bars) toWire(b stream.Bar) (*protoStream.Bar, error) {
 		Timestamp:  timestamppb.New(b.Timestamp),
 		TradeCount: b.TradeCount,
 		Vwap:       b.VWAP,
-	}, nil
+	}
 }
 
-func (b *bars) List() []string { return b.baseClient.list() }
-
-func (b *bars) Unsubscribe(x ...string) error {
+func (b *Bars) Unsubscribe(x ...string) error {
 	return b.rmSubscription(b.client.UnsubscribeFromBars, x...)
 }
-
-func (b *bars) Subscribe(x ...string) error {
+func (b *Bars) Subscribe(x ...string) error {
 	return b.addSubscription(b.client.SubscribeToBars, b.handler, x...)
 }
 
-func (b *bars) handler(x stream.Bar) { wrap(b.Client, b, x) }
+func (b *Bars) handler(x stream.Bar) { wrap(b.ClientFactory, b, x) }
