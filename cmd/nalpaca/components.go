@@ -77,6 +77,10 @@ func (a *app) initNewsStream(js jetstream.JetStream, c *config) error {
 		return err
 	}
 
+	if a.news == nil { // special case since this doesnt require a manager like options/stocks
+		return nil
+	}
+
 	return a.Metrics.Register(a.news.Metrics()...)
 }
 
