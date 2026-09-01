@@ -160,9 +160,17 @@ func (a *app) start(ctx context.Context, g *errgroup.Group) {
 		})
 	}
 
-	a.superviseStream(ctx, g, "stocks", a.stockStream.Stream)
-	a.superviseStream(ctx, g, "news", a.news.Stream)
-	a.superviseStream(ctx, g, "options", a.optionStream.Stream)
+	if a.stockStream.Conn != nil {
+		a.superviseStream(ctx, g, "stocks", a.stockStream.Stream)
+	}
+
+	if a.news != nil {
+		a.superviseStream(ctx, g, "news", a.news.Stream)
+	}
+
+	if a.optionStream.Conn != nil {
+		a.superviseStream(ctx, g, "options", a.optionStream.Stream)
+	}
 
 	if a.Metrics.Server != nil {
 		g.Go(func() error {

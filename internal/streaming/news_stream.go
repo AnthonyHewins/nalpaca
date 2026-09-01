@@ -78,11 +78,9 @@ type News struct {
 }
 
 func (c *ClientFactory) News(d *NewsConfig) (*News, error) {
-	if !d.Enabled {
-		return nil, nil
+	if enabled, err := c.prepare(d); err != nil || !enabled {
+		return nil, err
 	}
-
-	d.setDefaults()
 
 	n := &News{
 		baseClient: newBaseClient[stream.News](

@@ -43,10 +43,6 @@ func (s *StocksConfig) validate() (bool, error) {
 }
 
 func (s *StocksConfig) setDefaults() {
-	if s.URL == "" {
-		s.URL = "v2"
-	}
-
 	if s.Bar.BufSize == 0 {
 		s.Bar.BufSize = defaultBarBufSize
 	}
@@ -60,6 +56,9 @@ func (s *StocksConfig) setDefaults() {
 	}
 }
 
+// StockSubscriptionManagers is a struct collecting all the things that use the stocks client
+// for messaging. Since the stocks client has several data types it allows, it has 3 subclients
+// that control behavior
 type StockSubscriptionManagers struct {
 	Conn   *stream.StocksClient
 	Bars   *Bars
@@ -133,6 +132,10 @@ func (m *StockSubscriptionManagers) Metrics() []prometheus.Collector {
 // Begin consuming data. Cancel context to initiate a shutdown?
 // Unsure the underlying implementation, doesnt say in the alpaca docs
 func (m *StockSubscriptionManagers) Stream(ctx context.Context) error {
+	if m.Conn == nil {
+		return nil
+	}
+
 	if err := m.Conn.Connect(ctx); err != nil {
 		return err
 	}

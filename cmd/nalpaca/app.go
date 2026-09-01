@@ -123,6 +123,10 @@ func newApp(ctx context.Context) (*app, error) {
 		return nil, err
 	}
 
+	if err = a.initOptionStream(js, &c); err != nil {
+		return nil, err
+	}
+
 	if a.grpc = b.GRPC(ctx, &c.GrpcServerConf); a.grpc.Server != nil {
 		stream.RegisterStreamServiceServer(a.grpc.Server, a)
 	}

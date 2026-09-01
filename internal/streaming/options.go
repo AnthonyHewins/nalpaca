@@ -54,17 +54,20 @@ func (o *OptionsConfig) validate() (bool, error) {
 	return true, nil
 }
 
+// OptionSubscriptionManagers is a struct collecting all the things that use the options client
+// for messaging. Since the options client has several data types it allows, it has multiple subclients
+// that control subscriptions
 type OptionSubscriptionManagers struct {
-	s      *stream.OptionClient
+	Conn   *stream.OptionClient
 	Quotes *optionQuotes
 	Trades *optionTrades
 }
 
-func (o *OptionSubscriptionManagers) Terminated() <-chan error { return o.s.Terminated() }
+func (o *OptionSubscriptionManagers) Terminated() <-chan error { return o.Conn.Terminated() }
 
 func (c *ClientFactory) Options(d *OptionsConfig) (OptionSubscriptionManagers, error) {
 	if enabled, err := c.prepare(d); err != nil || !enabled {
-		return OptionSubscriptionManagers{}, nil
+		return OptionSubscriptionManagers{}, err
 	}
 
 	so := []stream.OptionOption{}
@@ -85,13 +88,13 @@ func (c *ClientFactory) Options(d *OptionsConfig) (OptionSubscriptionManagers, e
 	}
 
 	c.l.Info("creating options stream client", "conf", d)
-	m.s = stream.NewOptionClient(d.Feed, so...)
+	m.Conn = stream.NewOptionClient(d.Feed, so...)
 
 	if m.Quotes != nil {
-		m.Quotes.client = m.s
+		m.Quotes.client = m.Conn
 	}
 	if m.Trades != nil {
-		m.Trades.client = m.s
+		m.Trades.client = m.Conn
 	}
 
 	return m, nil
@@ -115,9 +118,13 @@ func (m *OptionSubscriptionManagers) Metrics() []prometheus.Collector {
 // Begin consuming data. Cancel context to initiate a shutdown?
 // Unsure the underlying implementation, doesnt say in the alpaca docs
 func (m *OptionSubscriptionManagers) Stream(ctx context.Context) error {
-	if err := m.s.Connect(ctx); err != nil {
+	if m.Conn == nil {
+		return nil
+	}
+
+	if err := m.Conn.Connect(ctx); err != nil {
 		return err
 	}
 
-	return <-m.s.Terminated()
+	return <-m.Conn.Terminated()
 }
