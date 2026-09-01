@@ -25,10 +25,10 @@ const (
 )
 
 type Tracer struct {
-	DisableTracing bool          `env:"DISABLE_TRACING" envDefault:"true"`
-	Exporter       TraceExporter `env:"TRACE_EXPORTER"`
-	ExporterURL    string        `env:"TRACE_EXPORTER_URL"`
-	Timeout        time.Duration `env:"TRACE_EXPORTER_TIMEOUT" envDefault:"5s"`
+	DisableTracing bool          `env:"DISABLE_TRACING" envDefault:"true" desc:"Disable OpenTelemetry tracing; uses a no-op tracer when true"`
+	Exporter       TraceExporter `env:"TRACE_EXPORTER" desc:"Which trace exporter to use: stdout or otlp"`
+	ExporterURL    string        `env:"TRACE_EXPORTER_URL" desc:"Endpoint for the OTLP trace exporter; only used when Exporter is otlp"`
+	Timeout        time.Duration `env:"TRACE_EXPORTER_TIMEOUT" envDefault:"5s" desc:"Timeout for exporting a batch of spans to the OTLP collector"`
 }
 
 func (a *Bootstrapper) Tracer(appName string, t *Tracer) (*sdk.TracerProvider, error) {

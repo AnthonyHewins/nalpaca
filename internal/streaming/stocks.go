@@ -20,7 +20,7 @@ type StocksConfig struct {
 	// Configuration for the websocket connection to stocks
 	StreamConfig
 	// What feed to use; this must be of type marketfeed.Feed in alpaca's SDK
-	Feed string `env:"FEED" envDefault:"iex"`
+	Feed string `env:"FEED" envDefault:"iex" desc:"What feed to use; this must be of type marketfeed.Feed in alpaca's SDK"`
 
 	Bar   StreamTypeConfig `envPrefix:"BARS_"`
 	Quote StreamTypeConfig `envPrefix:"QUOTES_"`

@@ -26,7 +26,7 @@ $(targets): ## Build a target server binary
 	go build $(BUILD_FLAGS) -ldflags " \
 	    -X '$(systeminfo).Version=$(VERSION)' \
 	    -X '$(systeminfo).Commit=$(COMMIT)' \
-	    -X '$(systeminfo).BuildTime=$(date -Iseconds)'" \
+	    -X '$(systeminfo).BuildTime=$(shell date -Iseconds)'" \
 		-o bin/$@ ./cmd/$@
 
 $(SERVICES):

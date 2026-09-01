@@ -13,9 +13,9 @@ import (
 )
 
 type Health struct {
-	DisableHealth bool          `env:"DISABLE_HEALTH" envDefault:"false"`
-	HealthPort    uint16        `env:"HEALTH_PORT" envDefault:"7654"`
-	PingInterval  time.Duration `env:"HEALTH_PING_INTERVAL" envDefault:"10s"`
+	DisableHealth bool          `env:"DISABLE_HEALTH" envDefault:"false" desc:"Disable the gRPC health check server"`
+	HealthPort    uint16        `env:"HEALTH_PORT" envDefault:"7654" desc:"Port the gRPC health check server listens on"`
+	PingInterval  time.Duration `env:"HEALTH_PING_INTERVAL" envDefault:"10s" desc:"How often to run the configured dependency health checks"`
 }
 
 // This probably could just be a struct, the name never changes. No need to evaluate it

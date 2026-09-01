@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"net"
@@ -27,25 +28,46 @@ type config struct {
 	conf.BootstrapConf
 	conf.GrpcServerConfWithProxy
 
-	Prefix string `env:"PREFIX" envDefault:"nalpaca"`
+	Prefix string `env:"PREFIX" envDefault:"nalpaca" desc:"Prefix used for NATS subject names this app publishes market data and trade updates to"`
 
-	ActionStream string `env:"ACTION_STREAM" envDefault:"nalpaca-action-stream"`
-	DataStream   string `env:"DATA_STREAM" envDefault:"nalpaca-data-stream"`
+	ActionStream string `env:"ACTION_STREAM" envDefault:"nalpaca-action-stream" desc:"Name of the NATS Jetstream stream that holds order and cancel action messages"`
+	DataStream   string `env:"DATA_STREAM" envDefault:"nalpaca-data-stream" desc:"Name of the NATS Jetstream stream intended to hold market data messages; not currently read by this binary"`
 
-	EnableCancel   bool   `env:"ENABLE_CANCELER" envDefault:"false"`
-	CancelConsumer string `env:"CANCEL_CONSUMER" envDefault:"nalpaca-cancel-consumer"`
+	EnableCancel   bool   `env:"ENABLE_CANCELER" envDefault:"false" desc:"Enable the order-cancellation consumer and controller"`
+	CancelConsumer string `env:"CANCEL_CONSUMER" envDefault:"nalpaca-cancel-consumer" desc:"Name of the NATS Jetstream consumer this app uses to receive cancel-order actions"`
 
-	EnableTradeUpdater bool `env:"ENABLE_TRADE_UPDATER" envDefault:"false"`
+	EnableTradeUpdater bool `env:"ENABLE_TRADE_UPDATER" envDefault:"false" desc:"Enable the trade updater, which keeps the positions KV bucket in sync with Alpaca account trade updates"`
 
-	EnableOrders      bool   `env:"ENABLE_ORDERS" envDefault:"false"`
-	OrderConsumerName string `env:"ORDER_CONSUMER" envDefault:"nalpaca-orders-consumer"`
+	EnableOrders      bool   `env:"ENABLE_ORDERS" envDefault:"false" desc:"Enable the order-placement consumer and controller"`
+	OrderConsumerName string `env:"ORDER_CONSUMER" envDefault:"nalpaca-orders-consumer" desc:"Name of the NATS Jetstream consumer this app uses to receive order-placement actions"`
 
-	Bucket string `env:"NATS_KV_BUCKET" envDefault:"nalpaca"`
+	Bucket string `env:"NATS_KV_BUCKET" envDefault:"nalpaca" desc:"Name of the NATS KV bucket used to store position state"`
 
-	ProcessingTimeout time.Duration `env:"PROCESSING_TIMEOUT" envDefault:"3s"`
+	ProcessingTimeout time.Duration `env:"PROCESSING_TIMEOUT" envDefault:"3s" desc:"Timeout applied when processing an individual order, cancel, or trade-update message"`
 }
 
 func main() {
+	printConfig := flag.Bool("print-config", false, "print every environment variable this binary understands, along with its default and whether it's required, then exit")
+	printResolvedConfig := flag.Bool("print-resolved-config", false, "parse the real environment into the config (tolerating missing required vars) and print what the resulting configuration would look like, then exit")
+	showSecrets := flag.Bool("show-secrets", false, "used with -print-resolved-config: show sensitive values (API keys, secrets, passwords) instead of redacting them")
+	flag.Parse()
+
+	if *printConfig {
+		if err := describeConfig(os.Stdout, &config{}); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
+	}
+
+	if *printResolvedConfig {
+		if err := resolvedConfig(os.Stdout, &config{}, *showSecrets); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
+	}
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, os.Interrupt)
 	defer stop()
 

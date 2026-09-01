@@ -68,20 +68,20 @@ const (
 
 type PromConfig struct {
 	// Disable the prometheus metrics server.
-	DisableMetrics bool `env:"DISABLE_METRICS" envDefault:"true"`
+	DisableMetrics bool `env:"DISABLE_METRICS" envDefault:"true" desc:"Disable the prometheus metrics server."`
 
 	// Port to expose for the Prometheus HTTP metrics API.
-	HTTPMetricsPort uint16 `env:"METRICS_PORT" envDefault:"8088"`
+	HTTPMetricsPort uint16 `env:"METRICS_PORT" envDefault:"8088" desc:"Port to expose for the Prometheus HTTP metrics API."`
 
-	HTTPMetricsTimeout time.Duration `env:"METRICS_WRITE_TIMEOUT" envDefault:"10s"`
+	HTTPMetricsTimeout time.Duration `env:"METRICS_WRITE_TIMEOUT" envDefault:"10s" desc:"Write timeout for the Prometheus HTTP metrics server"`
 
 	// The policy to use when an error is encountered; you can specify:
 	// return: send the error back to the requestor
 	// continue: move past the error
 	// panic: panic on error
-	HTTPMetricsErrPolicy MetricsErrPolicy `env:"METRICS_ERR_POLICY" envDefault:""`
+	HTTPMetricsErrPolicy MetricsErrPolicy `env:"METRICS_ERR_POLICY" envDefault:"" desc:"How to handle an error gathering metrics: return it to the requestor, continue past it, or panic"`
 
-	HTTPMetricsMaxRequestsInFlight uint `env:"METRICS_MAX_REQ_IN_FLIGHT" envDefault:""`
+	HTTPMetricsMaxRequestsInFlight uint `env:"METRICS_MAX_REQ_IN_FLIGHT" envDefault:"" desc:"Maximum concurrent requests the metrics HTTP handler will serve; 0 disables the limit"`
 }
 
 func NewProm(logger *slog.Logger, m *PromConfig, initialCollectors ...prometheus.Collector) (Prom, error) {

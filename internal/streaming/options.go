@@ -18,7 +18,7 @@ var _ config = (*OptionsConfig)(nil)
 
 type OptionsConfig struct {
 	StreamConfig
-	Feed  string           `env:"FEED" envDefault:"opra"`
+	Feed  string           `env:"FEED" envDefault:"opra" desc:"What options feed to use; alpaca currently only supports opra for options data"`
 	Quote StreamTypeConfig `envPrefix:"QUOTE_"`
 	Trade StreamTypeConfig `envPrefix:"TRADE_"`
 }
