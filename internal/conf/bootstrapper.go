@@ -52,23 +52,15 @@ func (b *BootstrapConf) New(ctx context.Context, appName string, metrics ...prom
 		}
 	}()
 
-	a.NC, err = a.NATSConn(&b.NATS)
-	if err != nil {
+	if a.NC, err = a.NATSConn(&b.NATS); err != nil {
 		return nil, err
 	}
 
-	a.Health = a.HealthServer(&b.Health)
-	if err != nil {
+	if a.Metrics, err = a.PrometheusHTTP(&b.Metrics, metrics...); err != nil {
 		return nil, err
 	}
 
-	a.Metrics, err = a.PrometheusHTTP(&b.Metrics, metrics...)
-	if err != nil {
-		return nil, err
-	}
-
-	a.TP, err = a.Tracer(appName, &b.Tracer)
-	if err != nil {
+	if a.TP, err = a.Tracer(appName, &b.Tracer); err != nil {
 		return nil, err
 	}
 
@@ -77,6 +69,7 @@ func (b *BootstrapConf) New(ctx context.Context, appName string, metrics ...prom
 		return nil, err
 	}
 
+	a.Health = a.HealthServer(&b.Health)
 	return a, nil
 }
 
