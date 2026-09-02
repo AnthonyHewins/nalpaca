@@ -39,7 +39,7 @@ func (s *StocksConfig) validate() (bool, error) {
 	}
 
 	switch s.Feed {
-	case "sip", "iex", "otc", "delayed_sip":
+	case "sip", "iex", "otc", "delayed_sip", "test":
 	default:
 		return false, fmt.Errorf("invalid feed %s", s.Feed)
 	}

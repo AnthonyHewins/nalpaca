@@ -42,9 +42,10 @@ services:
       # ENABLE_CANCELER: true
       # ENABLE_ORDERS: true
 
-      ENABLE_STOCK_STREAM: true
-      STOCK_STREAM_FEED_TYPE: iex
-      STOCK_STREAM_SYMBOLS: AAPL
+      STOCK_STREAM_FEED: test
+      STOCK_STREAM_BARS_ENABLED: true
+      STOCK_STREAM_BARS_SYMBOLS: FAKEPACA
+      STOCK_STREAM_URL: wss://stream.data.alpaca.markets/v2
 
       NATS_URL: nats://nats:4222
       LOG_LEVEL: debug

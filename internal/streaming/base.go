@@ -81,7 +81,7 @@ func (b *baseClient[X]) addSubscription(addFn func(func(X), ...string) error, ha
 		s[i] = b.clean(v)
 	}
 
-	l := b.l.With("component", b.comp, "symbols", s)
+	l := b.l.With("component", b.comp.String(), "symbols", s)
 
 	if err := addFn(handler, s...); err != nil {
 		l.Error("failed adding to subscription", "err", err)

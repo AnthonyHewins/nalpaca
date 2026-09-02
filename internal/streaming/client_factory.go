@@ -30,7 +30,7 @@ type ClientFactory struct {
 // News
 func New(prefix, baseUrl, key, secret string, l *slog.Logger, js jetstream.JetStream, t trace.Tracer) ClientFactory {
 	return ClientFactory{
-		prefix:  prefix,
+		prefix:  fmt.Sprintf("%s.data", prefix),
 		key:     key,
 		secret:  secret,
 		l:       l,
@@ -147,7 +147,7 @@ func wrap[X any, W proto.Message](c *ClientFactory, t transmitter[X, W], x X) {
 
 	l = l.With("wire", w)
 
-	subj := t.subject(w)
+	subj := fmt.Sprintf("%s.%s", c.prefix, t.subject(w))
 	if _, err = c.js.Publish(ctx, subj, buf); err != nil {
 		m.pubErr.Inc()
 		l.Error("failed publishing msg", "err", err, "subj", subj)
