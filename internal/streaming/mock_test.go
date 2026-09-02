@@ -21,7 +21,16 @@ type published struct {
 
 // mockPublisher stands in for jetstream.JetStream. Follows the hand-written
 // function-field style of internal/bridge.Mock.
+//
+// jetstream.JetStream is a large interface (stream/consumer/KV/object-store
+// management, account info, ...) and ClientFactory only ever calls Publish
+// on it. Embedding the (nil) interface satisfies the rest of the method set
+// without stubbing it out by hand; anything beyond Publish will nil-panic if
+// a test ever exercises it, which is the point - it should update this mock,
+// not silently succeed.
 type mockPublisher struct {
+	jetstream.JetStream
+
 	mu   sync.Mutex
 	msgs []published
 
