@@ -43,16 +43,60 @@ cancel:
   consumerConfig: {}
 
 stockstream:
-  enabled: false
   consumerConfig: {}
-  initialSymbols: [] # list of tickers to use
   wsOpts:
     feed: "iex" # iex | sip | otc | delayed_sip
-    baseURL: wss://stream.data.sandbox.alpaca.markets # prod: wss://stream.data.alpaca.markets
+    url: "" # base URL override; leave empty to use alpaca's default (there is no sandbox for streaming data)
     processors: 1 # alpaca's default; increasing may cause msgs to get out of order
-    buffer: 100000 # buffer size in bytes; this is alpaca's SDK default
+    socketBufferSize: 100000 # buffer size in bytes; this is alpaca's SDK default
     reconnectLimit: 20 # default in SDK
     reconnectDelay: 150ms # default in SDK
+  bars:
+    enabled: false
+    symbols: [] # list of tickers to use
+    timeout: 1s # how long nalpaca waits to publish a message before giving up
+    bufferSizeBytes: 0 # 0 uses nalpaca's built-in default for this message type
+  quotes:
+    enabled: false
+    symbols: []
+    timeout: 1s
+    bufferSizeBytes: 0
+  trades:
+    enabled: false
+    symbols: []
+    timeout: 1s
+    bufferSizeBytes: 0
+
+newsstream:
+  enabled: false
+  symbols: [] # list of tickers to use
+  timeout: 1s
+  bufferSizeBytes: 0
+  wsOpts:
+    url: "" # base URL override; leave empty to use alpaca's default
+    processors: 1
+    socketBufferSize: 100000
+    reconnectLimit: 20
+    reconnectDelay: 150ms
+
+optionstream:
+  wsOpts:
+    feed: "opra" # opra | indicative
+    url: "" # base URL override; leave empty to use alpaca's default
+    processors: 1
+    socketBufferSize: 100000
+    reconnectLimit: 20
+    reconnectDelay: 150ms
+  quotes:
+    enabled: false
+    symbols: [] # list of option symbols
+    timeout: 1s
+    bufferSizeBytes: 0
+  trades:
+    enabled: false
+    symbols: []
+    timeout: 1s
+    bufferSizeBytes: 0
 
 alpaca:
   url: https://paper-api.alpaca.markets # live trading: https://api.alpaca.markets

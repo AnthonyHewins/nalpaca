@@ -22,12 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StreamServiceClient interface {
-	ListBarSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error)
-	AddBarSubscriptions(ctx context.Context, in *AddSubscriptionsRequest, opts ...grpc.CallOption) (*AddSubscriptionsResponse, error)
-	RemoveBarSubscriptions(ctx context.Context, in *RemoveSubscriptionsRequest, opts ...grpc.CallOption) (*RemoveSubscriptionsResponse, error)
-	ListNewsSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error)
-	AddNewsSubscriptions(ctx context.Context, in *AddSubscriptionsRequest, opts ...grpc.CallOption) (*AddSubscriptionsResponse, error)
-	RemoveNewsSubscriptions(ctx context.Context, in *RemoveSubscriptionsRequest, opts ...grpc.CallOption) (*RemoveSubscriptionsResponse, error)
+	ListSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error)
+	AddSubscriptions(ctx context.Context, in *AddSubscriptionsRequest, opts ...grpc.CallOption) (*AddSubscriptionsResponse, error)
+	RemoveSubscriptions(ctx context.Context, in *RemoveSubscriptionsRequest, opts ...grpc.CallOption) (*RemoveSubscriptionsResponse, error)
 }
 
 type streamServiceClient struct {
@@ -38,54 +35,27 @@ func NewStreamServiceClient(cc grpc.ClientConnInterface) StreamServiceClient {
 	return &streamServiceClient{cc}
 }
 
-func (c *streamServiceClient) ListBarSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error) {
+func (c *streamServiceClient) ListSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error) {
 	out := new(ListSubscriptionsResponse)
-	err := c.cc.Invoke(ctx, "/stream.v0.StreamService/ListBarSubscriptions", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/stream.v0.StreamService/ListSubscriptions", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *streamServiceClient) AddBarSubscriptions(ctx context.Context, in *AddSubscriptionsRequest, opts ...grpc.CallOption) (*AddSubscriptionsResponse, error) {
+func (c *streamServiceClient) AddSubscriptions(ctx context.Context, in *AddSubscriptionsRequest, opts ...grpc.CallOption) (*AddSubscriptionsResponse, error) {
 	out := new(AddSubscriptionsResponse)
-	err := c.cc.Invoke(ctx, "/stream.v0.StreamService/AddBarSubscriptions", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/stream.v0.StreamService/AddSubscriptions", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *streamServiceClient) RemoveBarSubscriptions(ctx context.Context, in *RemoveSubscriptionsRequest, opts ...grpc.CallOption) (*RemoveSubscriptionsResponse, error) {
+func (c *streamServiceClient) RemoveSubscriptions(ctx context.Context, in *RemoveSubscriptionsRequest, opts ...grpc.CallOption) (*RemoveSubscriptionsResponse, error) {
 	out := new(RemoveSubscriptionsResponse)
-	err := c.cc.Invoke(ctx, "/stream.v0.StreamService/RemoveBarSubscriptions", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *streamServiceClient) ListNewsSubscriptions(ctx context.Context, in *ListSubscriptionsRequest, opts ...grpc.CallOption) (*ListSubscriptionsResponse, error) {
-	out := new(ListSubscriptionsResponse)
-	err := c.cc.Invoke(ctx, "/stream.v0.StreamService/ListNewsSubscriptions", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *streamServiceClient) AddNewsSubscriptions(ctx context.Context, in *AddSubscriptionsRequest, opts ...grpc.CallOption) (*AddSubscriptionsResponse, error) {
-	out := new(AddSubscriptionsResponse)
-	err := c.cc.Invoke(ctx, "/stream.v0.StreamService/AddNewsSubscriptions", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *streamServiceClient) RemoveNewsSubscriptions(ctx context.Context, in *RemoveSubscriptionsRequest, opts ...grpc.CallOption) (*RemoveSubscriptionsResponse, error) {
-	out := new(RemoveSubscriptionsResponse)
-	err := c.cc.Invoke(ctx, "/stream.v0.StreamService/RemoveNewsSubscriptions", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/stream.v0.StreamService/RemoveSubscriptions", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,35 +66,23 @@ func (c *streamServiceClient) RemoveNewsSubscriptions(ctx context.Context, in *R
 // All implementations should embed UnimplementedStreamServiceServer
 // for forward compatibility
 type StreamServiceServer interface {
-	ListBarSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error)
-	AddBarSubscriptions(context.Context, *AddSubscriptionsRequest) (*AddSubscriptionsResponse, error)
-	RemoveBarSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error)
-	ListNewsSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error)
-	AddNewsSubscriptions(context.Context, *AddSubscriptionsRequest) (*AddSubscriptionsResponse, error)
-	RemoveNewsSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error)
+	ListSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error)
+	AddSubscriptions(context.Context, *AddSubscriptionsRequest) (*AddSubscriptionsResponse, error)
+	RemoveSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error)
 }
 
 // UnimplementedStreamServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedStreamServiceServer struct {
 }
 
-func (UnimplementedStreamServiceServer) ListBarSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListBarSubscriptions not implemented")
+func (UnimplementedStreamServiceServer) ListSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListSubscriptions not implemented")
 }
-func (UnimplementedStreamServiceServer) AddBarSubscriptions(context.Context, *AddSubscriptionsRequest) (*AddSubscriptionsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddBarSubscriptions not implemented")
+func (UnimplementedStreamServiceServer) AddSubscriptions(context.Context, *AddSubscriptionsRequest) (*AddSubscriptionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddSubscriptions not implemented")
 }
-func (UnimplementedStreamServiceServer) RemoveBarSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RemoveBarSubscriptions not implemented")
-}
-func (UnimplementedStreamServiceServer) ListNewsSubscriptions(context.Context, *ListSubscriptionsRequest) (*ListSubscriptionsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListNewsSubscriptions not implemented")
-}
-func (UnimplementedStreamServiceServer) AddNewsSubscriptions(context.Context, *AddSubscriptionsRequest) (*AddSubscriptionsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddNewsSubscriptions not implemented")
-}
-func (UnimplementedStreamServiceServer) RemoveNewsSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RemoveNewsSubscriptions not implemented")
+func (UnimplementedStreamServiceServer) RemoveSubscriptions(context.Context, *RemoveSubscriptionsRequest) (*RemoveSubscriptionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveSubscriptions not implemented")
 }
 
 // UnsafeStreamServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -138,110 +96,56 @@ func RegisterStreamServiceServer(s grpc.ServiceRegistrar, srv StreamServiceServe
 	s.RegisterService(&StreamService_ServiceDesc, srv)
 }
 
-func _StreamService_ListBarSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _StreamService_ListSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListSubscriptionsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StreamServiceServer).ListBarSubscriptions(ctx, in)
+		return srv.(StreamServiceServer).ListSubscriptions(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/stream.v0.StreamService/ListBarSubscriptions",
+		FullMethod: "/stream.v0.StreamService/ListSubscriptions",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StreamServiceServer).ListBarSubscriptions(ctx, req.(*ListSubscriptionsRequest))
+		return srv.(StreamServiceServer).ListSubscriptions(ctx, req.(*ListSubscriptionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _StreamService_AddBarSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _StreamService_AddSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddSubscriptionsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StreamServiceServer).AddBarSubscriptions(ctx, in)
+		return srv.(StreamServiceServer).AddSubscriptions(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/stream.v0.StreamService/AddBarSubscriptions",
+		FullMethod: "/stream.v0.StreamService/AddSubscriptions",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StreamServiceServer).AddBarSubscriptions(ctx, req.(*AddSubscriptionsRequest))
+		return srv.(StreamServiceServer).AddSubscriptions(ctx, req.(*AddSubscriptionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _StreamService_RemoveBarSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _StreamService_RemoveSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveSubscriptionsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StreamServiceServer).RemoveBarSubscriptions(ctx, in)
+		return srv.(StreamServiceServer).RemoveSubscriptions(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/stream.v0.StreamService/RemoveBarSubscriptions",
+		FullMethod: "/stream.v0.StreamService/RemoveSubscriptions",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StreamServiceServer).RemoveBarSubscriptions(ctx, req.(*RemoveSubscriptionsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _StreamService_ListNewsSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListSubscriptionsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(StreamServiceServer).ListNewsSubscriptions(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/stream.v0.StreamService/ListNewsSubscriptions",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StreamServiceServer).ListNewsSubscriptions(ctx, req.(*ListSubscriptionsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _StreamService_AddNewsSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddSubscriptionsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(StreamServiceServer).AddNewsSubscriptions(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/stream.v0.StreamService/AddNewsSubscriptions",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StreamServiceServer).AddNewsSubscriptions(ctx, req.(*AddSubscriptionsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _StreamService_RemoveNewsSubscriptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RemoveSubscriptionsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(StreamServiceServer).RemoveNewsSubscriptions(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/stream.v0.StreamService/RemoveNewsSubscriptions",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StreamServiceServer).RemoveNewsSubscriptions(ctx, req.(*RemoveSubscriptionsRequest))
+		return srv.(StreamServiceServer).RemoveSubscriptions(ctx, req.(*RemoveSubscriptionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -254,28 +158,16 @@ var StreamService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*StreamServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListBarSubscriptions",
-			Handler:    _StreamService_ListBarSubscriptions_Handler,
+			MethodName: "ListSubscriptions",
+			Handler:    _StreamService_ListSubscriptions_Handler,
 		},
 		{
-			MethodName: "AddBarSubscriptions",
-			Handler:    _StreamService_AddBarSubscriptions_Handler,
+			MethodName: "AddSubscriptions",
+			Handler:    _StreamService_AddSubscriptions_Handler,
 		},
 		{
-			MethodName: "RemoveBarSubscriptions",
-			Handler:    _StreamService_RemoveBarSubscriptions_Handler,
-		},
-		{
-			MethodName: "ListNewsSubscriptions",
-			Handler:    _StreamService_ListNewsSubscriptions_Handler,
-		},
-		{
-			MethodName: "AddNewsSubscriptions",
-			Handler:    _StreamService_AddNewsSubscriptions_Handler,
-		},
-		{
-			MethodName: "RemoveNewsSubscriptions",
-			Handler:    _StreamService_RemoveNewsSubscriptions_Handler,
+			MethodName: "RemoveSubscriptions",
+			Handler:    _StreamService_RemoveSubscriptions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

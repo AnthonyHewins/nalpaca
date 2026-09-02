@@ -2,7 +2,7 @@
   "ack_policy": "none",
   "deliver_policy": "all",
   "durable_name": "nalpaca-data-stock-consumer",
-  "filter_subject": "nalpaca.data.stocks.*",
+  "filter_subject": "nalpaca.data.stocks.>",
   "max_deliver": -1,
   "replay_policy": "instant",
   "num_replicas": 0,

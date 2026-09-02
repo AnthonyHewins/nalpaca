@@ -22,7 +22,7 @@ type BootstrapConf struct {
 	NATS    NATS
 	Alpaca  Alpaca
 
-	HTTPClientTimeout time.Duration `env:"HTTP_CLIENT_TIMEOUT" envDefault:"15s"`
+	HTTPClientTimeout time.Duration `env:"HTTP_CLIENT_TIMEOUT" envDefault:"15s" desc:"Timeout for the shared HTTP client used to talk to the Alpaca REST API"`
 }
 
 type Server struct {

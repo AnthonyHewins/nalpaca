@@ -7,40 +7,30 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/AnthonyHewins/nalpaca/gen/go/stream/v0;stream";
 
+// Valid subscriptions:
+//
+// option-trades
+// option-quotes
+// stock-bars
+// stock-quotes
+// stock-trades
+// news
 service StreamService {
-	rpc ListBarSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
+	rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
 		option (google.api.http) = {
-			get: "/v1/subscriptions/bars"
+			get: "/v1/subscriptions/{subscription}"
 		};
 	}
 
-	rpc AddBarSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
+	rpc AddSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
 		option (google.api.http) = {
-			patch: "/v1/subscriptions/bars"
+			patch: "/v1/subscriptions/{subscription}"
 		};
 	}
 
-	rpc RemoveBarSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
+	rpc RemoveSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
 		option (google.api.http) = {
-			delete: "/v1/subscriptions/bars"
-		};
-	}
-
-	rpc ListNewsSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse) {
-		option (google.api.http) = {
-			get: "/v1/subscriptions/news"
-		};
-	}
-
-	rpc AddNewsSubscriptions(AddSubscriptionsRequest) returns (AddSubscriptionsResponse) {
-		option (google.api.http) = {
-			patch: "/v1/subscriptions/news"
-		};
-	}
-
-	rpc RemoveNewsSubscriptions(RemoveSubscriptionsRequest) returns (RemoveSubscriptionsResponse) {
-		option (google.api.http) = {
-			delete: "/v1/subscriptions/news"
+			delete: "/v1/subscriptions/{subscription}"
 		};
 	}
 }
@@ -48,7 +38,9 @@ service StreamService {
 //====================================
 // List subscriptions
 //====================================
-message ListSubscriptionsRequest {}
+message ListSubscriptionsRequest {
+	string subscription = 1;
+}
 
 message ListSubscriptionsResponse {
 	repeated string subscriptions = 1;
@@ -59,6 +51,7 @@ message ListSubscriptionsResponse {
 //====================================
 message AddSubscriptionsRequest {
 	repeated string symbols = 1;
+	string subscription = 2;
 }
 
 message AddSubscriptionsResponse {}
@@ -68,10 +61,14 @@ message AddSubscriptionsResponse {}
 //====================================
 message RemoveSubscriptionsRequest {
 	repeated string symbols = 1;
+	string subscription = 2;
 }
 
 message RemoveSubscriptionsResponse {}
 
+//====================================
+// Messages
+//====================================
 message Bar {
 	string symbol = 1;
 	double open = 2;
@@ -82,6 +79,57 @@ message Bar {
 	google.protobuf.Timestamp timestamp = 7;
 	uint64 trade_count = 8;
 	double vwap = 9;
+}
+
+// Trade is a stock trade. Note the differences from OptionTrade below: stock
+// trades carry an id, a tape, and multiple condition codes.
+message Trade {
+	int64 id = 1;
+	string symbol = 2;
+	string exchange = 3;
+	double price = 4;
+	uint32 size = 5;
+	google.protobuf.Timestamp timestamp = 6;
+	repeated string conditions = 7;
+	string tape = 8;
+}
+
+// Quote is a stock quote.
+message Quote {
+	string symbol = 1;
+	string bid_exchange = 2;
+	double bid_price = 3;
+	uint32 bid_size = 4;
+	string ask_exchange = 5;
+	double ask_price = 6;
+	uint32 ask_size = 7;
+	google.protobuf.Timestamp timestamp = 8;
+	repeated string conditions = 9;
+	string tape = 10;
+}
+
+// OptionTrade is an option contract trade. Unlike the stock Trade it has a
+// single condition and carries no id or tape.
+message OptionTrade {
+	string symbol = 1;
+	string exchange = 2;
+	double price = 3;
+	uint32 size = 4;
+	google.protobuf.Timestamp timestamp = 5;
+	string condition = 6;
+}
+
+// OptionQuote is an option contract quote.
+message OptionQuote {
+	string symbol = 1;
+	string bid_exchange = 2;
+	double bid_price = 3;
+	uint32 bid_size = 4;
+	string ask_exchange = 5;
+	double ask_price = 6;
+	uint32 ask_size = 7;
+	google.protobuf.Timestamp timestamp = 8;
+	string condition = 9;
 }
 
 message News {

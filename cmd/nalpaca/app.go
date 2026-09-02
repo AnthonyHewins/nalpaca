@@ -43,14 +43,15 @@ type app struct {
 	grpc      conf.GrpcServer
 	grpcProxy *http.Server
 
-	canceler    *canceler.Canceler
-	trader      *trader.Controller
-	updater     *portfolio.Controller
-	stockStream *streaming.Stocks
-	newsStream  *streaming.News
-	// quotes   *optionquotes.Controller
+	canceler *canceler.Canceler
+	trader   *trader.Controller
+	updater  *portfolio.Controller
 
-	streamClient streaming.Client
+	stockStream  streaming.StockSubscriptionManagers
+	optionStream streaming.OptionSubscriptionManagers
+	news         *streaming.News
+
+	streamClient streaming.ClientFactory
 
 	order  consumer
 	cancel consumer
@@ -119,6 +120,10 @@ func newApp(ctx context.Context) (*app, error) {
 	}
 
 	if err = a.initNewsStream(js, &c); err != nil {
+		return nil, err
+	}
+
+	if err = a.initOptionStream(js, &c); err != nil {
 		return nil, err
 	}
 

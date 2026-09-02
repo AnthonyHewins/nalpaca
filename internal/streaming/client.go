@@ -2,8 +2,9 @@ package streaming
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
-	"net/url"
 	"sync"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type Client struct {
+type ClientFactory struct {
 	prefix, key, secret, baseURL string
 	js                           jetstream.JetStream
 	l                            *slog.Logger
@@ -23,8 +24,12 @@ type Client struct {
 	marshalOpts proto.MarshalOptions
 }
 
-func New(prefix, baseUrl, key, secret string, l *slog.Logger, js jetstream.JetStream, t trace.Tracer) Client {
-	return Client{
+// Create new streaming client. This is the base client that will create subscriptions to alpaca:
+// Stock quotes, trades, bars
+// Option quotes, trades
+// News
+func New(prefix, baseUrl, key, secret string, l *slog.Logger, js jetstream.JetStream, t trace.Tracer) ClientFactory {
+	return ClientFactory{
 		prefix:  prefix,
 		key:     key,
 		secret:  secret,
@@ -35,38 +40,80 @@ func New(prefix, baseUrl, key, secret string, l *slog.Logger, js jetstream.JetSt
 	}
 }
 
-func (c *Client) streamOpts(s *Stream) []stream.Option {
-	x, _ := url.JoinPath(c.baseURL, s.Version)
-	return []stream.Option{
+func (c *ClientFactory) streamOpts(s *StreamConfig) []stream.Option {
+	opts := []stream.Option{
 		stream.WithCredentials(c.key, c.secret),
-		stream.WithProcessors(int(s.Processors)),
-		stream.WithBaseURL(x),
-		stream.WithBufferSize(int(s.SocketBufSize)), // default value
 		stream.WithReconnectSettings(int(s.ReconnectLimit), s.ReconnectDelay),
 		stream.WithBufferFillCallback(func(msg []byte) {
 			c.l.Info("buffer has been filled, processing interrupted", "len(bufferWaiting)", len(msg))
 		}),
-		stream.WithDisconnectCallback(func() { c.l.Warn("stream was disconnected", "url", c.baseURL) }),
-		stream.WithConnectCallback(func() { c.l.Info("stream connected", "url", c.baseURL) }),
+		stream.WithDisconnectCallback(func() { c.l.Warn("stream was disconnected") }),
+		stream.WithConnectCallback(func() { c.l.Info("stream connected") }),
 		stream.WithLogger(streamLogger{c.l.With("alpaca", true)}),
 	}
+
+	if s.Processors > 0 {
+		opts = append(opts, stream.WithProcessors(int(s.Processors)))
+	}
+
+	if s.SocketBufSize > 0 {
+		opts = append(opts, stream.WithBufferSize(int(s.SocketBufSize)))
+	}
+
+	if s.URL != "" {
+		opts = append(opts, stream.WithBaseURL(s.URL))
+	}
+
+	return opts
+}
+
+type Subscriber interface {
+	Subscribe(...string) error
+	Unsubscribe(...string) error
+	List() []string
 }
 
 type transmitter[X any, Y proto.Message] interface {
-	toWire(X) (Y, error)
+	toWire(X) Y
 	componentMetrics() *metrics
-	component() string
+	component() Subscription
 	subject(w Y) string
 	timeout() time.Duration
 	bytePool() *sync.Pool
 }
 
+type config interface {
+	validate() (enabled bool, err error)
+	setDefaults()
+}
+
+var errMissingOptions = errors.New("options missing for this stream")
+
+func (c *ClientFactory) prepare(x config) (bool, error) {
+	if x == nil {
+		c.l.Error("options missing")
+		return false, errMissingOptions
+	}
+
+	enabled, err := x.validate()
+	if err != nil {
+		c.l.Error("configuration failed validation", "err", err)
+		return false, err
+	}
+
+	if enabled {
+		x.setDefaults()
+	}
+
+	return enabled, nil
+}
+
 // i want this to be generic when possible with go1.27
-func wrap[X any, W proto.Message](c *Client, t transmitter[X, W], x X) {
+func wrap[X any, W proto.Message](c *ClientFactory, t transmitter[X, W], x X) {
 	ctx, cancel := context.WithTimeout(context.Background(), t.timeout())
 	defer cancel()
 
-	ctx, span := c.t.Start(ctx, t.component())
+	ctx, span := c.t.Start(ctx, t.component().String())
 	defer span.End()
 
 	m := t.componentMetrics()
@@ -86,12 +133,7 @@ func wrap[X any, W proto.Message](c *Client, t transmitter[X, W], x X) {
 
 	l := c.l.With("raw", x)
 
-	var w W
-	if w, err = t.toWire(x); err != nil {
-		m.transformErr.Inc()
-		l.Error("failed converting message", "err", err)
-		return
-	}
+	w := t.toWire(x)
 
 	pool := t.bytePool()
 	buf := pool.Get().([]byte)
@@ -115,3 +157,11 @@ func wrap[X any, W proto.Message](c *Client, t transmitter[X, W], x X) {
 	c.l.Debug("published msg", "subj", subj, "len(bytes)", len(buf))
 	m.publishCount.Inc()
 }
+
+type streamLogger struct {
+	l *slog.Logger
+}
+
+func (l streamLogger) Infof(format string, v ...interface{})  { l.l.Info(fmt.Sprintf(format, v...)) }
+func (l streamLogger) Warnf(format string, v ...interface{})  { l.l.Warn(fmt.Sprintf(format, v...)) }
+func (l streamLogger) Errorf(format string, v ...interface{}) { l.l.Error(fmt.Sprintf(format, v...)) }

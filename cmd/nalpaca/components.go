@@ -63,23 +63,6 @@ func (a *app) initTradeUpdater(js jetstream.JetStream, kv jetstream.KeyValue, c 
 }
 
 func (a *app) initStockStream(js jetstream.JetStream, c *config) error {
-	if !c.EnableStockStream {
-		return nil
-	}
-
-	s := &c.Alpaca.StockStream
-	if s.BufSize == 0 {
-		s.BufSize = 80 // proto message for bars should always be 80b or below
-	}
-
-	if s.Feed == "" {
-		s.Feed = "sip"
-	}
-
-	if s.Version == "" {
-		s.Version = "v2"
-	}
-
 	var err error
 	if a.stockStream, err = a.streamClient.Stocks(&c.Alpaca.StockStream); err != nil {
 		return err
@@ -89,23 +72,23 @@ func (a *app) initStockStream(js jetstream.JetStream, c *config) error {
 }
 
 func (a *app) initNewsStream(js jetstream.JetStream, c *config) error {
-	if !c.EnableNewsStream {
-		return nil
-	}
-
-	n := &c.Alpaca.NewsStream
-	if n.BufSize == 0 {
-		n.BufSize = 100000
-	}
-
-	if n.Version == "" {
-		n.Version = "v1beta1"
-	}
-
 	var err error
-	if a.newsStream, err = a.streamClient.News(n); err != nil {
+	if a.news, err = a.streamClient.News(&c.Alpaca.NewsStream); err != nil {
 		return err
 	}
 
-	return a.Metrics.Register(a.newsStream.Metrics()...)
+	if a.news == nil { // special case since this doesnt require a manager like options/stocks
+		return nil
+	}
+
+	return a.Metrics.Register(a.news.Metrics()...)
+}
+
+func (a *app) initOptionStream(js jetstream.JetStream, c *config) error {
+	var err error
+	if a.optionStream, err = a.streamClient.Options(&c.Alpaca.OptionStream); err != nil {
+		return err
+	}
+
+	return a.Metrics.Register(a.optionStream.Metrics()...)
 }

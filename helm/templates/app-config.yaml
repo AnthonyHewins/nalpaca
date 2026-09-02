@@ -50,9 +50,41 @@ data:
   ENABLE_TRADE_UPDATER: "{{ .Values.tradeupdater.enabled }}"
 
   # Stock stream
-  ENABLE_STOCK_STREAM: "{{ .Values.stockstream.enabled }}"
-  STOCK_STREAM_SYMBOLS: {{ join "," .Values.stockstream.initialSymbols | toJson }}
   {{- range $key, $value := .Values.stockstream.wsOpts }}
   STOCK_STREAM_{{ $key | snakecase | upper }}: {{ $value | quote }}
   {{- end }}
+  STOCK_STREAM_BARS_ENABLED: "{{ .Values.stockstream.bars.enabled }}"
+  STOCK_STREAM_BARS_SYMBOLS: {{ join "," .Values.stockstream.bars.symbols | toJson }}
+  STOCK_STREAM_BARS_TIMEOUT: {{ .Values.stockstream.bars.timeout | toJson }}
+  STOCK_STREAM_BARS_BUFFER_SIZE_BYTES: "{{ .Values.stockstream.bars.bufferSizeBytes }}"
+  STOCK_STREAM_QUOTES_ENABLED: "{{ .Values.stockstream.quotes.enabled }}"
+  STOCK_STREAM_QUOTES_SYMBOLS: {{ join "," .Values.stockstream.quotes.symbols | toJson }}
+  STOCK_STREAM_QUOTES_TIMEOUT: {{ .Values.stockstream.quotes.timeout | toJson }}
+  STOCK_STREAM_QUOTES_BUFFER_SIZE_BYTES: "{{ .Values.stockstream.quotes.bufferSizeBytes }}"
+  STOCK_STREAM_TRADES_ENABLED: "{{ .Values.stockstream.trades.enabled }}"
+  STOCK_STREAM_TRADES_SYMBOLS: {{ join "," .Values.stockstream.trades.symbols | toJson }}
+  STOCK_STREAM_TRADES_TIMEOUT: {{ .Values.stockstream.trades.timeout | toJson }}
+  STOCK_STREAM_TRADES_BUFFER_SIZE_BYTES: "{{ .Values.stockstream.trades.bufferSizeBytes }}"
+
+  # News stream
+  NEWS_STREAM_ENABLED: "{{ .Values.newsstream.enabled }}"
+  NEWS_STREAM_SYMBOLS: {{ join "," .Values.newsstream.symbols | toJson }}
+  NEWS_STREAM_TIMEOUT: {{ .Values.newsstream.timeout | toJson }}
+  NEWS_STREAM_BUFFER_SIZE_BYTES: "{{ .Values.newsstream.bufferSizeBytes }}"
+  {{- range $key, $value := .Values.newsstream.wsOpts }}
+  NEWS_STREAM_{{ $key | snakecase | upper }}: {{ $value | quote }}
+  {{- end }}
+
+  # Option stream
+  {{- range $key, $value := .Values.optionstream.wsOpts }}
+  OPTIONS_STREAM_{{ $key | snakecase | upper }}: {{ $value | quote }}
+  {{- end }}
+  OPTIONS_STREAM_QUOTE_ENABLED: "{{ .Values.optionstream.quotes.enabled }}"
+  OPTIONS_STREAM_QUOTE_SYMBOLS: {{ join "," .Values.optionstream.quotes.symbols | toJson }}
+  OPTIONS_STREAM_QUOTE_TIMEOUT: {{ .Values.optionstream.quotes.timeout | toJson }}
+  OPTIONS_STREAM_QUOTE_BUFFER_SIZE_BYTES: "{{ .Values.optionstream.quotes.bufferSizeBytes }}"
+  OPTIONS_STREAM_TRADE_ENABLED: "{{ .Values.optionstream.trades.enabled }}"
+  OPTIONS_STREAM_TRADE_SYMBOLS: {{ join "," .Values.optionstream.trades.symbols | toJson }}
+  OPTIONS_STREAM_TRADE_TIMEOUT: {{ .Values.optionstream.trades.timeout | toJson }}
+  OPTIONS_STREAM_TRADE_BUFFER_SIZE_BYTES: "{{ .Values.optionstream.trades.bufferSizeBytes }}"
 {{ end }}

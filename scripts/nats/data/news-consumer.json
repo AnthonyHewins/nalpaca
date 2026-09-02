@@ -1,0 +1,11 @@
+{
+  "description": "Nalpaca news consumer. Receives live news articles as they are published.",
+  "ack_policy": "none",
+  "deliver_policy": "all",
+  "durable_name": "nalpaca-data-news-consumer",
+  "filter_subject": "nalpaca.data.news.>",
+  "max_deliver": -1,
+  "replay_policy": "instant",
+  "num_replicas": 0,
+  "pause_until": "0001-01-01T00:00:00Z"
+}

@@ -7,12 +7,12 @@ import (
 )
 
 type NATS struct {
-	User     string `env:"NATS_USER"`
-	Password string `env:"NATS_PASSWORD"`
+	User     string `env:"NATS_USER" desc:"Username for NATS authentication; must be set together with Password"`
+	Password string `env:"NATS_PASSWORD" desc:"Password for NATS authentication; must be set together with User" sensitive:"true"`
 
-	URL string `env:"NATS_URL" envDefault:"localhost:4222"`
+	URL string `env:"NATS_URL" envDefault:"localhost:4222" desc:"NATS server URL to connect to"`
 
-	Compression bool `env:"NATS_USE_COMPRESSION"`
+	Compression bool `env:"NATS_USE_COMPRESSION" desc:"Enable NATS wire compression"`
 }
 
 func (b *Bootstrapper) NATSConn(n *NATS) (*nats.Conn, error) {

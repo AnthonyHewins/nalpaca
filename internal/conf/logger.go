@@ -9,10 +9,10 @@ import (
 )
 
 type Logger struct {
-	Exporter string `env:"LOG_EXPORTER" envDefault:""`
-	Level    string `env:"LOG_LEVEL"    envDefault:"info"`
-	Fmt      string `env:"LOG_FMT"      envDefault:"json"`
-	Src      bool   `env:"LOG_SRC"      envDefault:"true"`
+	Exporter string `env:"LOG_EXPORTER" envDefault:"" desc:"Where to write logs: empty for stdout, \"stderr\" for stderr, or a file path to write logs to"`
+	Level    string `env:"LOG_LEVEL"    envDefault:"info" desc:"Minimum log level to emit: debug, info, warn, or err"`
+	Fmt      string `env:"LOG_FMT"      envDefault:"json" desc:"Log encoding to use: json or text/logfmt"`
+	Src      bool   `env:"LOG_SRC"      envDefault:"true" desc:"Include the source file and line number in each log line"`
 }
 
 func (l Logger) Slog() (*slog.Logger, error) {

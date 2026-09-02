@@ -15,21 +15,25 @@ func newCounter(component, name, help string) prometheus.Counter {
 }
 
 type metrics struct {
-	publishCount, receiveCount, transformErr, totalErr, marshalErr, pubErr prometheus.Counter
+	publishCount, receiveCount, totalErr, marshalErr, pubErr prometheus.Counter
 }
 
-func newMetrics(component string) metrics {
+func newMetrics(x Subscription) metrics {
+	component := x.String()
 	return metrics{
 		receiveCount: newCounter(component, "receive_count", "how many messages are received from alpaca for this component"),
 		totalErr:     newCounter(component, "total_err", "total error count"),
 		marshalErr:   newCounter(component, "marshal_err", "marshal error count"),
-		transformErr: newCounter(component, "transform_err", "error count transforming alpaca data types to serializable data"),
 		pubErr:       newCounter(component, "pub_err", "nats publish error count"),
 		publishCount: newCounter(component, "publish_count", "How many publishes for this component, labeled by symbol"),
 	}
 }
 
 func (m *metrics) Metrics() []prometheus.Collector {
+	if m == nil {
+		return nil
+	}
+
 	return []prometheus.Collector{
 		m.publishCount,
 		m.totalErr,

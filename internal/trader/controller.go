@@ -14,6 +14,11 @@ type Counters struct {
 	OrderFailCount    prometheus.Counter
 }
 
+// Collectors returns the counters for registration with a prometheus registry.
+func (c Counters) Collectors() []prometheus.Collector {
+	return []prometheus.Collector{c.OrderCreatedCount, c.OrderFailCount}
+}
+
 type Controller struct {
 	Counters
 	tracer            trace.Tracer

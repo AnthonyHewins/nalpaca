@@ -13,26 +13,26 @@ import (
 )
 
 type GrpcServerConf struct {
-	EnableGrpc bool   `env:"ENABLE_GRPC" envDefault:"false"`
-	GrpcPort   uint16 `env:"GRPC_PORT" envDefault:"9200"`
+	EnableGrpc bool   `env:"ENABLE_GRPC" envDefault:"false" desc:"Enable the gRPC server"`
+	GrpcPort   uint16 `env:"GRPC_PORT" envDefault:"9200" desc:"Port the gRPC server listens on"`
 
-	MaxConnAge  time.Duration `env:"GRPC_MAX_CONN_AGE" envDefault:"6m"`
-	MaxConnIdle time.Duration `env:"GRPC_MAX_CONN_IDLE" envDefault:"5m"`
-	PingTimeout time.Duration `env:"GRPC_PING_TIMEOUT" envDefault:"0s"`
-	PingEvery   time.Duration `env:"GRPC_PING_EVERY" envDefault:"2s"`
+	MaxConnAge  time.Duration `env:"GRPC_MAX_CONN_AGE" envDefault:"6m" desc:"Maximum age of a gRPC connection before the server forces it to close"`
+	MaxConnIdle time.Duration `env:"GRPC_MAX_CONN_IDLE" envDefault:"5m" desc:"Maximum idle time before the gRPC server closes a connection"`
+	PingTimeout time.Duration `env:"GRPC_PING_TIMEOUT" envDefault:"0s" desc:"How long the gRPC server waits for a keepalive ping ack before closing the connection"`
+	PingEvery   time.Duration `env:"GRPC_PING_EVERY" envDefault:"2s" desc:"How often the gRPC server sends keepalive pings on idle connections"`
 }
 
 type GrpcServerConfWithProxy struct {
 	GrpcServerConf
 
-	EnableGrpcProxy bool   `env:"ENABLE_GRPC_PROXY" envDefault:"false"`
-	GrpcProxyPort   uint16 `env:"GRPC_PROXY_PORT" envDefault:"8080"`
+	EnableGrpcProxy bool   `env:"ENABLE_GRPC_PROXY" envDefault:"false" desc:"Enable the HTTP/JSON gRPC-gateway proxy in front of the gRPC server; requires EnableGrpc"`
+	GrpcProxyPort   uint16 `env:"GRPC_PROXY_PORT" envDefault:"8080" desc:"Port the gRPC-gateway HTTP proxy listens on"`
 
-	MaxHeaderBytes         uint32        `env:"GRPC_PROXY_MAX_HEADER_BYTES"`
-	IdleTimeout            time.Duration `env:"GRPC_PROXY_SERVER_TIMEOUT" envDefault:"120s"`
-	ProxyReadHeaderTimeout time.Duration `env:"GRPC_PROXY_READ_HEADER_TIMEOUT" envDefault:"120s"`
-	ProxyReadTimeout       time.Duration `env:"GRPC_PROXY_READ_TIMEOUT" envDefault:"120s"`
-	ProxyWriteTimeout      time.Duration `env:"GRPC_PROXY_WRITE_TIMEOUT" envDefault:"120s"`
+	MaxHeaderBytes         uint32        `env:"GRPC_PROXY_MAX_HEADER_BYTES" desc:"Maximum size, in bytes, of request headers the gRPC proxy's HTTP server will read"`
+	IdleTimeout            time.Duration `env:"GRPC_PROXY_SERVER_TIMEOUT" envDefault:"120s" desc:"Maximum idle time before the gRPC proxy's HTTP server closes a keep-alive connection"`
+	ProxyReadHeaderTimeout time.Duration `env:"GRPC_PROXY_READ_HEADER_TIMEOUT" envDefault:"120s" desc:"Timeout for the gRPC proxy's HTTP server to read request headers"`
+	ProxyReadTimeout       time.Duration `env:"GRPC_PROXY_READ_TIMEOUT" envDefault:"120s" desc:"Timeout for the gRPC proxy's HTTP server to read the full request"`
+	ProxyWriteTimeout      time.Duration `env:"GRPC_PROXY_WRITE_TIMEOUT" envDefault:"120s" desc:"Timeout for the gRPC proxy's HTTP server to write the response"`
 }
 
 type GrpcServer struct {
