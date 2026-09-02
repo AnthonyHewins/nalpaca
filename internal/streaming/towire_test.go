@@ -34,8 +34,8 @@ func TestBarsToWire(t *testing.T) {
 	if !got.Timestamp.AsTime().Equal(ts) {
 		t.Errorf("timestamp: want %v, got %v", ts, got.Timestamp.AsTime())
 	}
-	if got := b.subject(got); got != "stock_bars.AAPL" {
-		t.Errorf("subject: want stock_bars.AAPL, got %q", got)
+	if got := b.subject(got); got != "stocks.bars.AAPL" {
+		t.Errorf("subject: want stocks.bars.AAPL, got %q", got)
 	}
 }
 
@@ -64,8 +64,8 @@ func TestQuotesToWire(t *testing.T) {
 	if !got.Timestamp.AsTime().Equal(ts) {
 		t.Errorf("timestamp: want %v, got %v", ts, got.Timestamp.AsTime())
 	}
-	if s := q.subject(got); s != "stock_quotes.AAPL" {
-		t.Errorf("subject: want stock_quotes.AAPL, got %q", s)
+	if s := q.subject(got); s != "stocks.quotes.AAPL" {
+		t.Errorf("subject: want stocks.quotes.AAPL, got %q", s)
 	}
 }
 
@@ -92,24 +92,24 @@ func TestOptionQuotesToWire(t *testing.T) {
 	if !got.Timestamp.AsTime().Equal(ts) {
 		t.Errorf("timestamp: want %v, got %v", ts, got.Timestamp.AsTime())
 	}
-	if s := q.subject(got); s != "option_quotes.AAPL240119C00190000" {
-		t.Errorf("subject: want option_quotes.AAPL240119C00190000, got %q", s)
+	if s := q.subject(got); s != "options.quotes.AAPL240119C00190000" {
+		t.Errorf("subject: want options.quotes.AAPL240119C00190000, got %q", s)
 	}
 }
 
 func TestOptionTradesSubjectUsesOptionTradesPrefix(t *testing.T) {
 	tr := &optionTrades{}
 	got := tr.toWire(stream.OptionTrade{Symbol: "AAPL240119C00190000"})
-	if s := tr.subject(got); s != "option_trades.AAPL240119C00190000" {
-		t.Errorf("subject: want option_trades.AAPL240119C00190000, got %q", s)
+	if s := tr.subject(got); s != "options.trades.AAPL240119C00190000" {
+		t.Errorf("subject: want options.trades.AAPL240119C00190000, got %q", s)
 	}
 }
 
 func TestTradesSubjectUsesStockTradesPrefix(t *testing.T) {
 	tr := &Trades{}
 	got := tr.toWire(stream.Trade{Symbol: "AAPL"})
-	if s := tr.subject(got); s != "stock_trades.AAPL" {
-		t.Errorf("subject: want stock_trades.AAPL, got %q", s)
+	if s := tr.subject(got); s != "stocks.trades.AAPL" {
+		t.Errorf("subject: want stocks.trades.AAPL, got %q", s)
 	}
 }
 

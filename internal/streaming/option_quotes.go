@@ -29,7 +29,7 @@ func newOptionQuotes(client *ClientFactory, c *StreamTypeConfig, s *stream.Optio
 }
 
 func (q *optionQuotes) subject(w *protoStream.OptionQuote) string {
-	return fmt.Sprintf("%s.%s", SubscriptionOptionQuotes, w.Symbol)
+	return fmt.Sprintf("%s.%s", optionsQuotesSubject, w.Symbol)
 }
 
 func (q *optionQuotes) toWire(x stream.OptionQuote) *protoStream.OptionQuote {

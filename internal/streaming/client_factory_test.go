@@ -9,6 +9,18 @@ import (
 	"go.opentelemetry.io/otel/trace/noop"
 )
 
+func newClient() *ClientFactory {
+	return &ClientFactory{
+		prefix:  "",
+		key:     "",
+		secret:  "",
+		baseURL: "",
+		js:      nil,
+		l:       slog.New(slog.DiscardHandler),
+		t:       noop.NewTracerProvider().Tracer(""),
+	}
+}
+
 func TestNewClientFactoryStoresConstructorArgs(t *testing.T) {
 	l := slog.New(slog.DiscardHandler)
 	tr := noop.NewTracerProvider().Tracer("")

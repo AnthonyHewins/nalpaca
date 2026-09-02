@@ -12,6 +12,10 @@ import (
 const (
 	defaultOptionQuoteBufSize = 128
 	defaultOptionTradeBufSize = 128
+
+	optionsSubject       = "options"
+	optionsQuotesSubject = optionsSubject + ".quotes"
+	optionsTradesSubject = optionsSubject + ".trades"
 )
 
 var _ config = (*OptionsConfig)(nil)

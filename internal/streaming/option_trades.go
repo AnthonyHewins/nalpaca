@@ -29,7 +29,7 @@ func newOptionTrades(client *ClientFactory, c *StreamTypeConfig, s *stream.Optio
 }
 
 func (t *optionTrades) subject(w *protoStream.OptionTrade) string {
-	return fmt.Sprintf("%s.%s", SubscriptionOptionTrades, w.Symbol)
+	return fmt.Sprintf("%s.%s", optionsTradesSubject, w.Symbol)
 }
 
 func (t *optionTrades) toWire(x stream.OptionTrade) *protoStream.OptionTrade {

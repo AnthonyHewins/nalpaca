@@ -29,7 +29,7 @@ func newQuotes(client *ClientFactory, c *StreamTypeConfig, s *stream.StocksClien
 }
 
 func (q *Quotes) subject(w *protoStream.Quote) string {
-	return fmt.Sprintf("%s.%s", SubscriptionStockQuotes, w.Symbol)
+	return fmt.Sprintf("%s.%s", stocksQuotesSubject, w.Symbol)
 }
 
 func (q *Quotes) toWire(x stream.Quote) *protoStream.Quote {

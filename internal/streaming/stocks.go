@@ -14,6 +14,11 @@ const (
 	defaultBarBufSize   = 128
 	defaultQuoteBufSize = 128
 	defaultTradeBufSize = 128
+
+	stocksPrefix        = "stocks"
+	stocksBarsSubject   = stocksPrefix + ".bars"
+	stocksQuotesSubject = stocksPrefix + ".quotes"
+	stocksTradesSubject = stocksPrefix + ".trades"
 )
 
 type StocksConfig struct {

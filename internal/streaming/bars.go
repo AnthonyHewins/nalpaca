@@ -29,7 +29,7 @@ func newBars(client *ClientFactory, c *StreamTypeConfig, s *stream.StocksClient)
 }
 
 func (b *Bars) subject(w *protoStream.Bar) string {
-	return fmt.Sprintf("%s.%s", SubscriptionStockBars, w.Symbol)
+	return fmt.Sprintf("%s.%s", stocksBarsSubject, w.Symbol)
 }
 
 func (x *Bars) toWire(b stream.Bar) *protoStream.Bar {

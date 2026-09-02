@@ -34,7 +34,7 @@ func TestWrapPublishesTradeOnSuccess(t *testing.T) {
 	})
 
 	p := mp.only(t)
-	assertSubject(t, p, "stock_trades.AAPL")
+	assertSubject(t, p, "stocks.trades.AAPL")
 
 	var got protoStream.Trade
 	unmarshal(t, p, &got)
@@ -103,7 +103,7 @@ func TestWrapPublishesOptionTrade(t *testing.T) {
 	})
 
 	p := mp.only(t)
-	assertSubject(t, p, "option_trades.AAPL240119C00190000")
+	assertSubject(t, p, "options.trades.AAPL240119C00190000")
 
 	var got protoStream.OptionTrade
 	unmarshal(t, p, &got)
@@ -123,7 +123,7 @@ func TestWrapPublishesBar(t *testing.T) {
 	b.handler(stream.Bar{Symbol: "AAPL", Open: 1, High: 2, Low: 0.5, Close: 1.5, Volume: 10, Timestamp: ts, TradeCount: 3, VWAP: 1.4})
 
 	p := mp.only(t)
-	assertSubject(t, p, "stock_bars.AAPL")
+	assertSubject(t, p, "stocks.bars.AAPL")
 
 	var got protoStream.Bar
 	unmarshal(t, p, &got)
@@ -141,7 +141,7 @@ func TestWrapPublishesQuote(t *testing.T) {
 	q.handler(stream.Quote{Symbol: "AAPL", BidPrice: 1, AskPrice: 2})
 
 	p := mp.only(t)
-	assertSubject(t, p, "stock_quotes.AAPL")
+	assertSubject(t, p, "stocks.quotes.AAPL")
 }
 
 func TestWrapPublishesOptionQuote(t *testing.T) {
@@ -153,7 +153,7 @@ func TestWrapPublishesOptionQuote(t *testing.T) {
 	q.handler(stream.OptionQuote{Symbol: "AAPL240119C00190000", BidPrice: 1, AskPrice: 2})
 
 	p := mp.only(t)
-	assertSubject(t, p, "option_quotes.AAPL240119C00190000")
+	assertSubject(t, p, "options.quotes.AAPL240119C00190000")
 }
 
 func TestWrapPublishesNewsAlwaysUsesNewsSubject(t *testing.T) {
