@@ -1,0 +1,11 @@
+{
+  "description": "Nalpaca option quotes consumer. Connect to receive quotes for options",
+  "ack_policy": "none",
+  "deliver_policy": "all",
+  "durable_name": "nalpaca-option-quotes-consumer",
+  "filter_subject": "nalpaca.options.quotes.*",
+  "max_deliver": -1,
+  "replay_policy": "instant",
+  "num_replicas": 0,
+  "pause_until": "0001-01-01T00:00:00Z"
+}

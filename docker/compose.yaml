@@ -45,6 +45,8 @@ services:
       STOCK_STREAM_FEED: test
       STOCK_STREAM_BARS_ENABLED: true
       STOCK_STREAM_BARS_SYMBOLS: FAKEPACA
+      STOCK_STREAM_QUOTES_ENABLED: true
+      STOCK_STREAM_QUOTES_SYMBOLS: FAKEPACA
       STOCK_STREAM_URL: wss://stream.data.alpaca.markets/v2
 
       NATS_URL: nats://nats:4222

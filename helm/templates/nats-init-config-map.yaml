@@ -6,36 +6,34 @@ metadata:
 data:
     init.sh: |
         {{- .Files.Get "includes/nats/init.sh" | nindent 8 }}
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: action-stream-conf
-data:
-    action-stream.json: |
-        {{- $x := .Files.Get "includes/nats/action/stream.json" | fromJson -}}
-        {{ mustMerge .Values.nats.initJob.actionStream $x | toJson | nindent 8 }}
+    stream.json: |
+        {{- $x := .Files.Get "includes/nats/stream.json" | fromJson -}}
+        {{ mustMerge .Values.nats.initJob.streamConfig $x | toJson | nindent 8 }}
     orders-consumer.json: |
-        {{- $x := .Files.Get "includes/nats/action/order-consumer.json" | fromJson -}}
+        {{- $x := .Files.Get "includes/nats/order-consumer.json" | fromJson -}}
         {{ mustMerge .Values.orders.consumerConfig $x | toJson | nindent 8 }}
     cancel-consumer.json: |
-        {{- $x := .Files.Get "includes/nats/action/cancel-consumer.json" | fromJson -}}
+        {{- $x := .Files.Get "includes/nats/cancel-consumer.json" | fromJson -}}
         {{ mustMerge .Values.cancel.consumerConfig $x | toJson | nindent 8 }}
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: data-stream-conf
-data:
-    data-stream.json: |
-        {{- $x := .Files.Get "includes/nats/data/stream.json" | fromJson -}}
-        {{ mustMerge .Values.nats.initJob.dataStream $x | toJson | nindent 8 }}
-    stock-consumer.json: |
-        {{- $x := .Files.Get "includes/nats/data/stock-consumer.json" | fromJson -}}
-        {{ mustMerge .Values.stockstream.consumerConfig $x | toJson | nindent 8 }}
     trade-update-consumer.json: |
-        {{- $x := .Files.Get "includes/nats/data/trade-update-consumer.json" | fromJson -}}
+        {{- $x := .Files.Get "includes/nats/trade-update-consumer.json" | fromJson -}}
         {{ mustMerge .Values.tradeupdater.consumerConfig $x | toJson | nindent 8 }}
+    stock-bars-consumer.json: |
+        {{- $x := .Files.Get "includes/nats/stock-bars-consumer.json" | fromJson -}}
+        {{ mustMerge .Values.stockstream.consumerConfig.bars $x | toJson | nindent 8 }}
+    stock-quotes-consumer.json: |
+        {{- $x := .Files.Get "includes/nats/stock-quotes-consumer.json" | fromJson -}}
+        {{ mustMerge .Values.stockstream.consumerConfig.quotes $x | toJson | nindent 8 }}
+    stock-trades-consumer.json: |
+        {{- $x := .Files.Get "includes/nats/stock-trades-consumer.json" | fromJson -}}
+        {{ mustMerge .Values.stockstream.consumerConfig.trades $x | toJson | nindent 8 }}
+    news-consumer.json: |
+        {{- $x := .Files.Get "includes/nats/news-consumer.json" | fromJson -}}
+        {{ mustMerge .Values.newsstream.consumerConfig $x | toJson | nindent 8 }}
+    option-quotes-consumer.json: |
+        {{- $x := .Files.Get "includes/nats/option-quotes-consumer.json" | fromJson -}}
+        {{ mustMerge .Values.optionstream.consumerConfig.quotes $x | toJson | nindent 8 }}
+    option-trades-consumer.json: |
+        {{- $x := .Files.Get "includes/nats/option-trades-consumer.json" | fromJson -}}
+        {{ mustMerge .Values.optionstream.consumerConfig.trades $x | toJson | nindent 8 }}
 {{ end }}

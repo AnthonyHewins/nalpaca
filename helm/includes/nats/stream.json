@@ -1,7 +1,7 @@
 {
-  "name": "nalpaca-data-stream",
+  "name": "nalpaca",
   "subjects": [
-    "nalpaca.data.>"
+    "nalpaca.>"
   ],
   "retention": "interest",
   "max_consumers": -1,

@@ -33,5 +33,5 @@ func (c *Client) PushTrade(ctx context.Context, idemKey string, order *tradesvc.
 		return nil, err
 	}
 
-	return c.nc.Publish(ctx, c.prefix+".orders."+idemKey, buf, opts...)
+	return c.nc.Publish(ctx, c.prefix+".orders.create", buf, opts...)
 }

@@ -1,9 +1,9 @@
 {
-  "description": "Nalpaca order stream consumer. Nalpaca will consume messages on this stream and send them.",
+  "description": "Nalpaca order stream consumer. Send messages on this stream for nalpaca to consume and send orders",
   "ack_policy": "explicit",
   "deliver_policy": "all",
   "durable_name": "nalpaca-orders-consumer",
-  "filter_subject": "nalpaca.action.orders.*",
+  "filter_subject": "nalpaca.orders.*",
   "max_deliver": 3,
   "replay_policy": "instant",
   "num_replicas": 1,

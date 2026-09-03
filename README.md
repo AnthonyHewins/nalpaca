@@ -29,37 +29,34 @@ Here are some example things it can do:
 
 ## Components
 
-Nalpaca is based on NATS resources, there are 3 primary streams to look at that it creates and a myriad of consumers, and a single KV store
+Nalpaca is based on NATS resources. Everything lives on a single, flat JetStream stream, plus a myriad of consumers on top of it, and a single KV store
 
-1. **Action stream** (`nalpaca-action-stream`, subjects `nalpaca.action.>`): this stream is the stream that you will write to if you want to have nalpaca perform some actions on your behalf like executing trades. View the docs for the component you wish to use to see what subjects to publish to in order to use it
-  1. The action consumer is also created, which is configured as a `workqueue` and is reserved only for nalpaca to use
-1. **Data stream** (`nalpaca-data-stream`, subjects `nalpaca.data.>`): public market data that nalpaca receives from alpaca and republishes — stock bars, quotes and trades, option quotes and trades, and news. Nalpaca writes to this stream, and any number of consumers it offers will be what you subscribe to in order to get info on it. This stream is configured with `interest` retention
-1. **Account stream** (`nalpaca-account-stream`, subjects `nalpaca.account.>`): events about *your* account rather than the market, such as fills on orders you placed. Kept separate from the data stream so that market data subscribers don't receive your private account activity, and because these events span every asset class rather than just stocks. Also configured with `interest` retention
+1. **The `nalpaca` stream** (subjects `nalpaca.>`): the one stream nalpaca provisions. It carries everything — actions you send nalpaca (orders, cancels), public market data nalpaca republishes (stock/option bars, quotes and trades, news), and account events (fills and other updates on your orders). Nalpaca writes to this stream, and any number of consumers it offers will be what you subscribe to in order to get info on it. It's configured with `interest` retention
 1. **KV store**: this KV store is a global store for the app, where it will write useful things like your current position list, which you can subscribe to via keywatcher, or just access on the fly if needed. See the docs for the component you want to use for more
 
-Because both data-bearing streams use `interest` retention, a message is only kept if some consumer's filter matches it. If you publish to a subject no consumer is listening on, the message is acknowledged and then dropped — so add a consumer before expecting data to accumulate.
+Because the stream uses `interest` retention, a message is only kept if some consumer's filter matches it. If you publish to a subject no consumer is listening on, the message is acknowledged and then dropped — so add a consumer before expecting data to accumulate.
 
 ### Subjects
 
 | Subject | Contents |
 | --- | --- |
-| `nalpaca.action.orders.<idempotency key>` | orders you want nalpaca to place |
-| `nalpaca.action.cancel.<order ID or ALL>` | cancels you want nalpaca to execute |
-| `nalpaca.data.stocks.bars.<TICKER>` | stock bars |
-| `nalpaca.data.stocks.quotes.<TICKER>` | stock quotes |
-| `nalpaca.data.stocks.trades.<TICKER>` | stock trades (market-wide, not yours) |
-| `nalpaca.data.options.quotes.<CONTRACT>` | option quotes |
-| `nalpaca.data.options.trades.<CONTRACT>` | option trades |
-| `nalpaca.data.news.<ID>` | news articles |
+| `nalpaca.orders.<idempotency key>` | orders you want nalpaca to place |
+| `nalpaca.cancel.<order ID or ALL>` | cancels you want nalpaca to execute |
+| `nalpaca.stocks.bars.<TICKER>` | stock bars |
+| `nalpaca.stocks.quotes.<TICKER>` | stock quotes |
+| `nalpaca.stocks.trades.<TICKER>` | stock trades (market-wide, not yours) |
+| `nalpaca.options.quotes.<CONTRACT>` | option quotes |
+| `nalpaca.options.trades.<CONTRACT>` | option trades |
+| `nalpaca.news` | news articles |
 | `nalpaca.account.tradeupdates.<TICKER>` | fills and other updates on *your* orders |
 
 ### Trades
 
-To create trades, create a protobuf message of type [`tradesvc.v0.Trade`](./api/proto/tradesvc/v0/tradesvc.proto). Then create an idempotency ID and send it on the topic `nalpaca.action.orders.<string client order id (<=128 chars)>`
+To create trades, create a protobuf message of type [`tradesvc.v0.Trade`](./api/proto/tradesvc/v0/tradesvc.proto). Then create an idempotency ID and send it on the topic `nalpaca.orders.<string client order id (<=128 chars)>`
 
 ### Cancels (in progress)
 
-To execute a cancel, you just publish an empty message on `<prefix>.action.cancel.<order ID or special keyword "ALL">`. Using special keyword `ALL` will initiate a cancel of all orders
+To execute a cancel, you just publish an empty message on `<prefix>.cancel.<order ID or special keyword "ALL">`. Using special keyword `ALL` will initiate a cancel of all orders
 
 ### Trade updates
 

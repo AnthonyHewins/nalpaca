@@ -16,7 +16,7 @@ func (a *app) initCanceler(ctx context.Context, js jetstream.JetStream, c *confi
 	}
 
 	var err error
-	a.cancel.ingestor, err = a.consumer(ctx, js, c.ActionStream, c.CancelConsumer)
+	a.cancel.ingestor, err = a.consumer(ctx, js, c.Stream, c.CancelConsumer)
 	if err != nil {
 		return err
 	}
@@ -31,7 +31,7 @@ func (a *app) initOrders(ctx context.Context, js jetstream.JetStream, c *config)
 	}
 
 	var err error
-	a.order.ingestor, err = a.consumer(ctx, js, c.ActionStream, c.OrderConsumerName)
+	a.order.ingestor, err = a.consumer(ctx, js, c.Stream, c.OrderConsumerName)
 	if err != nil {
 		return err
 	}

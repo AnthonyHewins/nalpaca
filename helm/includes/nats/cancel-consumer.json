@@ -1,9 +1,9 @@
 {
-  "description": "Nalpaca order canceler. Nalpaca will consume cancels, then cancel the respective order.",
+  "description": "Nalpaca order canceler. Nalpaca connects to this consumer to cancels orders",
   "ack_policy": "explicit",
   "deliver_policy": "all",
   "durable_name": "nalpaca-cancel-consumer",
-  "filter_subject": "nalpaca.action.cancel.*",
+  "filter_subject": "nalpaca.cancel.*",
   "max_deliver": 3,
   "replay_policy": "instant",
   "num_replicas": 1,

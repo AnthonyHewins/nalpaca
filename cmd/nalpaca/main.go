@@ -30,8 +30,7 @@ type config struct {
 
 	Prefix string `env:"PREFIX" envDefault:"nalpaca" desc:"Prefix used for NATS subject names this app publishes market data and trade updates to"`
 
-	ActionStream string `env:"ACTION_STREAM" envDefault:"nalpaca-action-stream" desc:"Name of the NATS Jetstream stream that holds order and cancel action messages"`
-	DataStream   string `env:"DATA_STREAM" envDefault:"nalpaca-data-stream" desc:"Name of the NATS Jetstream stream intended to hold market data messages; not currently read by this binary"`
+	Stream string `env:"STREAM" envDefault:"nalpaca" desc:"Name of the single NATS Jetstream stream that holds all of nalpaca's subjects: market data, actions, and account events"`
 
 	EnableCancel   bool   `env:"ENABLE_CANCELER" envDefault:"false" desc:"Enable the order-cancellation consumer and controller"`
 	CancelConsumer string `env:"CANCEL_CONSUMER" envDefault:"nalpaca-cancel-consumer" desc:"Name of the NATS Jetstream consumer this app uses to receive cancel-order actions"`
