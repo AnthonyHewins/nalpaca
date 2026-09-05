@@ -58,7 +58,7 @@ func (a *app) initTradeUpdater(js jetstream.JetStream, kv jetstream.KeyValue, c 
 		c.ProcessingTimeout,
 		js,
 		kv,
-		fmt.Sprintf("%s.account.tradeupdates", c.Prefix),
+		fmt.Sprintf("%s.trade-updater", c.Prefix),
 	), nil
 }
 

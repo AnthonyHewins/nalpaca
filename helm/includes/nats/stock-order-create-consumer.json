@@ -1,0 +1,11 @@
+{
+  "description": "Nalpaca stock trades create consumer. This is a nalpaca-only consumer that you can publish messages to and have nalpaca create the order. The payload must be the correct protobuf msg",
+  "ack_policy": "explicit",
+  "deliver_policy": "all",
+  "durable_name": "nalpaca-order-create-consumer",
+  "filter_subject": "nalpaca.stocks.orders.create",
+  "max_deliver": 3,
+  "replay_policy": "instant",
+  "num_replicas": 1,
+  "pause_until": "0001-01-01T00:00:00Z"
+}

@@ -9,7 +9,8 @@ import (
 
 func (c *Controller) TestCancel(ctx context.Context) error {
 	id := uuid.NewString()
-	_, err := c.client.PushTrade(ctx, id, &tradesvc.Trade{
+	_, err := c.client.PushTrade(ctx, &tradesvc.Trade{
+		Id:             id,
 		Symbol:         "AAPL",
 		Qty:            "1",
 		Side:           tradesvc.Side_SIDE_BUY,

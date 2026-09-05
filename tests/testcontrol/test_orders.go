@@ -10,6 +10,7 @@ import (
 func (c *Controller) TestOrders(ctx context.Context) error {
 	trades := []tradesvc.Trade{
 		{
+			Id:             uuid.NewString(),
 			Symbol:         "AAPL",
 			Qty:            "1",
 			Side:           tradesvc.Side_SIDE_BUY,
@@ -20,7 +21,7 @@ func (c *Controller) TestOrders(ctx context.Context) error {
 	}
 
 	for i := range trades {
-		if _, err := c.client.PushTrade(ctx, uuid.New().String(), &trades[i]); err != nil {
+		if _, err := c.client.PushTrade(ctx, &trades[i]); err != nil {
 			return err
 		}
 	}

@@ -9,14 +9,14 @@ data:
     stream.json: |
         {{- $x := .Files.Get "includes/nats/stream.json" | fromJson -}}
         {{ mustMerge .Values.nats.initJob.streamConfig $x | toJson | nindent 8 }}
-    orders-consumer.json: |
-        {{- $x := .Files.Get "includes/nats/order-consumer.json" | fromJson -}}
+    stock-order-create-consumer.json: |
+        {{- $x := .Files.Get "includes/nats/stock-order-create-consumer.json" | fromJson -}}
         {{ mustMerge .Values.orders.consumerConfig $x | toJson | nindent 8 }}
-    cancel-consumer.json: |
-        {{- $x := .Files.Get "includes/nats/cancel-consumer.json" | fromJson -}}
+    stock-order-cancel-consumer.json: |
+        {{- $x := .Files.Get "includes/nats/stock-order-cancel-consumer.json" | fromJson -}}
         {{ mustMerge .Values.cancel.consumerConfig $x | toJson | nindent 8 }}
-    trade-update-consumer.json: |
-        {{- $x := .Files.Get "includes/nats/trade-update-consumer.json" | fromJson -}}
+    trade-updater.json: |
+        {{- $x := .Files.Get "includes/nats/trade-updater.json" | fromJson -}}
         {{ mustMerge .Values.tradeupdater.consumerConfig $x | toJson | nindent 8 }}
     stock-bars-consumer.json: |
         {{- $x := .Files.Get "includes/nats/stock-bars-consumer.json" | fromJson -}}

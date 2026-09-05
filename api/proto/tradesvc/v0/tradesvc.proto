@@ -116,6 +116,8 @@ message Trade {
     string limit_price = 7;
     bool extended_hours = 8;
     string stop_price = 9;
+    // Client Order ID
+    string id = 10;
     OrderClass class = 11;
     TakeProfit take_profit = 12;
     StopLoss stop_loss = 13;

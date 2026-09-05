@@ -1,5 +1,5 @@
 {
-  "description": "Nalpaca option quotes consumer. Connect to receive quotes for options",
+  "description": "Nalpaca option quotes consumer. Connect to receive quotes for options. The wildcard is the OSI symbol",
   "ack_policy": "none",
   "deliver_policy": "all",
   "durable_name": "nalpaca-option-quotes-consumer",

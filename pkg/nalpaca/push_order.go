@@ -15,13 +15,22 @@ var (
 	ErrMissingOrder  = errors.New("no order passed")
 )
 
-func (c *Client) PushTrade(ctx context.Context, idemKey string, order *tradesvc.Trade, opts ...jetstream.PublishOpt) (*jetstream.PubAck, error) {
-	if len(idemKey) > 128 {
-		return nil, fmt.Errorf("invalid idempotent order ID: %s. Must be under 128 chars", idemKey)
-	}
-
+// PushTrade asks nalpaca to place an order. order.Id is the idempotency
+// key: it becomes the client order ID Alpaca sees (trader reads it straight
+// off the payload) and is also set as the NATS dedup ID via
+// [jetstream.WithMsgID], so a retried publish with the same order.Id won't
+// create a second order. The subject is a single literal endpoint rather
+// than being keyed by order.Id or symbol — both already travel in the
+// payload, so repeating them in the subject would be redundant, and for
+// symbol it would collide with real per-symbol trade prints on
+// nalpaca.stocks.trades.<TICKER>.
+func (c *Client) PushTrade(ctx context.Context, order *tradesvc.Trade, opts ...jetstream.PublishOpt) (*jetstream.PubAck, error) {
 	if order == nil {
 		return nil, ErrMissingOrder
+	}
+
+	if len(order.Id) > 128 {
+		return nil, fmt.Errorf("invalid idempotent order ID: %s. Must be under 128 chars", order.Id)
 	}
 
 	if order.Symbol == "" {
@@ -33,5 +42,6 @@ func (c *Client) PushTrade(ctx context.Context, idemKey string, order *tradesvc.
 		return nil, err
 	}
 
-	return c.nc.Publish(ctx, c.prefix+".orders.create", buf, opts...)
+	opts = append(opts, jetstream.WithMsgID(order.Id))
+	return c.nc.Publish(ctx, c.prefix+".stocks.orders.create", buf, opts...)
 }

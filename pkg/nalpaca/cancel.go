@@ -12,5 +12,5 @@ func (c *Client) Cancel(ctx context.Context, orderID string, opts ...jetstream.P
 		return nil, fmt.Errorf("invalid order ID: %s. Must be under 128 chars", orderID)
 	}
 
-	return c.nc.Publish(ctx, fmt.Sprintf("%s.orders.cancel", c.prefix), []byte(orderID), opts...)
+	return c.nc.Publish(ctx, fmt.Sprintf("%s.stocks.orders.cancel", c.prefix), []byte(orderID), opts...)
 }

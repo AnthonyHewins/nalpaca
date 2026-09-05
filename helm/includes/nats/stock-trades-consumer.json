@@ -1,5 +1,5 @@
 {
-  "description": "Consumer for stock trade updates, subscribe to receive trade updates. Separate from options",
+  "description": "Consumer for the market's stock trade updates. This sends trade data from the market; these are not your trades. The wildcard is the symbol",
   "ack_policy": "none",
   "deliver_policy": "all",
   "durable_name": "nalpaca-stock-trades-consumer",

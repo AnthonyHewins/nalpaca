@@ -1,5 +1,5 @@
 {
-  "description": "Consumer to receive bars for symbols. Connect for bars to be streamed",
+  "description": "Consumer to receive bars for symbols that nalpaca publishes. Connect for bars to be streamed. The wildcard is the symbol",
   "ack_policy": "none",
   "deliver_policy": "all",
   "durable_name": "nalpaca-stock-bars-consumer",

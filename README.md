@@ -40,23 +40,25 @@ Because the stream uses `interest` retention, a message is only kept if some con
 
 | Subject | Contents |
 | --- | --- |
-| `nalpaca.orders.<idempotency key>` | orders you want nalpaca to place |
-| `nalpaca.cancel.<order ID or ALL>` | cancels you want nalpaca to execute |
+| `nalpaca.stocks.orders.create` | orders you want nalpaca to place |
+| `nalpaca.stocks.orders.cancel` | cancels you want nalpaca to execute |
 | `nalpaca.stocks.bars.<TICKER>` | stock bars |
 | `nalpaca.stocks.quotes.<TICKER>` | stock quotes |
 | `nalpaca.stocks.trades.<TICKER>` | stock trades (market-wide, not yours) |
 | `nalpaca.options.quotes.<CONTRACT>` | option quotes |
 | `nalpaca.options.trades.<CONTRACT>` | option trades |
 | `nalpaca.news` | news articles |
-| `nalpaca.account.tradeupdates.<TICKER>` | fills and other updates on *your* orders |
+| `nalpaca.trade-updater` | fills and other updates on *your* orders |
+
+Orders and cancels are literal, single subjects — no per-message key in the subject. An order's idempotency key travels as the `id` field on the `Trade` message itself (it doubles as the client order ID Alpaca sees, and as the NATS dedup ID via `jetstream.WithMsgID` so JetStream's `duplicate_window` can catch a retried publish), and a cancel's order ID travels as the message body. Putting either in the subject would collide with the real per-symbol data on `nalpaca.stocks.trades.<TICKER>`.
 
 ### Trades
 
-To create trades, create a protobuf message of type [`tradesvc.v0.Trade`](./api/proto/tradesvc/v0/tradesvc.proto). Then create an idempotency ID and send it on the topic `nalpaca.orders.<string client order id (<=128 chars)>`
+To create trades, create a protobuf message of type [`tradesvc.v0.Trade`](./api/proto/tradesvc/v0/tradesvc.proto) with `id` set to an idempotency key, and publish it to `nalpaca.stocks.orders.create` (`nalpaca.PushTrade` does this for you)
 
 ### Cancels (in progress)
 
-To execute a cancel, you just publish an empty message on `<prefix>.cancel.<order ID or special keyword "ALL">`. Using special keyword `ALL` will initiate a cancel of all orders
+To execute a cancel, publish the order ID (or the special keyword `ALL`, to cancel everything) as the message body on `nalpaca.stocks.orders.cancel`
 
 ### Trade updates
 
@@ -68,7 +70,7 @@ Stream bar data. Possibly the most useful feature, allows you to broadcast messa
 
 #### Option 1: receive as consumer
 
-Updates on trades can be received as a consumer. Connect to `nalpaca-tradeupdate-consumer`. Once connected, the consumer will receive updates on subject `<prefix>.account.tradeupdates.<TICKER>` with message type [`tradesvc.v0.TradeUpdate`](./api/proto/tradesvc/v0/tradesvc.proto)
+Updates on trades can be received as a consumer. Connect to `nalpaca-trade-update-consumer`. Once connected, the consumer will receive updates on subject `nalpaca.trade-updater` with message type [`tradesvc.v0.TradeUpdate`](./api/proto/tradesvc/v0/tradesvc.proto)
 
 #### Option 2: KV store
 

@@ -1,5 +1,5 @@
 {
-  "description": "Nalpaca options consumer. Receives live option quotes and trades",
+  "description": "Nalpaca options consumer. Receives live option quotes and trades. The wildcard is the OSI symbol",
   "ack_policy": "none",
   "deliver_policy": "all",
   "durable_name": "nalpaca-option-trades-consumer",
