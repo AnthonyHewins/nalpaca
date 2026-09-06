@@ -63,10 +63,6 @@ spec:
           volumeMounts:
             - name: initjob
               mountPath: "/conf"
-            - name: actionStreamConf
-              mountPath: "/conf/action"
-            - name: dataStreamConf
-              mountPath: "/conf/data"
           env:
             {{ if .Values.nats.user }}
             - name: NATS_USER
@@ -83,14 +79,6 @@ spec:
         - name: initjob
           configMap:
             name: nats-init
-            defaultMode: 0777
-        - name: actionStreamConf
-          configMap:
-            name: action-stream-conf
-            defaultMode: 0777
-        - name: initjob
-          configMap:
-            name: data-stream-conf
             defaultMode: 0777
       {{ end }}
       {{- with .Values.nodeSelector }}

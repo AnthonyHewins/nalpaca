@@ -30,16 +30,15 @@ type config struct {
 
 	Prefix string `env:"PREFIX" envDefault:"nalpaca" desc:"Prefix used for NATS subject names this app publishes market data and trade updates to"`
 
-	ActionStream string `env:"ACTION_STREAM" envDefault:"nalpaca-action-stream" desc:"Name of the NATS Jetstream stream that holds order and cancel action messages"`
-	DataStream   string `env:"DATA_STREAM" envDefault:"nalpaca-data-stream" desc:"Name of the NATS Jetstream stream intended to hold market data messages; not currently read by this binary"`
+	Stream string `env:"STREAM" envDefault:"nalpaca" desc:"Name of the single NATS Jetstream stream that holds all of nalpaca's subjects: market data, actions, and account events"`
 
 	EnableCancel   bool   `env:"ENABLE_CANCELER" envDefault:"false" desc:"Enable the order-cancellation consumer and controller"`
-	CancelConsumer string `env:"CANCEL_CONSUMER" envDefault:"nalpaca-cancel-consumer" desc:"Name of the NATS Jetstream consumer this app uses to receive cancel-order actions"`
+	CancelConsumer string `env:"CANCEL_CONSUMER" envDefault:"nalpaca-order-cancel-consumer" desc:"Name of the NATS Jetstream consumer this app uses to receive cancel-order actions"`
 
 	EnableTradeUpdater bool `env:"ENABLE_TRADE_UPDATER" envDefault:"false" desc:"Enable the trade updater, which keeps the positions KV bucket in sync with Alpaca account trade updates"`
 
 	EnableOrders      bool   `env:"ENABLE_ORDERS" envDefault:"false" desc:"Enable the order-placement consumer and controller"`
-	OrderConsumerName string `env:"ORDER_CONSUMER" envDefault:"nalpaca-orders-consumer" desc:"Name of the NATS Jetstream consumer this app uses to receive order-placement actions"`
+	OrderConsumerName string `env:"ORDER_CONSUMER" envDefault:"nalpaca-order-create-consumer" desc:"Name of the NATS Jetstream consumer this app uses to receive order-placement actions"`
 
 	Bucket string `env:"NATS_KV_BUCKET" envDefault:"nalpaca" desc:"Name of the NATS KV bucket used to store position state"`
 

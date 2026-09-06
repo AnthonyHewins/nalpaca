@@ -1,0 +1,11 @@
+{
+  "description": "Nalpaca stock trades cancel consumer. This is a nalpaca-only consumer that you can send a message to and nalpaca will cancel the order. Supply the alpaca ID as the message",
+  "ack_policy": "explicit",
+  "deliver_policy": "all",
+  "durable_name": "nalpaca-order-cancel-consumer",
+  "filter_subject": "nalpaca.stocks.orders.cancel",
+  "max_deliver": 3,
+  "replay_policy": "instant",
+  "num_replicas": 1,
+  "pause_until": "0001-01-01T00:00:00Z"
+}

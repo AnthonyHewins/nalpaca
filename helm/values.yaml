@@ -10,25 +10,7 @@ nats:
   kvBucket: nalpaca # keyvalue bucket to use, if enabled
   initJob:
     enabled: true # enable the init job
-    actionStream: # overrides for the config for the nalpaca action stream
-      # max_consumers: -1
-      # max_age: 0
-      max_msgs_per_subject: 3
-      max_msgs: 5
-      max_bytes: 1024
-      max_msg_size: 248
-      storage: "memory"
-      discard: "old"
-      num_replicas: 1
-      duplicate_window: 20000000000
-      compression: "s2"
-      sealed: false
-      deny_delete: false
-      deny_purge: false
-      allow_rollup_hdrs: false
-      allow_direct: true
-      mirror_direct: false
-    dataStream: {} # overrides for the config of the nalpaca data stream (same args as actionStream)
+    streamConfig: {} # overrides for the config of the single flattened "nalpaca" stream
 
 orders:
   enabled: false
@@ -43,7 +25,10 @@ cancel:
   consumerConfig: {}
 
 stockstream:
-  consumerConfig: {}
+  consumerConfig: # overrides for each stock consumer's config, one per data type
+    bars: {}
+    quotes: {}
+    trades: {}
   wsOpts:
     feed: "iex" # iex | sip | otc | delayed_sip
     url: "" # base URL override; leave empty to use alpaca's default (there is no sandbox for streaming data)
@@ -69,6 +54,7 @@ stockstream:
 
 newsstream:
   enabled: false
+  consumerConfig: {} # overrides for the news consumer's config
   symbols: [] # list of tickers to use
   timeout: 1s
   bufferSizeBytes: 0
@@ -80,6 +66,9 @@ newsstream:
     reconnectDelay: 150ms
 
 optionstream:
+  consumerConfig: # overrides for each option consumer's config, one per data type
+    quotes: {}
+    trades: {}
   wsOpts:
     feed: "opra" # opra | indicative
     url: "" # base URL override; leave empty to use alpaca's default

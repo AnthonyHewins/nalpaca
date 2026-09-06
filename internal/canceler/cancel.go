@@ -59,24 +59,7 @@ func (c *Canceler) EventLoop(m jetstream.Msg) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 
-	l := c.logger.With("subject", m.Subject())
-
-	subj := strings.Split(m.Subject(), ".")
-	n := len(subj)
-	if n <= 1 {
-		l.ErrorContext(ctx, "got invalid subject, could not parse order id")
-		c.term(m, "invalid subject received")
-		return
-	}
-
-	id := subj[n-1]
-	l = l.With("id", id)
-
-	if len(id) > 128 {
-		l.ErrorContext(ctx, "order ID is too long")
-		c.term(m, "invalid ID: "+id)
-		return
-	}
+	id := string(m.Data())
 
 	if strings.ToUpper(id) == "ALL" {
 		c.cancelAll(m)
@@ -84,13 +67,13 @@ func (c *Canceler) EventLoop(m jetstream.Msg) {
 	}
 
 	if err := c.client.CancelOrder(id); err != nil {
-		l.ErrorContext(ctx, "failed canceling order", "err", err)
+		c.logger.ErrorContext(ctx, "failed canceling order", "err", err)
 		c.counters.CancelFail.Inc()
 		c.nak(m)
 		return
 	}
 
-	l.InfoContext(ctx, "successful cancel")
+	c.logger.InfoContext(ctx, "successful cancel")
 	c.counters.CancelCount.Inc()
 	c.ack(m)
 }

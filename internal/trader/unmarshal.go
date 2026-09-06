@@ -12,7 +12,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func (c *Controller) getMsg(m jetstream.Msg, id string) (alpaca.PlaceOrderRequest, error) {
+func (c *Controller) getMsg(m jetstream.Msg) (alpaca.PlaceOrderRequest, error) {
 	var trade tradesvc.Trade
 	if err := proto.Unmarshal(m.Data(), &trade); err != nil {
 		return alpaca.PlaceOrderRequest{}, err
@@ -66,7 +66,7 @@ func (c *Controller) getMsg(m jetstream.Msg, id string) (alpaca.PlaceOrderReques
 	}
 
 	o := alpaca.PlaceOrderRequest{
-		ClientOrderID:  id,
+		ClientOrderID:  trade.Id,
 		Symbol:         strings.ToUpper(trade.Symbol),
 		TakeProfit:     takeProfit,
 		StopLoss:       stopLoss,

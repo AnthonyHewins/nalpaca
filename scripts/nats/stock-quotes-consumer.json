@@ -1,8 +1,9 @@
 {
+  "description": "Consumer to receive quotes for a stock symbol",
   "ack_policy": "none",
   "deliver_policy": "all",
-  "durable_name": "nalpaca-data-stock-consumer",
-  "filter_subject": "nalpaca.data.stocks.>",
+  "durable_name": "nalpaca-stock-quotes-consumer",
+  "filter_subject": "nalpaca.stocks.quotes.*",
   "max_deliver": -1,
   "replay_policy": "instant",
   "num_replicas": 0,

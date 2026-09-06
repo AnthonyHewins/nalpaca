@@ -738,22 +738,24 @@ func (x *Order) GetLegs() []*Order {
 }
 
 type Trade struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Symbol         string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	Qty            string                 `protobuf:"bytes,2,opt,name=qty,proto3" json:"qty,omitempty"`
-	Notional       string                 `protobuf:"bytes,3,opt,name=notional,proto3" json:"notional,omitempty"`
-	Side           Side                   `protobuf:"varint,4,opt,name=side,proto3,enum=tradesvc.v0.Side" json:"side,omitempty"`
-	OrderType      OrderType              `protobuf:"varint,5,opt,name=order_type,json=orderType,proto3,enum=tradesvc.v0.OrderType" json:"order_type,omitempty"`
-	Tif            TimeInForce            `protobuf:"varint,6,opt,name=tif,proto3,enum=tradesvc.v0.TimeInForce" json:"tif,omitempty"`
-	LimitPrice     string                 `protobuf:"bytes,7,opt,name=limit_price,json=limitPrice,proto3" json:"limit_price,omitempty"`
-	ExtendedHours  bool                   `protobuf:"varint,8,opt,name=extended_hours,json=extendedHours,proto3" json:"extended_hours,omitempty"`
-	StopPrice      string                 `protobuf:"bytes,9,opt,name=stop_price,json=stopPrice,proto3" json:"stop_price,omitempty"`
-	Class          OrderClass             `protobuf:"varint,11,opt,name=class,proto3,enum=tradesvc.v0.OrderClass" json:"class,omitempty"`
-	TakeProfit     *TakeProfit            `protobuf:"bytes,12,opt,name=take_profit,json=takeProfit,proto3" json:"take_profit,omitempty"`
-	StopLoss       *StopLoss              `protobuf:"bytes,13,opt,name=stop_loss,json=stopLoss,proto3" json:"stop_loss,omitempty"`
-	TrailPrice     string                 `protobuf:"bytes,14,opt,name=trail_price,json=trailPrice,proto3" json:"trail_price,omitempty"`
-	TrailPercent   string                 `protobuf:"bytes,15,opt,name=trail_percent,json=trailPercent,proto3" json:"trail_percent,omitempty"`
-	PositionIntent PositionIntent         `protobuf:"varint,16,opt,name=position_intent,json=positionIntent,proto3,enum=tradesvc.v0.PositionIntent" json:"position_intent,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Symbol        string                 `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Qty           string                 `protobuf:"bytes,2,opt,name=qty,proto3" json:"qty,omitempty"`
+	Notional      string                 `protobuf:"bytes,3,opt,name=notional,proto3" json:"notional,omitempty"`
+	Side          Side                   `protobuf:"varint,4,opt,name=side,proto3,enum=tradesvc.v0.Side" json:"side,omitempty"`
+	OrderType     OrderType              `protobuf:"varint,5,opt,name=order_type,json=orderType,proto3,enum=tradesvc.v0.OrderType" json:"order_type,omitempty"`
+	Tif           TimeInForce            `protobuf:"varint,6,opt,name=tif,proto3,enum=tradesvc.v0.TimeInForce" json:"tif,omitempty"`
+	LimitPrice    string                 `protobuf:"bytes,7,opt,name=limit_price,json=limitPrice,proto3" json:"limit_price,omitempty"`
+	ExtendedHours bool                   `protobuf:"varint,8,opt,name=extended_hours,json=extendedHours,proto3" json:"extended_hours,omitempty"`
+	StopPrice     string                 `protobuf:"bytes,9,opt,name=stop_price,json=stopPrice,proto3" json:"stop_price,omitempty"`
+	// Client Order ID
+	Id             string         `protobuf:"bytes,10,opt,name=id,proto3" json:"id,omitempty"`
+	Class          OrderClass     `protobuf:"varint,11,opt,name=class,proto3,enum=tradesvc.v0.OrderClass" json:"class,omitempty"`
+	TakeProfit     *TakeProfit    `protobuf:"bytes,12,opt,name=take_profit,json=takeProfit,proto3" json:"take_profit,omitempty"`
+	StopLoss       *StopLoss      `protobuf:"bytes,13,opt,name=stop_loss,json=stopLoss,proto3" json:"stop_loss,omitempty"`
+	TrailPrice     string         `protobuf:"bytes,14,opt,name=trail_price,json=trailPrice,proto3" json:"trail_price,omitempty"`
+	TrailPercent   string         `protobuf:"bytes,15,opt,name=trail_percent,json=trailPercent,proto3" json:"trail_percent,omitempty"`
+	PositionIntent PositionIntent `protobuf:"varint,16,opt,name=position_intent,json=positionIntent,proto3,enum=tradesvc.v0.PositionIntent" json:"position_intent,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -847,6 +849,13 @@ func (x *Trade) GetExtendedHours() bool {
 func (x *Trade) GetStopPrice() string {
 	if x != nil {
 		return x.StopPrice
+	}
+	return ""
+}
+
+func (x *Trade) GetId() string {
+	if x != nil {
+		return x.Id
 	}
 	return ""
 }
@@ -1281,7 +1290,7 @@ const file_tradesvc_v0_tradesvc_proto_rawDesc = "" +
 	"\rtrail_percent\x18\x1c \x01(\tR\ftrailPercent\x12\x10\n" +
 	"\x03hwm\x18\x1d \x01(\tR\x03hwm\x12\x1b\n" +
 	"\text_hours\x18\x1e \x01(\bR\bextHours\x12&\n" +
-	"\x04legs\x18\x1f \x03(\v2\x12.tradesvc.v0.OrderR\x04legs\"\xe7\x04\n" +
+	"\x04legs\x18\x1f \x03(\v2\x12.tradesvc.v0.OrderR\x04legs\"\xf7\x04\n" +
 	"\x05Trade\x12\x16\n" +
 	"\x06symbol\x18\x01 \x01(\tR\x06symbol\x12\x10\n" +
 	"\x03qty\x18\x02 \x01(\tR\x03qty\x12\x1a\n" +
@@ -1294,7 +1303,9 @@ const file_tradesvc_v0_tradesvc_proto_rawDesc = "" +
 	"limitPrice\x12%\n" +
 	"\x0eextended_hours\x18\b \x01(\bR\rextendedHours\x12\x1d\n" +
 	"\n" +
-	"stop_price\x18\t \x01(\tR\tstopPrice\x12-\n" +
+	"stop_price\x18\t \x01(\tR\tstopPrice\x12\x0e\n" +
+	"\x02id\x18\n" +
+	" \x01(\tR\x02id\x12-\n" +
 	"\x05class\x18\v \x01(\x0e2\x17.tradesvc.v0.OrderClassR\x05class\x128\n" +
 	"\vtake_profit\x18\f \x01(\v2\x17.tradesvc.v0.TakeProfitR\n" +
 	"takeProfit\x122\n" +
