@@ -55,4 +55,4 @@ func (q *Quotes) Subscribe(x ...string) error {
 	return q.addSubscription(q.client.SubscribeToQuotes, q.handler, x...)
 }
 
-func (q *Quotes) handler(x stream.Quote) { wrap(q.ClientFactory, q, x) }
+func (q *Quotes) handler(x stream.Quote) { q.ClientFactory.wrap(q, x) }

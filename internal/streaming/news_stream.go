@@ -128,7 +128,7 @@ func (n *News) Subscribe(x ...string) error {
 	return n.addSubscription(n.client.SubscribeToNews, n.handler, x...)
 }
 
-func (n *News) handler(x stream.News) { wrap(n.ClientFactory, n, x) }
+func (n *News) handler(x stream.News) { n.ClientFactory.wrap(n, x) }
 
 // Begin consuming data. Cancel context to initiate a shutdown?
 // Unsure the underlying implementation, doesnt say in the alpaca docs

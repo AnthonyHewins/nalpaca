@@ -51,4 +51,4 @@ func (t *optionTrades) Subscribe(x ...string) error {
 	return t.addSubscription(t.client.SubscribeToTrades, t.handler, x...)
 }
 
-func (t *optionTrades) handler(x stream.OptionTrade) { wrap(t.ClientFactory, t, x) }
+func (t *optionTrades) handler(x stream.OptionTrade) { t.ClientFactory.wrap(t, x) }

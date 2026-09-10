@@ -53,4 +53,4 @@ func (b *Bars) Subscribe(x ...string) error {
 	return b.addSubscription(b.client.SubscribeToBars, b.handler, x...)
 }
 
-func (b *Bars) handler(x stream.Bar) { wrap(b.ClientFactory, b, x) }
+func (b *Bars) handler(x stream.Bar) { b.ClientFactory.wrap(b, x) }

@@ -109,7 +109,7 @@ func (c *ClientFactory) prepare(x config) (bool, error) {
 }
 
 // i want this to be generic when possible with go1.27
-func wrap[X any, W proto.Message](c *ClientFactory, t transmitter[X, W], x X) {
+func (c *ClientFactory) wrap[X any, W proto.Message](t transmitter[X, W], x X) {
 	ctx, cancel := context.WithTimeout(context.Background(), t.timeout())
 	defer cancel()
 
