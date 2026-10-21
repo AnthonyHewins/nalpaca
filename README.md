@@ -31,10 +31,10 @@ Here are some example things it can do:
 
 Nalpaca is based on NATS resources. Everything lives on a single, flat JetStream stream, plus a myriad of consumers on top of it, and a single KV store
 
-1. **The `nalpaca` stream** (subjects `nalpaca.>`): the one stream nalpaca provisions. It carries everything — actions you send nalpaca (orders, cancels), public market data nalpaca republishes (stock/option bars, quotes and trades, news), and account events (fills and other updates on your orders). Nalpaca writes to this stream, and any number of consumers it offers will be what you subscribe to in order to get info on it. It's configured with `interest` retention
+1. **The `nalpaca` stream** (subjects `nalpaca.>`): the one stream nalpaca provisions. It carries everything — actions you send nalpaca (orders, cancels), public market data nalpaca republishes (stock/option bars, quotes and trades, news), and account events (fills and other updates on your orders). Nalpaca writes to this stream, and any number of consumers it offers will be what you subscribe to in order to get info on it. It's configured with `limits` retention on file storage, so it survives a NATS restart
 1. **KV store**: this KV store is a global store for the app, where it will write useful things like your current position list, which you can subscribe to via keywatcher, or just access on the fly if needed. See the docs for the component you want to use for more
 
-Because the stream uses `interest` retention, a message is only kept if some consumer's filter matches it. If you publish to a subject no consumer is listening on, the message is acknowledged and then dropped — so add a consumer before expecting data to accumulate.
+Because the stream uses `limits` retention, messages are kept for 24 hours or until the stream reaches 1 GiB, whichever comes first, and the oldest are discarded after that. They're kept whether or not a consumer has read them, so a consumer nobody pulls from can't make the stream grow without bound. Edit `max_age`/`max_bytes` in [stream.json](./scripts/nats/stream.json) to change this, and rerun `scripts/nats/init.sh` to apply it to an existing stream.
 
 ### Subjects
 

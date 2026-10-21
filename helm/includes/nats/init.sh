@@ -58,6 +58,17 @@ if [[ "$ctx" != "" ]]; then
 fi
 
 l="$dir/stream.json"
-$n stream add nalpaca --config $l
-find $dir -iname "*consumer.json" -exec $n consumer add nalpaca --config {} \;
-$n kv add nalpaca
+# Safe to re-run: an existing stream is edited to match stream.json instead of
+# failing because its config differs
+if $n stream info nalpaca >/dev/null 2>&1; then
+  $n stream edit nalpaca --config $l --force
+else
+  $n stream add nalpaca --config $l
+fi
+
+# A loop rather than find -exec, which ignores failures
+for f in "$dir"/*consumer.json; do
+  $n consumer add nalpaca --config "$f"
+done
+
+$n kv info nalpaca >/dev/null 2>&1 || $n kv add nalpaca
